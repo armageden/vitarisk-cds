@@ -3,7 +3,7 @@ import {
   Activity, ShieldAlert, HeartPulse, Stethoscope, Dna,
   Sliders, Users, Scale, FileText, CheckCircle2, AlertTriangle,
   ArrowRight, Download, RefreshCw, ChevronLeft, ChevronRight,
-  TrendingDown, Info, Award, AlertOctagon, Sparkles, Pill
+  TrendingDown, Info, Award, AlertOctagon, Sparkles, Pill, Video
 } from 'lucide-react';
 import {
   ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip,
@@ -228,6 +228,16 @@ export default function App() {
             <span className={`w-2 h-2 rounded-full ${apiConnected ? 'bg-emerald-400' : 'bg-amber-400'}`} />
             <span className="text-slate-300">{apiConnected ? 'FastAPI Active (:8000)' : 'Connecting...'}</span>
           </div>
+
+          <a
+            href="video/VitaRisk_CDS_Walkthrough.mp4"
+            target="_blank"
+            rel="noreferrer"
+            className="bg-indigo-600 hover:bg-indigo-500 text-white font-medium px-3.5 py-1.5 rounded-lg text-xs flex items-center space-x-1.5 transition-all shadow"
+          >
+            <Video className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">Watch 1080p Video</span>
+          </a>
 
           <a
             href="presentation/VitaRisk_CDS_DataNova2026_Presentation.pptx"
