@@ -1,0 +1,188 @@
+{
+  "onset_t2d": [
+    {
+      "feature": "hba1c",
+      "importance": 0.90171
+    },
+    {
+      "feature": "fasting_glucose",
+      "importance": 0.32234
+    },
+    {
+      "feature": "bmi",
+      "importance": 0.24053
+    },
+    {
+      "feature": "waist_circ_cm",
+      "importance": 0.20169
+    },
+    {
+      "feature": "family_history_diabetes",
+      "importance": 0.16261
+    },
+    {
+      "feature": "age",
+      "importance": 0.10485
+    },
+    {
+      "feature": "physical_activity_Sedentary",
+      "importance": 0.0846
+    },
+    {
+      "feature": "triglycerides",
+      "importance": 0.08093
+    },
+    {
+      "feature": "systolic_bp",
+      "importance": 0.07539
+    },
+    {
+      "feature": "uacr",
+      "importance": 0.05934
+    },
+    {
+      "feature": "physical_activity_Moderate",
+      "importance": 0.05808
+    },
+    {
+      "feature": "hdl_cholesterol",
+      "importance": 0.05715
+    },
+    {
+      "feature": "hs_crp",
+      "importance": 0.05504
+    },
+    {
+      "feature": "egfr",
+      "importance": 0.04886
+    },
+    {
+      "feature": "history_hypertension",
+      "importance": 0.03819
+    }
+  ],
+  "onset_ckd": [
+    {
+      "feature": "egfr",
+      "importance": 1.23586
+    },
+    {
+      "feature": "age",
+      "importance": 0.48968
+    },
+    {
+      "feature": "systolic_bp",
+      "importance": 0.36269
+    },
+    {
+      "feature": "uacr",
+      "importance": 0.34528
+    },
+    {
+      "feature": "hba1c",
+      "importance": 0.24714
+    },
+    {
+      "feature": "history_hypertension",
+      "importance": 0.12228
+    },
+    {
+      "feature": "smoking_status_Current",
+      "importance": 0.09036
+    },
+    {
+      "feature": "serum_creatinine",
+      "importance": 0.07745
+    },
+    {
+      "feature": "hs_crp",
+      "importance": 0.0694
+    },
+    {
+      "feature": "fasting_glucose",
+      "importance": 0.06784
+    },
+    {
+      "feature": "total_cholesterol",
+      "importance": 0.05879
+    },
+    {
+      "feature": "diastolic_bp",
+      "importance": 0.05198
+    },
+    {
+      "feature": "resting_heart_rate",
+      "importance": 0.04752
+    },
+    {
+      "feature": "triglycerides",
+      "importance": 0.04007
+    },
+    {
+      "feature": "hdl_cholesterol",
+      "importance": 0.0354
+    }
+  ],
+  "onset_cvd": [
+    {
+      "feature": "age",
+      "importance": 0.66058
+    },
+    {
+      "feature": "ldl_cholesterol",
+      "importance": 0.34808
+    },
+    {
+      "feature": "systolic_bp",
+      "importance": 0.30152
+    },
+    {
+      "feature": "hdl_cholesterol",
+      "importance": 0.26397
+    },
+    {
+      "feature": "smoking_status_Current",
+      "importance": 0.22645
+    },
+    {
+      "feature": "hba1c",
+      "importance": 0.19692
+    },
+    {
+      "feature": "family_history_cvd",
+      "importance": 0.15824
+    },
+    {
+      "feature": "triglycerides",
+      "importance": 0.09713
+    },
+    {
+      "feature": "serum_creatinine",
+      "importance": 0.08916
+    },
+    {
+      "feature": "sex_Female",
+      "importance": 0.07856
+    },
+    {
+      "feature": "uacr",
+      "importance": 0.05857
+    },
+    {
+      "feature": "hs_crp",
+      "importance": 0.05576
+    },
+    {
+      "feature": "diastolic_bp",
+      "importance": 0.05077
+    },
+    {
+      "feature": "bmi",
+      "importance": 0.04737
+    },
+    {
+      "feature": "total_cholesterol",
+      "importance": 0.0472
+    }
+  ]
+}

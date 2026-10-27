@@ -1,0 +1,101 @@
+{
+  "onset_t2d": {
+    "primary_production_model": "XGBoost",
+    "metrics": {
+      "LogisticRegression": {
+        "ROC_AUC": 0.8737,
+        "PR_AUC": 0.7484,
+        "Brier_Score": 0.1416,
+        "F1_Score": 0.6582,
+        "Accuracy": 0.79
+      },
+      "RandomForest": {
+        "ROC_AUC": 0.8682,
+        "PR_AUC": 0.7301,
+        "Brier_Score": 0.1225,
+        "F1_Score": 0.6156,
+        "Accuracy": 0.83
+      },
+      "LightGBM": {
+        "ROC_AUC": 0.8645,
+        "PR_AUC": 0.7268,
+        "Brier_Score": 0.1226,
+        "F1_Score": 0.6188,
+        "Accuracy": 0.8261
+      },
+      "XGBoost": {
+        "ROC_AUC": 0.8668,
+        "PR_AUC": 0.7289,
+        "Brier_Score": 0.1221,
+        "F1_Score": 0.6244,
+        "Accuracy": 0.8289
+      }
+    }
+  },
+  "onset_ckd": {
+    "primary_production_model": "XGBoost",
+    "metrics": {
+      "LogisticRegression": {
+        "ROC_AUC": 0.8933,
+        "PR_AUC": 0.6313,
+        "Brier_Score": 0.1307,
+        "F1_Score": 0.5693,
+        "Accuracy": 0.81
+      },
+      "RandomForest": {
+        "ROC_AUC": 0.8886,
+        "PR_AUC": 0.6094,
+        "Brier_Score": 0.0892,
+        "F1_Score": 0.5135,
+        "Accuracy": 0.88
+      },
+      "LightGBM": {
+        "ROC_AUC": 0.8898,
+        "PR_AUC": 0.5989,
+        "Brier_Score": 0.0907,
+        "F1_Score": 0.518,
+        "Accuracy": 0.8739
+      },
+      "XGBoost": {
+        "ROC_AUC": 0.8937,
+        "PR_AUC": 0.6242,
+        "Brier_Score": 0.0885,
+        "F1_Score": 0.5322,
+        "Accuracy": 0.8789
+      }
+    }
+  },
+  "onset_cvd": {
+    "primary_production_model": "XGBoost",
+    "metrics": {
+      "LogisticRegression": {
+        "ROC_AUC": 0.8491,
+        "PR_AUC": 0.4865,
+        "Brier_Score": 0.1646,
+        "F1_Score": 0.4353,
+        "Accuracy": 0.755
+      },
+      "RandomForest": {
+        "ROC_AUC": 0.8289,
+        "PR_AUC": 0.4317,
+        "Brier_Score": 0.0839,
+        "F1_Score": 0.2836,
+        "Accuracy": 0.8906
+      },
+      "LightGBM": {
+        "ROC_AUC": 0.8281,
+        "PR_AUC": 0.4329,
+        "Brier_Score": 0.0836,
+        "F1_Score": 0.3824,
+        "Accuracy": 0.8906
+      },
+      "XGBoost": {
+        "ROC_AUC": 0.829,
+        "PR_AUC": 0.4365,
+        "Brier_Score": 0.0831,
+        "F1_Score": 0.3935,
+        "Accuracy": 0.8956
+      }
+    }
+  }
+}

@@ -1,0 +1,455 @@
+{
+  "onset_t2d": {
+    "sex": {
+      "subgroups": {
+        "Female": {
+          "count": 913,
+          "prevalence": 0.2716,
+          "selection_rate": 0.2716,
+          "tpr_sensitivity": 0.6855,
+          "fpr": 0.1173,
+          "roc_auc": 0.8808,
+          "brier_score": 0.1211
+        },
+        "Male": {
+          "count": 887,
+          "prevalence": 0.2503,
+          "selection_rate": 0.2841,
+          "tpr_sensitivity": 0.6712,
+          "fpr": 0.1549,
+          "roc_auc": 0.8523,
+          "brier_score": 0.1231
+        }
+      },
+      "disparate_impact_ratio": 0.9561,
+      "demographic_parity_difference": 0.0125,
+      "equal_opportunity_difference": 0.0143,
+      "passes_four_fifths_rule": true
+    },
+    "ethnicity": {
+      "subgroups": {
+        "Asian": {
+          "count": 124,
+          "prevalence": 0.2177,
+          "selection_rate": 0.2258,
+          "tpr_sensitivity": 0.6667,
+          "fpr": 0.1031,
+          "roc_auc": 0.8706,
+          "brier_score": 0.0996
+        },
+        "Black/African American": {
+          "count": 290,
+          "prevalence": 0.2345,
+          "selection_rate": 0.2414,
+          "tpr_sensitivity": 0.6471,
+          "fpr": 0.1171,
+          "roc_auc": 0.8718,
+          "brier_score": 0.1166
+        },
+        "Hispanic/Latino": {
+          "count": 277,
+          "prevalence": 0.2924,
+          "selection_rate": 0.3213,
+          "tpr_sensitivity": 0.7284,
+          "fpr": 0.1531,
+          "roc_auc": 0.8696,
+          "brier_score": 0.1308
+        },
+        "Other/Multiracial": {
+          "count": 66,
+          "prevalence": 0.2121,
+          "selection_rate": 0.197,
+          "tpr_sensitivity": 0.3571,
+          "fpr": 0.1538,
+          "roc_auc": 0.7184,
+          "brier_score": 0.165
+        },
+        "White": {
+          "count": 1043,
+          "prevalence": 0.2685,
+          "selection_rate": 0.2876,
+          "tpr_sensitivity": 0.6893,
+          "fpr": 0.1402,
+          "roc_auc": 0.8703,
+          "brier_score": 0.1213
+        }
+      },
+      "disparate_impact_ratio": 0.613,
+      "demographic_parity_difference": 0.1243,
+      "equal_opportunity_difference": 0.3713,
+      "passes_four_fifths_rule": false
+    },
+    "age_group": {
+      "subgroups": {
+        "45-64": {
+          "count": 903,
+          "prevalence": 0.2525,
+          "selection_rate": 0.2669,
+          "tpr_sensitivity": 0.6667,
+          "fpr": 0.1319,
+          "roc_auc": 0.8656,
+          "brier_score": 0.1218
+        },
+        "65+": {
+          "count": 392,
+          "prevalence": 0.4311,
+          "selection_rate": 0.5077,
+          "tpr_sensitivity": 0.7929,
+          "fpr": 0.2915,
+          "roc_auc": 0.8408,
+          "brier_score": 0.1609
+        },
+        "<45": {
+          "count": 505,
+          "prevalence": 0.1446,
+          "selection_rate": 0.1188,
+          "tpr_sensitivity": 0.4521,
+          "fpr": 0.0625,
+          "roc_auc": 0.8368,
+          "brier_score": 0.0926
+        }
+      },
+      "disparate_impact_ratio": 0.234,
+      "demographic_parity_difference": 0.3888,
+      "equal_opportunity_difference": 0.3408,
+      "passes_four_fifths_rule": false
+    },
+    "ses_group": {
+      "subgroups": {
+        "High SES": {
+          "count": 538,
+          "prevalence": 0.2212,
+          "selection_rate": 0.2268,
+          "tpr_sensitivity": 0.6303,
+          "fpr": 0.1122,
+          "roc_auc": 0.862,
+          "brier_score": 0.1121
+        },
+        "Low SES (Deprived)": {
+          "count": 527,
+          "prevalence": 0.3264,
+          "selection_rate": 0.3416,
+          "tpr_sensitivity": 0.7209,
+          "fpr": 0.1577,
+          "roc_auc": 0.8619,
+          "brier_score": 0.137
+        },
+        "Medium SES": {
+          "count": 735,
+          "prevalence": 0.2435,
+          "selection_rate": 0.2694,
+          "tpr_sensitivity": 0.6704,
+          "fpr": 0.1403,
+          "roc_auc": 0.8705,
+          "brier_score": 0.1188
+        }
+      },
+      "disparate_impact_ratio": 0.6639,
+      "demographic_parity_difference": 0.1148,
+      "equal_opportunity_difference": 0.0907,
+      "passes_four_fifths_rule": false
+    }
+  },
+  "onset_ckd": {
+    "sex": {
+      "subgroups": {
+        "Female": {
+          "count": 913,
+          "prevalence": 0.1665,
+          "selection_rate": 0.1884,
+          "tpr_sensitivity": 0.5855,
+          "fpr": 0.1091,
+          "roc_auc": 0.8926,
+          "brier_score": 0.0931
+        },
+        "Male": {
+          "count": 887,
+          "prevalence": 0.1511,
+          "selection_rate": 0.1353,
+          "tpr_sensitivity": 0.5746,
+          "fpr": 0.0571,
+          "roc_auc": 0.8939,
+          "brier_score": 0.0838
+        }
+      },
+      "disparate_impact_ratio": 0.7181,
+      "demographic_parity_difference": 0.0531,
+      "equal_opportunity_difference": 0.0109,
+      "passes_four_fifths_rule": false
+    },
+    "ethnicity": {
+      "subgroups": {
+        "Asian": {
+          "count": 124,
+          "prevalence": 0.129,
+          "selection_rate": 0.1048,
+          "tpr_sensitivity": 0.4375,
+          "fpr": 0.0556,
+          "roc_auc": 0.8762,
+          "brier_score": 0.0835
+        },
+        "Black/African American": {
+          "count": 290,
+          "prevalence": 0.131,
+          "selection_rate": 0.1621,
+          "tpr_sensitivity": 0.6316,
+          "fpr": 0.0913,
+          "roc_auc": 0.9055,
+          "brier_score": 0.0798
+        },
+        "Hispanic/Latino": {
+          "count": 277,
+          "prevalence": 0.1661,
+          "selection_rate": 0.1661,
+          "tpr_sensitivity": 0.6739,
+          "fpr": 0.0649,
+          "roc_auc": 0.9149,
+          "brier_score": 0.0801
+        },
+        "Other/Multiracial": {
+          "count": 66,
+          "prevalence": 0.1667,
+          "selection_rate": 0.1667,
+          "tpr_sensitivity": 0.5455,
+          "fpr": 0.0909,
+          "roc_auc": 0.9074,
+          "brier_score": 0.0758
+        },
+        "White": {
+          "count": 1043,
+          "prevalence": 0.1678,
+          "selection_rate": 0.1678,
+          "tpr_sensitivity": 0.56,
+          "fpr": 0.0887,
+          "roc_auc": 0.8842,
+          "brier_score": 0.0946
+        }
+      },
+      "disparate_impact_ratio": 0.6248,
+      "demographic_parity_difference": 0.0629,
+      "equal_opportunity_difference": 0.2364,
+      "passes_four_fifths_rule": false
+    },
+    "age_group": {
+      "subgroups": {
+        "45-64": {
+          "count": 903,
+          "prevalence": 0.1351,
+          "selection_rate": 0.0886,
+          "tpr_sensitivity": 0.3361,
+          "fpr": 0.0499,
+          "roc_auc": 0.8522,
+          "brier_score": 0.0924
+        },
+        "65+": {
+          "count": 392,
+          "prevalence": 0.4031,
+          "selection_rate": 0.5357,
+          "tpr_sensitivity": 0.7911,
+          "fpr": 0.3632,
+          "roc_auc": 0.802,
+          "brier_score": 0.1769
+        },
+        "<45": {
+          "count": 505,
+          "prevalence": 0.0119,
+          "selection_rate": 0.004,
+          "tpr_sensitivity": 0.0,
+          "fpr": 0.004,
+          "roc_auc": 0.855,
+          "brier_score": 0.0131
+        }
+      },
+      "disparate_impact_ratio": 0.0074,
+      "demographic_parity_difference": 0.5318,
+      "equal_opportunity_difference": 0.7911,
+      "passes_four_fifths_rule": false
+    },
+    "ses_group": {
+      "subgroups": {
+        "High SES": {
+          "count": 538,
+          "prevalence": 0.1506,
+          "selection_rate": 0.1543,
+          "tpr_sensitivity": 0.4815,
+          "fpr": 0.0963,
+          "roc_auc": 0.8762,
+          "brier_score": 0.0969
+        },
+        "Low SES (Deprived)": {
+          "count": 527,
+          "prevalence": 0.1708,
+          "selection_rate": 0.1992,
+          "tpr_sensitivity": 0.6667,
+          "fpr": 0.103,
+          "roc_auc": 0.8974,
+          "brier_score": 0.0893
+        },
+        "Medium SES": {
+          "count": 735,
+          "prevalence": 0.1565,
+          "selection_rate": 0.1415,
+          "tpr_sensitivity": 0.5826,
+          "fpr": 0.0597,
+          "roc_auc": 0.9053,
+          "brier_score": 0.0818
+        }
+      },
+      "disparate_impact_ratio": 0.7102,
+      "demographic_parity_difference": 0.0577,
+      "equal_opportunity_difference": 0.1852,
+      "passes_four_fifths_rule": false
+    }
+  },
+  "onset_cvd": {
+    "sex": {
+      "subgroups": {
+        "Female": {
+          "count": 913,
+          "prevalence": 0.0865,
+          "selection_rate": 0.0756,
+          "tpr_sensitivity": 0.3544,
+          "fpr": 0.0492,
+          "roc_auc": 0.8198,
+          "brier_score": 0.0664
+        },
+        "Male": {
+          "count": 887,
+          "prevalence": 0.1511,
+          "selection_rate": 0.1353,
+          "tpr_sensitivity": 0.4701,
+          "fpr": 0.0757,
+          "roc_auc": 0.8228,
+          "brier_score": 0.1002
+        }
+      },
+      "disparate_impact_ratio": 0.5586,
+      "demographic_parity_difference": 0.0597,
+      "equal_opportunity_difference": 0.1157,
+      "passes_four_fifths_rule": false
+    },
+    "ethnicity": {
+      "subgroups": {
+        "Asian": {
+          "count": 124,
+          "prevalence": 0.0645,
+          "selection_rate": 0.0887,
+          "tpr_sensitivity": 0.5,
+          "fpr": 0.0603,
+          "roc_auc": 0.8664,
+          "brier_score": 0.0488
+        },
+        "Black/African American": {
+          "count": 290,
+          "prevalence": 0.131,
+          "selection_rate": 0.1207,
+          "tpr_sensitivity": 0.5,
+          "fpr": 0.0635,
+          "roc_auc": 0.8821,
+          "brier_score": 0.0836
+        },
+        "Hispanic/Latino": {
+          "count": 277,
+          "prevalence": 0.13,
+          "selection_rate": 0.1191,
+          "tpr_sensitivity": 0.3889,
+          "fpr": 0.0788,
+          "roc_auc": 0.8305,
+          "brier_score": 0.0963
+        },
+        "Other/Multiracial": {
+          "count": 66,
+          "prevalence": 0.1061,
+          "selection_rate": 0.0758,
+          "tpr_sensitivity": 0.2857,
+          "fpr": 0.0508,
+          "roc_auc": 0.7361,
+          "brier_score": 0.0886
+        },
+        "White": {
+          "count": 1043,
+          "prevalence": 0.1189,
+          "selection_rate": 0.1007,
+          "tpr_sensitivity": 0.4194,
+          "fpr": 0.0577,
+          "roc_auc": 0.8125,
+          "brier_score": 0.0831
+        }
+      },
+      "disparate_impact_ratio": 0.6277,
+      "demographic_parity_difference": 0.0449,
+      "equal_opportunity_difference": 0.2143,
+      "passes_four_fifths_rule": false
+    },
+    "age_group": {
+      "subgroups": {
+        "45-64": {
+          "count": 903,
+          "prevalence": 0.0963,
+          "selection_rate": 0.0465,
+          "tpr_sensitivity": 0.2299,
+          "fpr": 0.027,
+          "roc_auc": 0.7871,
+          "brier_score": 0.0748
+        },
+        "65+": {
+          "count": 392,
+          "prevalence": 0.2908,
+          "selection_rate": 0.3724,
+          "tpr_sensitivity": 0.6228,
+          "fpr": 0.2698,
+          "roc_auc": 0.7488,
+          "brier_score": 0.1778
+        },
+        "<45": {
+          "count": 505,
+          "prevalence": 0.0238,
+          "selection_rate": 0.002,
+          "tpr_sensitivity": 0.0,
+          "fpr": 0.002,
+          "roc_auc": 0.6269,
+          "brier_score": 0.0245
+        }
+      },
+      "disparate_impact_ratio": 0.0053,
+      "demographic_parity_difference": 0.3705,
+      "equal_opportunity_difference": 0.6228,
+      "passes_four_fifths_rule": false
+    },
+    "ses_group": {
+      "subgroups": {
+        "High SES": {
+          "count": 538,
+          "prevalence": 0.1041,
+          "selection_rate": 0.0948,
+          "tpr_sensitivity": 0.4464,
+          "fpr": 0.0539,
+          "roc_auc": 0.875,
+          "brier_score": 0.0709
+        },
+        "Low SES (Deprived)": {
+          "count": 527,
+          "prevalence": 0.148,
+          "selection_rate": 0.1176,
+          "tpr_sensitivity": 0.3846,
+          "fpr": 0.0713,
+          "roc_auc": 0.7922,
+          "brier_score": 0.1066
+        },
+        "Medium SES": {
+          "count": 735,
+          "prevalence": 0.1075,
+          "selection_rate": 0.1034,
+          "tpr_sensitivity": 0.4557,
+          "fpr": 0.061,
+          "roc_auc": 0.8272,
+          "brier_score": 0.0752
+        }
+      },
+      "disparate_impact_ratio": 0.8058,
+      "demographic_parity_difference": 0.0229,
+      "equal_opportunity_difference": 0.0711,
+      "passes_four_fifths_rule": true
+    }
+  }
+}
