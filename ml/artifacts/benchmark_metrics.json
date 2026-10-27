@@ -1,100 +1,110 @@
 {
   "onset_t2d": {
-    "primary_production_model": "XGBoost",
+    "primary_production_model": "XGBoost (Calibrated)",
     "metrics": {
       "LogisticRegression": {
-        "ROC_AUC": 0.8737,
-        "PR_AUC": 0.7484,
-        "Brier_Score": 0.1416,
-        "F1_Score": 0.6582,
-        "Accuracy": 0.79
+        "ROC_AUC": 0.7969,
+        "PR_AUC": 0.4963,
+        "Brier_Score": 0.1138,
+        "ECE": 0.0163,
+        "F1_Score": 0.472
       },
       "RandomForest": {
-        "ROC_AUC": 0.8682,
-        "PR_AUC": 0.7301,
-        "Brier_Score": 0.1225,
-        "F1_Score": 0.6156,
-        "Accuracy": 0.83
+        "ROC_AUC": 0.7922,
+        "PR_AUC": 0.4949,
+        "Brier_Score": 0.1151,
+        "ECE": 0.0231,
+        "F1_Score": 0.4655
       },
       "LightGBM": {
-        "ROC_AUC": 0.8645,
-        "PR_AUC": 0.7268,
-        "Brier_Score": 0.1226,
-        "F1_Score": 0.6188,
-        "Accuracy": 0.8261
+        "ROC_AUC": 0.7993,
+        "PR_AUC": 0.4921,
+        "Brier_Score": 0.1138,
+        "ECE": 0.0086,
+        "F1_Score": 0.4629
       },
       "XGBoost": {
-        "ROC_AUC": 0.8668,
-        "PR_AUC": 0.7289,
-        "Brier_Score": 0.1221,
-        "F1_Score": 0.6244,
-        "Accuracy": 0.8289
+        "ROC_AUC": 0.798,
+        "PR_AUC": 0.4894,
+        "Brier_Score": 0.1148,
+        "ECE": 0.0283,
+        "F1_Score": 0.463
       }
     }
   },
   "onset_ckd": {
-    "primary_production_model": "XGBoost",
+    "primary_production_model": "XGBoost (Calibrated)",
     "metrics": {
       "LogisticRegression": {
-        "ROC_AUC": 0.8933,
-        "PR_AUC": 0.6313,
-        "Brier_Score": 0.1307,
-        "F1_Score": 0.5693,
-        "Accuracy": 0.81
+        "ROC_AUC": 0.8292,
+        "PR_AUC": 0.6144,
+        "Brier_Score": 0.1394,
+        "ECE": 0.0268,
+        "F1_Score": 0.5836
       },
       "RandomForest": {
-        "ROC_AUC": 0.8886,
-        "PR_AUC": 0.6094,
-        "Brier_Score": 0.0892,
-        "F1_Score": 0.5135,
-        "Accuracy": 0.88
+        "ROC_AUC": 0.8244,
+        "PR_AUC": 0.6132,
+        "Brier_Score": 0.1417,
+        "ECE": 0.039,
+        "F1_Score": 0.5678
       },
       "LightGBM": {
-        "ROC_AUC": 0.8898,
-        "PR_AUC": 0.5989,
-        "Brier_Score": 0.0907,
-        "F1_Score": 0.518,
-        "Accuracy": 0.8739
+        "ROC_AUC": 0.8299,
+        "PR_AUC": 0.6254,
+        "Brier_Score": 0.1387,
+        "ECE": 0.0323,
+        "F1_Score": 0.5832
       },
       "XGBoost": {
-        "ROC_AUC": 0.8937,
-        "PR_AUC": 0.6242,
-        "Brier_Score": 0.0885,
-        "F1_Score": 0.5322,
-        "Accuracy": 0.8789
+        "ROC_AUC": 0.8312,
+        "PR_AUC": 0.6287,
+        "Brier_Score": 0.1397,
+        "ECE": 0.0387,
+        "F1_Score": 0.5788
       }
     }
   },
   "onset_cvd": {
-    "primary_production_model": "XGBoost",
+    "primary_production_model": "XGBoost (CKM-Coupled Calibrated)",
     "metrics": {
       "LogisticRegression": {
-        "ROC_AUC": 0.8491,
-        "PR_AUC": 0.4865,
-        "Brier_Score": 0.1646,
-        "F1_Score": 0.4353,
-        "Accuracy": 0.755
+        "ROC_AUC": 0.7968,
+        "PR_AUC": 0.456,
+        "Brier_Score": 0.1157,
+        "ECE": 0.0165,
+        "F1_Score": 0.4655
       },
       "RandomForest": {
-        "ROC_AUC": 0.8289,
-        "PR_AUC": 0.4317,
-        "Brier_Score": 0.0839,
-        "F1_Score": 0.2836,
-        "Accuracy": 0.8906
+        "ROC_AUC": 0.7919,
+        "PR_AUC": 0.4529,
+        "Brier_Score": 0.1177,
+        "ECE": 0.0285,
+        "F1_Score": 0.4471
       },
       "LightGBM": {
-        "ROC_AUC": 0.8281,
-        "PR_AUC": 0.4329,
-        "Brier_Score": 0.0836,
-        "F1_Score": 0.3824,
-        "Accuracy": 0.8906
+        "ROC_AUC": 0.79,
+        "PR_AUC": 0.4497,
+        "Brier_Score": 0.1168,
+        "ECE": 0.0195,
+        "F1_Score": 0.4687
       },
       "XGBoost": {
-        "ROC_AUC": 0.829,
-        "PR_AUC": 0.4365,
-        "Brier_Score": 0.0831,
-        "F1_Score": 0.3935,
-        "Accuracy": 0.8956
+        "ROC_AUC": 0.793,
+        "PR_AUC": 0.4589,
+        "Brier_Score": 0.1168,
+        "ECE": 0.0278,
+        "F1_Score": 0.462
+      }
+    }
+  },
+  "onset_multimorbidity": {
+    "primary_production_model": "XGBoost (Stacked CKM)",
+    "metrics": {
+      "XGBoost": {
+        "ROC_AUC": 0.8533,
+        "Brier_Score": 0.1004,
+        "ECE": 0.0342
       }
     }
   }

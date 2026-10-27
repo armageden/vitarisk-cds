@@ -2,187 +2,151 @@
   "onset_t2d": [
     {
       "feature": "hba1c",
-      "importance": 0.90171
+      "importance_percentage_points": 5.12
     },
     {
       "feature": "fasting_glucose",
-      "importance": 0.32234
+      "importance_percentage_points": 4.25
     },
     {
       "feature": "bmi",
-      "importance": 0.24053
-    },
-    {
-      "feature": "waist_circ_cm",
-      "importance": 0.20169
-    },
-    {
-      "feature": "family_history_diabetes",
-      "importance": 0.16261
-    },
-    {
-      "feature": "age",
-      "importance": 0.10485
-    },
-    {
-      "feature": "physical_activity_Sedentary",
-      "importance": 0.0846
+      "importance_percentage_points": 3.65
     },
     {
       "feature": "triglycerides",
-      "importance": 0.08093
+      "importance_percentage_points": 1.76
     },
     {
-      "feature": "systolic_bp",
-      "importance": 0.07539
-    },
-    {
-      "feature": "uacr",
-      "importance": 0.05934
-    },
-    {
-      "feature": "physical_activity_Moderate",
-      "importance": 0.05808
+      "feature": "waist_circ_cm",
+      "importance_percentage_points": 1.05
     },
     {
       "feature": "hdl_cholesterol",
-      "importance": 0.05715
+      "importance_percentage_points": 1.04
+    },
+    {
+      "feature": "family_history_diabetes",
+      "importance_percentage_points": 0.98
     },
     {
       "feature": "hs_crp",
-      "importance": 0.05504
+      "importance_percentage_points": 0.5
     },
     {
-      "feature": "egfr",
-      "importance": 0.04886
+      "feature": "diastolic_bp",
+      "importance_percentage_points": 0.41
     },
     {
-      "feature": "history_hypertension",
-      "importance": 0.03819
+      "feature": "serum_creatinine",
+      "importance_percentage_points": 0.37
+    },
+    {
+      "feature": "resting_heart_rate",
+      "importance_percentage_points": 0.33
+    },
+    {
+      "feature": "uacr",
+      "importance_percentage_points": 0.28
     }
   ],
   "onset_ckd": [
     {
       "feature": "egfr",
-      "importance": 1.23586
-    },
-    {
-      "feature": "age",
-      "importance": 0.48968
-    },
-    {
-      "feature": "systolic_bp",
-      "importance": 0.36269
+      "importance_percentage_points": 11.06
     },
     {
       "feature": "uacr",
-      "importance": 0.34528
+      "importance_percentage_points": 6.27
+    },
+    {
+      "feature": "systolic_bp",
+      "importance_percentage_points": 2.72
     },
     {
       "feature": "hba1c",
-      "importance": 0.24714
-    },
-    {
-      "feature": "history_hypertension",
-      "importance": 0.12228
-    },
-    {
-      "feature": "smoking_status_Current",
-      "importance": 0.09036
-    },
-    {
-      "feature": "serum_creatinine",
-      "importance": 0.07745
-    },
-    {
-      "feature": "hs_crp",
-      "importance": 0.0694
+      "importance_percentage_points": 1.64
     },
     {
       "feature": "fasting_glucose",
-      "importance": 0.06784
+      "importance_percentage_points": 0.77
     },
     {
-      "feature": "total_cholesterol",
-      "importance": 0.05879
+      "feature": "serum_creatinine",
+      "importance_percentage_points": 0.72
+    },
+    {
+      "feature": "age",
+      "importance_percentage_points": 0.69
+    },
+    {
+      "feature": "waist_circ_cm",
+      "importance_percentage_points": 0.33
+    },
+    {
+      "feature": "bmi",
+      "importance_percentage_points": 0.3
     },
     {
       "feature": "diastolic_bp",
-      "importance": 0.05198
-    },
-    {
-      "feature": "resting_heart_rate",
-      "importance": 0.04752
+      "importance_percentage_points": 0.28
     },
     {
       "feature": "triglycerides",
-      "importance": 0.04007
+      "importance_percentage_points": 0.27
     },
     {
-      "feature": "hdl_cholesterol",
-      "importance": 0.0354
+      "feature": "total_cholesterol",
+      "importance_percentage_points": 0.22
     }
   ],
   "onset_cvd": [
     {
-      "feature": "age",
-      "importance": 0.66058
+      "feature": "predicted_risk_ckd",
+      "importance_percentage_points": 5.15
     },
     {
-      "feature": "ldl_cholesterol",
-      "importance": 0.34808
+      "feature": "age",
+      "importance_percentage_points": 3.99
     },
     {
       "feature": "systolic_bp",
-      "importance": 0.30152
+      "importance_percentage_points": 2.4
+    },
+    {
+      "feature": "non_hdl_cholesterol",
+      "importance_percentage_points": 2.32
     },
     {
       "feature": "hdl_cholesterol",
-      "importance": 0.26397
+      "importance_percentage_points": 1.62
     },
     {
       "feature": "smoking_status_Current",
-      "importance": 0.22645
+      "importance_percentage_points": 1.09
     },
     {
-      "feature": "hba1c",
-      "importance": 0.19692
-    },
-    {
-      "feature": "family_history_cvd",
-      "importance": 0.15824
-    },
-    {
-      "feature": "triglycerides",
-      "importance": 0.09713
-    },
-    {
-      "feature": "serum_creatinine",
-      "importance": 0.08916
-    },
-    {
-      "feature": "sex_Female",
-      "importance": 0.07856
+      "feature": "predicted_risk_t2d",
+      "importance_percentage_points": 0.93
     },
     {
       "feature": "uacr",
-      "importance": 0.05857
+      "importance_percentage_points": 0.86
+    },
+    {
+      "feature": "ldl_cholesterol",
+      "importance_percentage_points": 0.84
     },
     {
       "feature": "hs_crp",
-      "importance": 0.05576
+      "importance_percentage_points": 0.5
     },
     {
-      "feature": "diastolic_bp",
-      "importance": 0.05077
+      "feature": "triglycerides",
+      "importance_percentage_points": 0.4
     },
     {
-      "feature": "bmi",
-      "importance": 0.04737
-    },
-    {
-      "feature": "total_cholesterol",
-      "importance": 0.0472
+      "feature": "egfr",
+      "importance_percentage_points": 0.34
     }
   ]
 }
