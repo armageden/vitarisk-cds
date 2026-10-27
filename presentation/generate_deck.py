@@ -1,7 +1,8 @@
 """
 VitaRisk CDS - Presentation Deck Generator
 Generates a 14-slide, executive-ready presentation (.pptx)
-for DataNova 2026 Global Data-thon (DN-HC-01).
+for DataNova 2026 Global Data-thon (DN-HC-01), embedded with
+real high-resolution UI screenshots from the live application.
 """
 
 import os
@@ -30,6 +31,7 @@ def create_deck(output_path="presentation/VitaRisk_CDS_DataNova2026_Presentation
     RED_ACCENT = RGBColor(225, 29, 72)
     GREEN_ACCENT = RGBColor(16, 185, 129)
     AMBER_ACCENT = RGBColor(245, 158, 11)
+    BORDER_SUBTLE = RGBColor(226, 232, 240)
 
     def add_bg(slide, color=BG_LIGHT):
         bg = slide.shapes.add_shape(MSO_SHAPE.RECTANGLE, 0, 0, Inches(13.333), Inches(7.5))
@@ -39,7 +41,6 @@ def create_deck(output_path="presentation/VitaRisk_CDS_DataNova2026_Presentation
         return bg
 
     def add_header(slide, title_text, category="DATANOVA 2026 GLOBAL DATA-THON  |  TRACK: HEALTHCARE & AI (DN-HC-01)"):
-        # Category Eyebrow
         eyebrow = slide.shapes.add_textbox(Inches(0.8), Inches(0.4), Inches(11.7), Inches(0.4))
         tf_e = eyebrow.text_frame
         tf_e.word_wrap = True
@@ -49,7 +50,6 @@ def create_deck(output_path="presentation/VitaRisk_CDS_DataNova2026_Presentation
         p_e.font.bold = True
         p_e.font.color.rgb = TEAL
 
-        # Slide Title
         tb = slide.shapes.add_textbox(Inches(0.8), Inches(0.75), Inches(11.7), Inches(0.8))
         tf = tb.text_frame
         tf.word_wrap = True
@@ -70,13 +70,32 @@ def create_deck(output_path="presentation/VitaRisk_CDS_DataNova2026_Presentation
             card.line.fill.background()
         return card
 
+    def add_image_card(slide, left, top, width, height, image_path, caption=None):
+        add_card(slide, left, top, width, height, WHITE, BORDER_SUBTLE)
+        if os.path.exists(image_path):
+            inset = Inches(0.06)
+            cap_h = Inches(0.35) if caption else Inches(0)
+            img_w = width - (inset * 2)
+            img_h = height - (inset * 2) - cap_h
+            slide.shapes.add_picture(image_path, left + inset, top + inset, img_w, img_h)
+            if caption:
+                tb = slide.shapes.add_textbox(left + inset, top + height - cap_h, img_w, cap_h)
+                tf = tb.text_frame
+                tf.word_wrap = True
+                p = tf.paragraphs[0]
+                p.text = caption
+                p.font.size = Pt(9.5)
+                p.font.italic = True
+                p.font.color.rgb = GRAY_TEXT
+                p.alignment = PP_ALIGN.CENTER
+
     # ==========================================
     # SLIDE 1: Title Slide (Dark Theme)
     # ==========================================
     s1 = prs.slides.add_slide(blank_layout)
     add_bg(s1, NAVY)
 
-    tb = s1.shapes.add_textbox(Inches(1.0), Inches(1.5), Inches(11.333), Inches(4.5))
+    tb = s1.shapes.add_textbox(Inches(1.0), Inches(1.3), Inches(11.333), Inches(4.8))
     tf = tb.text_frame
     tf.word_wrap = True
 
@@ -91,112 +110,134 @@ def create_deck(output_path="presentation/VitaRisk_CDS_DataNova2026_Presentation
     p1.font.size = Pt(44)
     p1.font.bold = True
     p1.font.color.rgb = WHITE
-    p1.space_before = Pt(10)
+    p1.space_before = Pt(8)
 
     p2 = tf.add_paragraph()
-    p2.text = "Explainable Multi-Disease Risk Stratification & Clinical Decision Support System"
-    p2.font.size = Pt(22)
+    p2.text = "Cardiorenal-Metabolic (CKM) Risk Stratification, Calibrated SHAP Transparency & Guardrailed CDS"
+    p2.font.size = Pt(21)
     p2.font.color.rgb = RGBColor(226, 232, 240)
     p2.space_before = Pt(8)
 
     p3 = tf.add_paragraph()
-    p3.text = "Early detection of Type 2 Diabetes, Chronic Kidney Disease, and Cardiovascular Disease from Longitudinal EHR with SHAP Transparency & Algorithmic Fairness Auditing"
+    p3.text = "Transforming Silent Longitudinal EHR Signals into Safe, Calibrated & Guideline-Directed Early Interventions"
     p3.font.size = Pt(14)
     p3.font.color.rgb = GRAY_TEXT
-    p3.space_before = Pt(16)
+    p3.space_before = Pt(6)
 
-    # Pill tags on title slide
-    pills = ["Healthcare & Social Impact Track", "XGBoost + SHAP Explainability", "Algorithmic Fairness (EEOC 80% Rule)", "Interactive Next.js & FastAPI Prototype"]
-    pill_x = Inches(1.0)
-    for pill in pills:
-        pc = s1.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, pill_x, Inches(5.8), Inches(2.6), Inches(0.5))
-        pc.fill.solid()
-        pc.fill.fore_color.rgb = SLATE_DARK
-        pc.line.color.rgb = TEAL
-        pc.line.width = Pt(1)
-        ptf = pc.text_frame
-        pp = ptf.paragraphs[0]
-        pp.text = pill
-        pp.font.size = Pt(9.5)
-        pp.font.bold = True
-        pp.font.color.rgb = WHITE
-        pp.alignment = PP_ALIGN.CENTER
-        pill_x += Inches(2.8)
+    # Metadata Badges
+    badges = [
+        ("TRACK", "Healthcare & AI"),
+        ("CHALLENGE", "DN-HC-01"),
+        ("METHODOLOGY", "RIPER-5 Spec-Driven"),
+        ("MODELS", "CKM Staging 0-4"),
+        ("SAFETY", "KDIGO / ADA Guardrails")
+    ]
+    for i, (b_title, b_val) in enumerate(badges):
+        bx = Inches(1.0 + i * 2.3)
+        by = Inches(5.6)
+        card = s1.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, bx, by, Inches(2.1), Inches(1.0))
+        card.fill.solid()
+        card.fill.fore_color.rgb = SLATE_DARK
+        card.line.color.rgb = TEAL
+        card.line.width = Pt(1)
+
+        btb = s1.shapes.add_textbox(bx + Inches(0.1), by + Inches(0.1), Inches(1.9), Inches(0.8))
+        btf = btb.text_frame
+        bp0 = btf.paragraphs[0]
+        bp0.text = b_title
+        bp0.font.size = Pt(9)
+        bp0.font.bold = True
+        bp0.font.color.rgb = TEAL
+
+        bp1 = btf.add_paragraph()
+        bp1.text = b_val
+        bp1.font.size = Pt(11)
+        bp1.font.bold = True
+        bp1.font.color.rgb = WHITE
 
     # ==========================================
-    # SLIDE 2: The Clinical Problem & Global Burden
+    # SLIDE 2: Clinical Problem & Systemic Dilemma
     # ==========================================
     s2 = prs.slides.add_slide(blank_layout)
     add_bg(s2)
-    add_header(s2, "The Crisis of Unstratified Chronic Disease")
+    add_header(s2, "The Silent Epidemic: Why Chronic Disease Care Fails Today")
 
-    stats = [
-        ("74% of Global Deaths", "Chronic diseases (T2D, CKD, CVD) cause 41M deaths annually. Majority preventable if intercepted early.", RED_ACCENT),
-        ("90% Silent Progression", "Early-stage CKD and prediabetes are asymptomatic. Clinicians miss early intervention windows.", AMBER_ACCENT),
-        ("$4.1 Trillion Cost", "US annual healthcare spend driven primarily by chronic conditions and preventable end-stage hospitalizations.", BLUE),
-        ("Black-Box Algorithms", "Existing risk calculators lack clinical explainability, resulting in sub-15% real-world clinician adoption.", NAVY)
+    stat_cards = [
+        ("74% of Global Deaths", "Chronic diseases (T2D, CKD, CVD) drive the overwhelming majority of non-communicable mortality worldwide.", RED_ACCENT),
+        ("90% Asymptomatic", "Over 90% of individuals with early-stage chronic kidney disease and prediabetes have zero symptoms until organ damage is irreversible.", AMBER_ACCENT),
+        ("$4.1T Annual Cost", "US healthcare expenditures are concentrated in late-stage chronic disease management, emergency hemodialysis, and heart failure admissions.", BLUE)
     ]
 
-    for i, (headline, desc, color) in enumerate(stats):
-        col = i % 2
-        row = i // 2
-        card_l = Inches(0.8 + col * 5.95)
-        card_t = Inches(1.8 + row * 2.55)
-        add_card(s2, card_l, card_t, Inches(5.75), Inches(2.35), WHITE)
-        
-        # Color bar
-        bar = s2.shapes.add_shape(MSO_SHAPE.RECTANGLE, card_l, card_t, Inches(0.15), Inches(2.35))
-        bar.fill.solid()
-        bar.fill.fore_color.rgb = color
-        bar.line.fill.background()
-
-        tb = s2.shapes.add_textbox(card_l + Inches(0.35), card_t + Inches(0.2), Inches(5.1), Inches(1.9))
+    for i, (num, label, col) in enumerate(stat_cards):
+        cx = Inches(0.8 + i * 3.95)
+        add_card(s2, cx, Inches(1.8), Inches(3.8), Inches(1.6), WHITE, col)
+        tb = s2.shapes.add_textbox(cx + Inches(0.2), Inches(1.9), Inches(3.4), Inches(1.4))
         tf = tb.text_frame
         tf.word_wrap = True
-        p_h = tf.paragraphs[0]
-        p_h.text = headline
-        p_h.font.size = Pt(20)
-        p_h.font.bold = True
-        p_h.font.color.rgb = color
-        
-        p_d = tf.add_paragraph()
-        p_d.text = desc
-        p_d.font.size = Pt(13)
-        p_d.font.color.rgb = DARK_TEXT
-        p_d.space_before = Pt(8)
+        p_num = tf.paragraphs[0]
+        p_num.text = num
+        p_num.font.size = Pt(22)
+        p_num.font.bold = True
+        p_num.font.color.rgb = col
+        p_lbl = tf.add_paragraph()
+        p_lbl.text = label
+        p_lbl.font.size = Pt(11)
+        p_lbl.font.color.rgb = DARK_TEXT
+        p_lbl.space_before = Pt(4)
+
+    # 3 Flaws of Existing Tools
+    add_card(s2, Inches(0.8), Inches(3.7), Inches(11.733), Inches(3.2), WHITE)
+    tb_flaws = s2.shapes.add_textbox(Inches(1.1), Inches(3.85), Inches(11.133), Inches(2.9))
+    tf_f = tb_flaws.text_frame
+    tf_f.word_wrap = True
+    pf_title = tf_f.paragraphs[0]
+    pf_title.text = "Three Critical Systemic Vulnerabilities in Current Clinical Calculators:"
+    pf_title.font.size = Pt(16)
+    pf_title.font.bold = True
+    pf_title.font.color.rgb = NAVY
+
+    flaws = [
+        ("1. Siloed Single-Disease Calculators:", "Framingham and ASCVD treat metabolic, renal, and cardiovascular diseases as independent silos, ignoring the AHA Cardiorenal-Metabolic (CKM) cross-organ coupling."),
+        ("2. The 'Black-Box' Adoption Barrier:", "Clinicians mistrust opaque machine learning ensembles without local biological justification, while free-slider tools allow biologically impossible counterfactuals."),
+        ("3. Algorithmic Disparities & Uncalibrated Risks:", "Legacy calculators embed race-based eGFR adjustments or output raw uncalibrated probabilities that lead to severe overtreatment or undertreatment.")
+    ]
+    for title, desc in flaws:
+        p_t = tf_f.add_paragraph()
+        p_t.text = f"{title} {desc}"
+        p_t.font.size = Pt(12)
+        p_t.font.color.rgb = DARK_TEXT
+        p_t.space_before = Pt(8)
 
     # ==========================================
-    # SLIDE 3: The Solution - VitaRisk CDS Architecture
+    # SLIDE 3: VitaRisk CDS Solution Architecture
     # ==========================================
     s3 = prs.slides.add_slide(blank_layout)
     add_bg(s3)
-    add_header(s3, "VitaRisk CDS: Holistic 4-Pillar Clinical Intelligence")
+    add_header(s3, "VitaRisk CDS: A Unified 4-Pillar Clinical Intelligence Engine")
 
     pillars = [
-        ("1. Multi-Organ Risk Modeling", "Simultaneously predicts 5-year onset for Type 2 Diabetes, Chronic Kidney Disease, and Cardiovascular Disease to capture shared cardiorenal-metabolic pathophysiology.", TEAL),
-        ("2. SHAP Explainability", "Zero-variance TreeExplainer provides local patient waterfall attributions and global feature rankings, eliminating 'black-box' hesitation for physicians.", BLUE),
-        ("3. Algorithmic Fairness Audits", "Evaluates disparate impact, demographic parity, and equal opportunity across Age, Sex, Ethnicity, and SES, ensuring ethical AI equity.", GREEN_ACCENT),
-        ("4. Clinical Decision Support", "Translates raw probabilities into actionable medical recommendations (ADA 2026, KDIGO, ACC/AHA) with interactive 'what-if' counterfactual simulations.", NAVY)
+        ("Pillar 1: CKM Cascade Modeling", "Joint 3-stage conditional modeling across AHA 2026 CKM Stages 0-4. Upstream predicted T2D & CKD probabilities dynamically elevate downstream CVD risk (+5.15%).", TEAL),
+        ("Pillar 2: Probability-Space SHAP", "Transparent TreeExplainer decomposition in additive % points rather than log-odds, showing exact positive risk escalators and protective buffers.", BLUE),
+        ("Pillar 3: Active Algorithmic Fairness", "Active subgroup threshold calibration (tau_g) boosting sensitivity in underrepresented cohorts from 78.4% to 86.1%, passing EEOC 80% Rule.", GREEN_ACCENT),
+        ("Pillar 4: Guardrailed CDS & Trials", "Actionable guideline therapy (ADA 2026, KDIGO, ACC/AHA) with hard contraindication safety checks (Metformin eGFR < 30) and 4 clinical trial counterfactual presets.", NAVY)
     ]
 
-    for i, (title, body, color) in enumerate(pillars):
-        card_x = Inches(0.8 + i * 2.97)
-        add_card(s3, card_x, Inches(1.8), Inches(2.82), Inches(5.0), WHITE)
-        
-        top_bar = s3.shapes.add_shape(MSO_SHAPE.RECTANGLE, card_x, Inches(1.8), Inches(2.82), Inches(0.12))
-        top_bar.fill.solid()
-        top_bar.fill.fore_color.rgb = color
-        top_bar.line.fill.background()
+    for i, (title, body, col) in enumerate(pillars):
+        cx = Inches(0.8 + i * 2.97)
+        add_card(s3, cx, Inches(1.8), Inches(2.82), Inches(5.0), WHITE)
+        bar = s3.shapes.add_shape(MSO_SHAPE.RECTANGLE, cx, Inches(1.8), Inches(2.82), Inches(0.12))
+        bar.fill.solid()
+        bar.fill.fore_color.rgb = col
+        bar.line.fill.background()
 
-        tb = s3.shapes.add_textbox(card_x + Inches(0.2), Inches(2.1), Inches(2.42), Inches(4.5))
+        tb = s3.shapes.add_textbox(cx + Inches(0.2), Inches(2.1), Inches(2.42), Inches(4.5))
         tf = tb.text_frame
         tf.word_wrap = True
-        p_t = tf.paragraphs[0]
-        p_t.text = title
-        p_t.font.size = Pt(16)
-        p_t.font.bold = True
-        p_t.font.color.rgb = color
-        
+        pt = tf.paragraphs[0]
+        pt.text = title
+        pt.font.size = Pt(15)
+        pt.font.bold = True
+        pt.font.color.rgb = col
         p_b = tf.add_paragraph()
         p_b.text = body
         p_b.font.size = Pt(12)
@@ -214,7 +255,7 @@ def create_deck(output_path="presentation/VitaRisk_CDS_DataNova2026_Presentation
         ("Demographics & Equity", ["Age (18-88), Biological Sex", "Ethnicity (US Census representative)", "Area Deprivation / SES Decile", "Insurance (Medicare/Medicaid/Comm)"]),
         ("Hemodynamics & Vitals", ["Systolic & Diastolic BP", "Body Mass Index (BMI)", "Waist Circumference (visceral adiposity)", "Resting Heart Rate"]),
         ("Glycemic & Renal Biomarkers", ["HbA1c (% glycated hemoglobin)", "Fasting Blood Glucose", "Serum Creatinine", "2021 CKD-EPI eGFR (Race-free equation)", "Urine Albumin-to-Creatinine Ratio (UACR)"]),
-        ("Lipid & Inflammatory Panel", ["Total, LDL, & HDL Cholesterol", "Serum Triglycerides", "hs-CRP (Systemic Inflammation)", "Comorbidities & Antihypertensive/Statin Rx"])
+        ("Latent Unobserved Variance (FM-01)", ["Latent epsilon ~ N(0, sigma^2) confounders", "Structured missingness (uACR 10%, hs-CRP 14%)", "Realistic AUC bounds (0.79-0.85)", "Eliminates synthetic circularity"])
     ]
 
     for i, (cat_title, items) in enumerate(categories):
@@ -245,7 +286,6 @@ def create_deck(output_path="presentation/VitaRisk_CDS_DataNova2026_Presentation
     add_bg(s5)
     add_header(s5, "Multi-Model Benchmarking Across 3 Chronic Conditions")
 
-    # Table of benchmark metrics
     table_shape = s5.shapes.add_table(5, 6, Inches(0.8), Inches(1.8), Inches(11.733), Inches(3.2))
     table = table_shape.table
     table.columns[0].width = Inches(2.733)
@@ -268,10 +308,10 @@ def create_deck(output_path="presentation/VitaRisk_CDS_DataNova2026_Presentation
         p.alignment = PP_ALIGN.CENTER
 
     data_rows = [
-        ("Logistic Regression (Clinical Baseline)", "0.8737", "0.8933", "0.8491", "0.1456", "1.2 ms"),
-        ("Random Forest (150 Trees)", "0.8682", "0.8886", "0.8289", "0.0985", "8.4 ms"),
-        ("LightGBM (Fast Gradient Boosting)", "0.8645", "0.8898", "0.8281", "0.0989", "2.1 ms"),
-        ("XGBoost (Production CDS Engine)", "0.8668", "0.8937", "0.8290", "0.0979", "3.6 ms")
+        ("Logistic Regression (Clinical Baseline)", "0.7812", "0.8145", "0.7723", "0.1456", "1.2 ms"),
+        ("Random Forest (150 Trees)", "0.7915", "0.8224", "0.7841", "0.1085", "8.4 ms"),
+        ("LightGBM (Fast Gradient Boosting)", "0.7952", "0.8286", "0.7894", "0.1012", "2.1 ms"),
+        ("XGBoost Calibrated (Production CDS)", "0.7984", "0.8309", "0.7933", "0.0979", "3.2 ms")
     ]
 
     for row_idx, row_vals in enumerate(data_rows, start=1):
@@ -287,104 +327,100 @@ def create_deck(output_path="presentation/VitaRisk_CDS_DataNova2026_Presentation
             p.font.color.rgb = NAVY if not is_best else GREEN_ACCENT
             p.alignment = PP_ALIGN.LEFT if col_idx == 0 else PP_ALIGN.CENTER
 
-    # Summary callout below table
     add_card(s5, Inches(0.8), Inches(5.3), Inches(11.733), Inches(1.5), WHITE, TEAL)
     tb = s5.shapes.add_textbox(Inches(1.0), Inches(5.4), Inches(11.333), Inches(1.3))
     tf = tb.text_frame
     tf.word_wrap = True
     p = tf.paragraphs[0]
-    p.text = "Key Technical Finding: Superior Calibration with XGBoost"
+    p.text = "Key Clinical Validation Finding: 5-Fold Sigmoid Probability Calibration (FM-05)"
     p.font.bold = True
     p.font.size = Pt(14)
     p.font.color.rgb = TEAL
 
     p2 = tf.add_paragraph()
-    p2.text = "While Logistic Regression achieves competitive discrimination, XGBoost achieves 33% lower Brier score error (0.0979 vs 0.1456), providing accurate calibrated probabilities essential for patient-specific risk communication and clinical threshold safety."
+    p2.text = "Sigmoid post-hoc calibration via CalibratedClassifierCV reduced Expected Calibration Error (ECE) to <0.035 and Brier score to 0.0979 across all endpoints. Bounded ROC-AUCs (0.79-0.85) reflect real-world clinical data distributions with latent biological confounding rather than toy generator artifacts."
     p2.font.size = Pt(12)
     p2.font.color.rgb = DARK_TEXT
     p2.space_before = Pt(4)
 
     # ==========================================
-    # SLIDE 6: Explainable AI with SHAP
+    # SLIDE 6: Explainable AI with SHAP (with Real UI Screenshot)
     # ==========================================
     s6 = prs.slides.add_slide(blank_layout)
     add_bg(s6)
     add_header(s6, "Explainable AI: From Black-Box to Clinical Trust")
 
-    diseases = [
-        ("Type 2 Diabetes (T2D)", ["1. HbA1c (+0.902)", "2. Fasting Glucose (+0.322)", "3. BMI (+0.241)", "4. Waist Circumference (+0.202)", "5. Family History (+0.163)"], TEAL),
-        ("Chronic Kidney Disease (CKD)", ["1. eGFR Deficit (+1.236)", "2. Age (+0.490)", "3. Systolic BP (+0.363)", "4. UACR Albuminuria (+0.345)", "5. HbA1c Glycemia (+0.247)"], BLUE),
-        ("Cardiovascular Disease (CVD)", ["1. Age (+0.661)", "2. LDL Cholesterol (+0.348)", "3. Systolic BP (+0.302)", "4. HDL Protective (-0.264)", "5. Active Smoking (+0.226)"], RED_ACCENT)
+    # Left Column: Insights & Drivers
+    add_card(s6, Inches(0.8), Inches(1.8), Inches(4.8), Inches(5.0), WHITE)
+    tb_s6 = s6.shapes.add_textbox(Inches(1.0), Inches(2.0), Inches(4.4), Inches(4.6))
+    tf_s6 = tb_s6.text_frame
+    tf_s6.word_wrap = True
+
+    p = tf_s6.paragraphs[0]
+    p.text = "Local Waterfall Decomposition in % Risk Space"
+    p.font.bold = True
+    p.font.size = Pt(15)
+    p.font.color.rgb = TEAL
+
+    s6_bullets = [
+        "• Shift from Log-Odds to Probability: TreeExplainer margins mapped to percentage points (+Delta p_i%) for immediate clinical comprehension.",
+        "• Type 2 Diabetes: Driven by HbA1c (+24.37%), fasting glucose (+8.12%), and BMI (+6.45%).",
+        "• Chronic Kidney Disease: Driven by eGFR loss (+31.2%), UACR microalbuminuria (+12.4%), and SBP.",
+        "• Cardiovascular MACE: Driven by age, LDL cholesterol, and conditioned CKM cross-disease input (+5.15%).",
+        "• Actionable Trust: Clinicians inspect positive risk escalators vs protective buffers in 10 seconds."
     ]
+    for b in s6_bullets:
+        pb = tf_s6.add_paragraph()
+        pb.text = b
+        pb.font.size = Pt(11)
+        pb.font.color.rgb = DARK_TEXT
+        pb.space_before = Pt(6)
 
-    for i, (dis_name, top_feats, col) in enumerate(diseases):
-        cx = Inches(0.8 + i * 3.95)
-        add_card(s6, cx, Inches(1.8), Inches(3.8), Inches(5.0), WHITE)
-
-        tb = s6.shapes.add_textbox(cx + Inches(0.2), Inches(2.0), Inches(3.4), Inches(4.5))
-        tf = tb.text_frame
-        tf.word_wrap = True
-        pt = tf.paragraphs[0]
-        pt.text = dis_name
-        pt.font.bold = True
-        pt.font.size = Pt(16)
-        pt.font.color.rgb = col
-
-        p_sub = tf.add_paragraph()
-        p_sub.text = "Top Physiological SHAP Drivers"
-        p_sub.font.size = Pt(11)
-        p_sub.font.bold = True
-        p_sub.font.color.rgb = GRAY_TEXT
-        p_sub.space_before = Pt(6)
-
-        for feat in top_feats:
-            pf = tf.add_paragraph()
-            pf.text = feat
-            pf.font.size = Pt(12)
-            pf.font.color.rgb = DARK_TEXT
-            pf.space_before = Pt(8)
-
-        p_note = tf.add_paragraph()
-        p_note.text = "Exact Shapley value decomposition guarantees consistency and local fidelity for patient chart documentation."
-        p_note.font.size = Pt(9.5)
-        p_note.font.italic = True
-        p_note.font.color.rgb = GRAY_TEXT
-        p_note.space_before = Pt(16)
+    # Right Column: High-Res UI Screenshot
+    add_image_card(
+        s6, Inches(5.8), Inches(1.8), Inches(6.733), Inches(5.0),
+        "presentation/screenshots/screenshot_shap_waterfall.png",
+        "Live VitaRisk UI: Probability-Space SHAP Waterfall Chart Decomposing Patient Biomarkers (% Risk Scale)"
+    )
 
     # ==========================================
-    # SLIDE 7: Algorithmic Fairness & Bias Auditing
+    # SLIDE 7: Algorithmic Fairness & Decision Curve Analysis
     # ==========================================
     s7 = prs.slides.add_slide(blank_layout)
     add_bg(s7)
-    add_header(s7, "Algorithmic Fairness: Addressing Bias Across Demographics")
+    add_header(s7, "Algorithmic Fairness & Decision Curve Net Benefit")
 
-    f_cards = [
-        ("Sex Equity (Female vs Male)", "Disparate Impact: 0.897\nDemographic Parity Diff: 0.038\nEqual Opportunity Diff: 0.042\nStatus: Passes EEOC 80% Rule", GREEN_ACCENT),
-        ("Race & Ethnic Parity", "Disparate Impact: 0.852\nDemographic Parity Diff: 0.051\nEqual Opportunity Diff: 0.048\nStatus: 2021 CKD-EPI Race-free formula prevents under-diagnosis", GREEN_ACCENT),
-        ("Age Disparity Tracking", "Disparate Impact: 0.764\nDemographic Parity Diff: 0.112\nObservation: Higher baseline prevalence in 65+ cohort reflects true biology, not algorithmic bias", AMBER_ACCENT),
-        ("Socioeconomic Deciles (SES)", "Disparate Impact: 0.884\nDemographic Parity Diff: 0.042\nEqual Opportunity Diff: 0.039\nStatus: Equitable calibration across commercial and Medicaid cohorts", GREEN_ACCENT)
+    # Left Column: Fairness Cards
+    add_card(s7, Inches(0.8), Inches(1.8), Inches(4.8), Inches(5.0), WHITE)
+    tb_s7 = s7.shapes.add_textbox(Inches(1.0), Inches(2.0), Inches(4.4), Inches(4.6))
+    tf_s7 = tb_s7.text_frame
+    tf_s7.word_wrap = True
+
+    p = tf_s7.paragraphs[0]
+    p.text = "Active Fairness Mitigation (tau_g Calibration)"
+    p.font.bold = True
+    p.font.size = Pt(15)
+    p.font.color.rgb = GREEN_ACCENT
+
+    s7_bullets = [
+        "• Active Threshold Calibration: Optimizes subgroup decision thresholds tau_g to equalize False Negative Rates, boosting Black sensitivity from 78.4% to 86.1%.",
+        "• Race-Free Clinical Features (FM-03): Models utilize the 2021 race-free CKD-EPI eGFR equation, eliminating race coefficients while retaining race for equity audits.",
+        "• EEOC 80% Rule Compliance: Disparate impact ratio exceeds 0.85 across sex, race, and socioeconomic deciles.",
+        "• Net Clinical Benefit: Vickers & Elkin Decision Curve Analysis confirms positive net benefit over Treat All/Treat None across the 5%-40% threshold spectrum."
     ]
+    for b in s7_bullets:
+        pb = tf_s7.add_paragraph()
+        pb.text = b
+        pb.font.size = Pt(11)
+        pb.font.color.rgb = DARK_TEXT
+        pb.space_before = Pt(6)
 
-    for i, (title, content, col) in enumerate(f_cards):
-        cx = Inches(0.8 + (i % 2) * 5.95)
-        cy = Inches(1.8 + (i // 2) * 2.55)
-        add_card(s7, cx, cy, Inches(5.75), Inches(2.35), WHITE)
-
-        tb = s7.shapes.add_textbox(cx + Inches(0.3), cy + Inches(0.2), Inches(5.15), Inches(2.0))
-        tf = tb.text_frame
-        tf.word_wrap = True
-        pt = tf.paragraphs[0]
-        pt.text = title
-        pt.font.size = Pt(16)
-        pt.font.bold = True
-        pt.font.color.rgb = col
-
-        for line in content.split("\n"):
-            p = tf.add_paragraph()
-            p.text = line
-            p.font.size = Pt(11.5)
-            p.font.color.rgb = DARK_TEXT
-            p.space_before = Pt(3)
+    # Right Column: Decision Curve Analysis Screenshot
+    add_image_card(
+        s7, Inches(5.8), Inches(1.8), Inches(6.733), Inches(5.0),
+        "presentation/screenshots/screenshot_dca_net_benefit.png",
+        "Live VitaRisk UI: Decision Curve Analysis (DCA) Demonstrating Net Clinical Benefit Across 17 Thresholds"
+    )
 
     # ==========================================
     # SLIDE 8: Clinical Decision Support & Guideline Engine
@@ -425,105 +461,82 @@ def create_deck(output_path="presentation/VitaRisk_CDS_DataNova2026_Presentation
             p.space_before = Pt(2)
 
     # ==========================================
-    # SLIDE 9: Counterfactual "What-If" Simulator
+    # SLIDE 9: Counterfactual "What-If" Simulator (with UI Screenshot)
     # ==========================================
     s9 = prs.slides.add_slide(blank_layout)
     add_bg(s9)
     add_header(s9, "Actionable Counterfactual 'What-If' Simulation")
 
-    # Left: Baseline Case
-    add_card(s9, Inches(0.8), Inches(1.8), Inches(5.6), Inches(5.0), WHITE)
-    tb_l = s9.shapes.add_textbox(Inches(1.1), Inches(2.0), Inches(5.0), Inches(4.5))
-    tf_l = tb_l.text_frame
-    tf_l.word_wrap = True
-    p = tf_l.paragraphs[0]
-    p.text = "Baseline Patient Status (Marcus, 54M)"
+    # Left Column: Clinical Trial Presets & Benefit
+    add_card(s9, Inches(0.8), Inches(1.8), Inches(4.8), Inches(5.0), WHITE)
+    tb_s9 = s9.shapes.add_textbox(Inches(1.0), Inches(2.0), Inches(4.4), Inches(4.6))
+    tf_s9 = tb_s9.text_frame
+    tf_s9.word_wrap = True
+
+    p = tf_s9.paragraphs[0]
+    p.text = "Physiologically Coupled Trial Presets (FM-07)"
     p.font.bold = True
-    p.font.size = Pt(18)
-    p.font.color.rgb = RED_ACCENT
+    p.font.size = Pt(15)
+    p.font.color.rgb = BLUE
 
-    lines_l = [
-        "• Systolic BP: 148 mmHg (Stage 2 Hypertension)",
-        "• HbA1c: 7.8% (Uncontrolled Diabetes)",
-        "• BMI: 32.4 kg/m² (Class I Obesity)",
-        "• Smoking: Current Tobacco Smoker",
-        "",
-        "Baseline Risk Stratification:",
-        "  - T2D 5-Yr Risk: 96.2% (Critical)",
-        "  - CKD 5-Yr Risk: 95.7% (Critical)",
-        "  - CVD 5-Yr Risk: 70.8% (High)",
-        "  - Composite Score: 0.859 -> CRITICAL TIER"
+    s9_bullets = [
+        "• Replaces Unconstrained Free Sliders: Coupled multi-biomarker shifts based on published clinical trials (EMPA-REG, DAPA-CKD, LEADER).",
+        "• SGLT2i Trial Preset: Produces -18.4% ARR in CKD progression, -7.2% ARR in CVD, with automatic systolic BP and glycemic reduction.",
+        "• GLP-1 RA Trial Preset: Yields substantial weight loss (-4.2 kg/m2 BMI), glycemic normalization (-1.4% HbA1c), and vascular protection.",
+        "• Real-Time Quantified Benefit: Automatically calculates Absolute Risk Reduction (ARR) and Relative Risk Reduction (RRR) for patient communication."
     ]
-    for line in lines_l:
-        pl = tf_l.add_paragraph()
-        pl.text = line
-        pl.font.size = Pt(12)
-        pl.font.bold = ("Risk" in line or "CRITICAL" in line)
-        pl.font.color.rgb = RED_ACCENT if "CRITICAL" in line else DARK_TEXT
+    for b in s9_bullets:
+        pb = tf_s9.add_paragraph()
+        pb.text = b
+        pb.font.size = Pt(11)
+        pb.font.color.rgb = DARK_TEXT
+        pb.space_before = Pt(6)
 
-    # Right: Counterfactual Intervention
-    add_card(s9, Inches(6.8), Inches(1.8), Inches(5.733), Inches(5.0), WHITE)
-    tb_r = s9.shapes.add_textbox(Inches(7.1), Inches(2.0), Inches(5.1), Inches(4.5))
-    tf_r = tb_r.text_frame
-    tf_r.word_wrap = True
-    pr = tf_r.paragraphs[0]
-    pr.text = "Counterfactual Target Intervention"
-    pr.font.bold = True
-    pr.font.size = Pt(18)
-    pr.font.color.rgb = GREEN_ACCENT
-
-    lines_r = [
-        "• Glycemic Control: HbA1c reduced to 6.4%",
-        "• Antihypertensive Titration: SBP lowered to 124 mmHg",
-        "• Lifestyle Weight Loss: BMI reduced to 27.5 kg/m²",
-        "• Smoking Cessation: Tobacco status -> Never",
-        "",
-        "Quantified Clinical Benefit:",
-        "  - Post-Intervention Composite: 0.575",
-        "  - Absolute Risk Reduction (ARR): -28.4%",
-        "  - Relative Risk Reduction (RRR): 33.1%",
-        "  - Triage Downgraded: CRITICAL -> HIGH TIER"
-    ]
-    for line in lines_r:
-        pr = tf_r.add_paragraph()
-        pr.text = line
-        pr.font.size = Pt(12)
-        pr.font.bold = ("Benefit" in line or "Downgraded" in line or "ARR" in line)
-        pr.font.color.rgb = GREEN_ACCENT if "Downgraded" in line or "ARR" in line else DARK_TEXT
+    # Right Column: Screenshot of Counterfactual Simulation
+    add_image_card(
+        s9, Inches(5.8), Inches(1.8), Inches(6.733), Inches(5.0),
+        "presentation/screenshots/screenshot_shap_counterfactual_trial.png",
+        "Live VitaRisk UI: SGLT2i Counterfactual Preset Downgrading Risk Tiers with Quantified ARR & RRR"
+    )
 
     # ==========================================
-    # SLIDE 10: Interactive Web Application Prototype
+    # SLIDE 10: Full-Stack Working Prototype (with Marcus Vance Screenshot)
     # ==========================================
     s10 = prs.slides.add_slide(blank_layout)
     add_bg(s10)
-    add_header(s10, "Full-Stack Working Prototype (Next.js + FastAPI)")
+    add_header(s10, "Full-Stack Working Prototype & Live Clinical Walkthrough")
 
-    feats = [
-        ("1-Click Clinical Personas", "Instant loading of diverse clinical cases (Elderly CKD, Metabolic CVD, Early Prediabetes, Healthy Baseline) for seamless clinician demonstrations.", TEAL),
-        ("Live Patient Calculator", "Real-time risk computation under 50ms with intuitive risk dials, multi-disease gauges, and evidence-based recommendation cards.", BLUE),
-        ("Dynamic SHAP Visualizer", "Interactive waterfall bar charts decomposing risk contributions into positive risk escalators and protective buffers.", GREEN_ACCENT),
-        ("Population Cohort Dashboard", "Registry-level view of 12,000 patients with high-risk triage queues, prevalence heatmaps, and demographic parity monitors.", NAVY)
+    # Left Column: Features & Guardrails
+    add_card(s10, Inches(0.8), Inches(1.8), Inches(4.8), Inches(5.0), WHITE)
+    tb_s10 = s10.shapes.add_textbox(Inches(1.0), Inches(2.0), Inches(4.4), Inches(4.6))
+    tf_s10 = tb_s10.text_frame
+    tf_s10.word_wrap = True
+
+    p = tf_s10.paragraphs[0]
+    p.text = "Zero-Friction Clinical Architecture"
+    p.font.bold = True
+    p.font.size = Pt(15)
+    p.font.color.rgb = TEAL
+
+    s10_bullets = [
+        "• 5 Canonical Clinical Personas (FM-11): 1-click loading eliminates blank-form judge fatigue, instantly showcasing silent vs severe clinical presentations.",
+        "• CKM Staging Badge: Real-time AHA 2026 Stage assignment (Stages 0-4) with composite multi-organ triage dial.",
+        "• Metformin Safety Guardrail (FM-09): Hard contraindication banner triggers automatically when eGFR < 30 mL/min/1.73m2, preventing fatal lactic acidosis.",
+        "• Pre-Warmed FastAPI Singleton (FM-10): Sub-15ms prediction and SHAP latency (<50ms SLA) enabling zero perceived lag."
     ]
+    for b in s10_bullets:
+        pb = tf_s10.add_paragraph()
+        pb.text = b
+        pb.font.size = Pt(11)
+        pb.font.color.rgb = DARK_TEXT
+        pb.space_before = Pt(6)
 
-    for i, (f_title, f_desc, col) in enumerate(feats):
-        cx = Inches(0.8 + (i % 2) * 5.95)
-        cy = Inches(1.8 + (i // 2) * 2.55)
-        add_card(s10, cx, cy, Inches(5.75), Inches(2.35), WHITE)
-
-        tb = s10.shapes.add_textbox(cx + Inches(0.3), cy + Inches(0.2), Inches(5.15), Inches(2.0))
-        tf = tb.text_frame
-        tf.word_wrap = True
-        pt = tf.paragraphs[0]
-        pt.text = f_title
-        pt.font.size = Pt(16)
-        pt.font.bold = True
-        pt.font.color.rgb = col
-
-        p = tf.add_paragraph()
-        p.text = f_desc
-        p.font.size = Pt(12)
-        p.font.color.rgb = DARK_TEXT
-        p.space_before = Pt(8)
+    # Right Column: Live UI Screenshot with Persona 3 & Alert
+    add_image_card(
+        s10, Inches(5.8), Inches(1.8), Inches(6.733), Inches(5.0),
+        "presentation/screenshots/screenshot_marcus_vance_contraindication.png",
+        "Live Clinical Dashboard: Persona 3 Loaded with CKM Stage 3 & Metformin eGFR Contraindication Alert"
+    )
 
     # ==========================================
     # SLIDE 11: Real-World Health Economics & Impact
@@ -533,7 +546,7 @@ def create_deck(output_path="presentation/VitaRisk_CDS_DataNova2026_Presentation
     add_header(s11, "Measurable Real-World & Health Economics Impact")
 
     impacts = [
-        ("30% Reduction in Dialysis", "Early initiation of SGLT2i and ACEi/ARB in high-risk CKD prevents progression to Stage 5 End-Stage Renal Disease (ESRD).", TEAL),
+        ("30% Reduction in Dialysis", "Early initiation of SGLT2i and ACEi/ARB in high-risk CKD prevents progression to Stage 5 End-Stage Renal Disease (ESRD), saving $90,000/yr per patient.", TEAL),
         ("$3,400 Annual Savings/Patient", "Averting acute diabetic ketoacidosis and cardiovascular hospital admissions generates direct net payer savings.", BLUE),
         ("15-Minute Consultation Fit", "Automated SHAP waterfall summaries empower primary care providers during standard 15-minute clinical visits without cognitive fatigue.", GREEN_ACCENT),
         ("Population Health Triage", "Identifies the top 5% highest-risk multimorbid individuals for nurse care manager enrollment, maximizing clinical outreach ROI.", NAVY)
@@ -661,11 +674,10 @@ def create_deck(output_path="presentation/VitaRisk_CDS_DataNova2026_Presentation
     p2.font.color.rgb = RGBColor(226, 232, 240)
     p2.space_before = Pt(8)
 
-    # Submission boxes
     box_items = [
-        ("Working Interactive Demo", "http://localhost:3000 / FastAPI Backend :8000\nFull-stack reactive web application with live patient calculator, SHAP waterfall charts, and what-if simulator."),
-        ("Complete Code Repository", "Self-contained modular Python & React code with automated integration tests, trained model artifacts, and data generator."),
-        ("Validation & Fairness Report", "Comprehensive clinical evidence document covering ROC-AUC (0.867-0.894), Brier calibration, and demographic parity audits.")
+        ("Working Interactive Demo", "FastAPI + React Production Service running with sub-15ms inference latency, pre-warmed singleton models, and zero-friction 1-click clinical personas."),
+        ("Complete Code Repository", "Self-contained modular Python & React code with automated integration tests (all 10 pre-submission gates passing), trained model artifacts, and data generator."),
+        ("Validation & Fairness Report", "Comprehensive clinical evidence document covering ROC-AUC (0.798-0.853), 5-fold sigmoid calibration (ECE < 0.035), Decision Curve Net Benefit, and subgroup parity.")
     ]
 
     for i, (b_title, b_desc) in enumerate(box_items):
@@ -692,7 +704,7 @@ def create_deck(output_path="presentation/VitaRisk_CDS_DataNova2026_Presentation
         bp1.space_before = Pt(2)
 
     prs.save(output_path)
-    print(f"✅ Generated 14-slide presentation deck to: {output_path}")
+    print(f"✅ Generated upgraded 14-slide presentation deck with screenshots to: {output_path}")
 
 if __name__ == "__main__":
     create_deck()

@@ -10,7 +10,8 @@ import {
   Cell, PieChart, Pie, LineChart, Line, CartesianGrid, Legend
 } from 'recharts';
 
-const API_BASE = 'http://localhost:8000';
+// Universal API origin resolution: supports Vite dev (5173), local FastAPI (8000), and cloud deployment (HF Spaces, Render, Railway)
+const API_BASE = (typeof window !== 'undefined' && window.location.port === '5173') ? 'http://localhost:8000' : '';
 
 const CANONICAL_PERSONAS = [
   {

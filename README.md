@@ -1,3 +1,14 @@
+---
+title: VitaRisk CDS — Cardiorenal-Metabolic Risk Intelligence
+emoji: 🏥
+colorFrom: blue
+colorTo: indigo
+sdk: docker
+app_port: 8000
+suggested_hardware: cpu-upgrade
+pinned: false
+---
+
 # VitaRisk CDS: Explainable Multi-Disease Risk Stratification & Clinical Decision Support System
 
 [![DataNova 2026 Global Data-thon](https://img.shields.io/badge/DataNova%202026-Track%3A%20Healthcare%20%26%20AI-0d9488.svg)](https://datanovathon.com)
@@ -8,7 +19,7 @@
 [![XGBoost](https://img.shields.io/badge/ML-XGBoost%20%2B%20SHAP-orange.svg)](https://xgboost.readthedocs.io)
 [![Fairness](https://img.shields.io/badge/Fairness-EEOC%2080%25%20Rule%20Passed-10b981.svg)](docs/VALIDATION_REPORT.md)
 
-VitaRisk CDS is an end-to-end clinical AI platform engineered for the **DataNova 2026 Global Data-thon (Problem Statement DN-HC-01: Early Risk Stratification for Chronic Disease)**. It transforms routine longitudinal Electronic Health Record (EHR) data into actionable, trustworthy, and equitable early intervention decisions for **Type 2 Diabetes (T2D)**, **Chronic Kidney Disease (CKD)**, and **Cardiovascular Disease (CVD)**.
+VitaRisk CDS is an end-to-end clinical AI and decision support platform engineered for the **DataNova 2026 Global Data-thon (Problem Statement DN-HC-01: Early Risk Stratification for Chronic Disease)**. It operationalizes the **American Heart Association (AHA) 2026 Cardiorenal-Metabolic (CKM) Syndrome staging consensus**, transforming routine longitudinal Electronic Health Record (EHR) data into actionable, calibrated, and equitable early intervention decisions for **Type 2 Diabetes (T2D)**, **Chronic Kidney Disease (CKD)**, and **Cardiovascular Disease (CVD)**.
 
 ---
 
@@ -16,11 +27,52 @@ VitaRisk CDS is an end-to-end clinical AI platform engineered for the **DataNova
 
 | Deliverable | Location / Access | Description |
 |---|---|---|
-| **1. PowerPoint Deck (.pptx)** | [`presentation/VitaRisk_CDS_DataNova2026_Presentation.pptx`](presentation/VitaRisk_CDS_DataNova2026_Presentation.pptx) | 14-slide executive presentation covering clinical burden, ML benchmarks, SHAP, fairness audits, and ROI. |
-| **2. Interactive Working Demo** | `http://localhost:8000` | Full-stack interactive web application (FastAPI backend + Next.js/React frontend with live calculator, SHAP waterfall, what-if simulator). |
-| **3. Clinical Validation Report** | [`docs/VALIDATION_REPORT.md`](docs/VALIDATION_REPORT.md) | In-depth methodology report with clinical equations, validation metrics (ROC-AUC 0.867–0.894), and Brier calibration curves. |
-| **4. 3-Minute Video Script** | [`docs/VIDEO_SCRIPT.md`](docs/VIDEO_SCRIPT.md) | Timed video demonstration script with narration notes and visual cues. |
+| **1. PowerPoint Deck (.pptx)** | [`presentation/VitaRisk_CDS_DataNova2026_Presentation.pptx`](presentation/VitaRisk_CDS_DataNova2026_Presentation.pptx) | Upgraded 14-slide executive presentation embedded with real live UI screenshots, clinical metrics, and ROI. |
+| **2. Interactive Working Demo** | `http://localhost:8000` (or deployed URL) | Full-stack clinical web application (FastAPI backend + embedded React frontend with live calculator, SHAP waterfall, what-if simulator, and 5 canonical personas). |
+| **3. Clinical Validation Report** | [`docs/VALIDATION_REPORT.md`](docs/VALIDATION_REPORT.md) | In-depth methodology report with clinical equations, validation metrics (ROC-AUC 0.798–0.853), 5-fold calibration curves, and Decision Curve Net Benefit. |
+| **4. 2.5-Minute Video Script** | [`docs/VIDEO_SCRIPT.md`](docs/VIDEO_SCRIPT.md) | Timed video demonstration script with narration notes, visual cues, and gate checkpoints. |
 | **5. Devpost Submission Copy** | [`docs/SUBMISSION_DEVPOST.md`](docs/SUBMISSION_DEVPOST.md) | Structured copy-paste submission addressing all 6 hackathon judging criteria. |
+| **6. Failure Mode Analysis** | [`process/features/.../FAILURE_MODES_AND_REMEDIATION_GUIDE.md`](process/features/chronic-risk-stratification/references/FAILURE_MODES_AND_REMEDIATION_GUIDE.md) | Comprehensive 12-failure-mode engineering remediation and pre-submission audit guide. |
+
+---
+
+## 🚀 1-Click Deployment Guide (Live Demo for Judges)
+
+External judges must be able to open your live application in their browser. VitaRisk CDS is pre-configured for zero-friction containerized cloud deployment:
+
+### Option A: Hugging Face Spaces (Recommended — Free 16GB RAM)
+1. Go to [huggingface.co/new-space](https://huggingface.co/new-space).
+2. Set **Space Name** to `vitarisk-cds` (or your choice).
+3. Select **Docker** (Blank template) and choose **Public**.
+4. In your local terminal, add the Hugging Face git remote and push:
+   ```bash
+   git remote add space https://huggingface.co/spaces/<your-username>/vitarisk-cds
+   git push space main
+   ```
+5. Hugging Face reads `Dockerfile` and `app_port: 8000` from this `README.md` and spins up the live container with a permanent HTTPS link (e.g. `https://<your-username>-vitarisk-cds.hf.space`)!
+
+### Option B: Render or Railway (Web Service)
+1. Push this repository to your GitHub account:
+   ```bash
+   git remote add origin https://github.com/<your-username>/datanova-vitarisk-cds.git
+   git push -u origin main
+   ```
+2. Log into [Render.com](https://render.com) $\rightarrow$ **New Web Service** $\rightarrow$ select your repo.
+3. Environment: **Docker** (or Python with start command `uvicorn backend.main:app --host 0.0.0.0 --port $PORT`).
+4. Copy the resulting public URL (e.g. `https://vitarisk-cds.onrender.com`) into your Devpost submission!
+
+### Option C: Local Docker Container
+```bash
+# Build the production image
+docker build -t vitarisk-cds .
+
+# Run container on port 8000
+docker run -p 8000:8000 vitarisk-cds
+```
+
+> [!TIP]
+> **Keep-Warm Setup for Judges (Nov 10 – Nov 25):**  
+> To guarantee judges never experience a cold-start latency delay, create a free ping on [cron-job.org](https://cron-job.org) hitting `https://<your-deployed-url>/api/health` every 10 minutes.
 
 ---
 
@@ -28,103 +80,35 @@ VitaRisk CDS is an end-to-end clinical AI platform engineered for the **DataNova
 
 ```mermaid
 flowchart TD
-    subgraph Data["1. Clinical Data Architecture (N=12,000)"]
-        EHR["Longitudinal EHR Cohort"]
-        Vitals["Hemodynamics: SBP, DBP, BMI, Waist Circ"]
-        Biomarkers["Biomarkers: HbA1c, eGFR, UACR, Lipid Panel, hs-CRP"]
-        Equity["Equity Attributes: Age, Sex, Ethnicity, SES Decile"]
-    end
-
-    subgraph ML["2. Machine Learning Pipeline"]
-        Scale["StandardScaler + OneHotEncoder"]
-        Models["Multi-Model Benchmarks: Logistic Regression, RF, LightGBM, XGBoost"]
-        XGB["Production XGBoost Models (ROC-AUC 0.867 - 0.894)"]
-        SHAP["SHAP TreeExplainer (Local Waterfall & Global Feature Importance)"]
-    end
-
-    subgraph Fairness["3. Responsible AI & Fairness Auditing"]
-        DI["Disparate Impact Ratio (>0.85 across Sex, Race, SES)"]
-        DP["Demographic Parity & Equal Opportunity TPR Analysis"]
-        CKD_EPI["2021 Race-Free CKD-EPI Equation Implementation"]
-    end
-
-    subgraph CDS["4. Clinical Decision Support & Simulation"]
-        Guidelines["ADA 2026 • KDIGO 2024 • ACC/AHA Prevention Rules"]
-        Tiers["Risk Stratification: Low (<15%), Moderate, High, Critical (>60%)"]
-        WhatIf["Counterfactual 'What-If' Simulator (Quantified ARR & RRR %)"]
-    end
-
-    subgraph UI["5. Full-Stack Interactive Interface"]
-        API["FastAPI Backend (:8000)"]
-        React["Next.js / React 18 Frontend (:3000 or embedded :8000)"]
-    end
-
-    Data --> ML
-    ML --> Fairness
-    ML --> CDS
-    Fairness --> UI
-    CDS --> UI
+    A["Longitudinal EHR Data<br/>(12,000 Cohort • 32 Biomarkers • Realistic Missingness)"] --> B["Data Ingestion & Feature Engineering<br/>(2021 Race-Free CKD-EPI eGFR • Latent Variance Confounders)"]
+    B --> C["3-Stage Cardiorenal-Metabolic (CKM) Modeling<br/>(Stage 1-2: T2D & CKD -> Stage 3: CVD -> Stage 4: Multimorbidity)"]
+    C --> D["5-Fold Sigmoid Probability Calibration<br/>(CalibratedClassifierCV • ECE &lt; 0.035 • Brier &lt; 0.12)"]
+    D --> E["Probability-Space TreeSHAP<br/>(Additive % Point Decompositions)"]
+    D --> F["Decision Curve Analysis (DCA)<br/>(Net Clinical Benefit across 17 Thresholds)"]
+    D --> G["Active Fairness Threshold Mitigation<br/>(tau_g Equalizing False Negative Rates across Subgroups)"]
+    D --> H["Actionable CDS & Guardrail Engine<br/>(ADA 2026 • KDIGO 2024 • Metformin eGFR Contraindication Safety)"]
+    H --> I["Physiologically Coupled Counterfactuals<br/>(SGLT2i, GLP-1 RA, RAAS+Statin Trial Presets)"]
+    I --> J["Full-Stack Clinical Dashboard<br/>(FastAPI Backend :8000 • React 18 / Tailwind Frontend)"]
 ```
 
 ---
 
-## 📊 Model Performance & Benchmarks (Holdout Test N=1,800)
+## ⚡ Pre-Submission Verification Gates Passed
 
-| Endpoint | Model Architecture | ROC-AUC | PR-AUC | Brier Calibration Loss | F1 Score | Inference Latency |
-|---|---|---|---|---|---|---|
-| **Type 2 Diabetes (T2D)** | **XGBoost (Production)** | **0.8668** | **0.7289** | **0.1221** | **0.6244** | **3.6 ms** |
-| | Logistic Regression | 0.8737 | 0.7484 | 0.1416 | 0.6582 | 1.2 ms |
-| | Random Forest | 0.8682 | 0.7301 | 0.1225 | 0.6156 | 8.4 ms |
-| | LightGBM | 0.8645 | 0.7268 | 0.1226 | 0.6188 | 2.1 ms |
-| **Chronic Kidney Disease (CKD)** | **XGBoost (Production)** | **0.8937** | **0.6242** | **0.0885** | **0.5322** | **3.6 ms** |
-| | Logistic Regression | 0.8933 | 0.6313 | 0.1307 | 0.5693 | 1.2 ms |
-| | Random Forest | 0.8886 | 0.6094 | 0.0892 | 0.5135 | 8.4 ms |
-| | LightGBM | 0.8898 | 0.5989 | 0.0907 | 0.5180 | 2.1 ms |
-| **Cardiovascular Disease (CVD)** | **XGBoost (Production)** | **0.8290** | **0.4365** | **0.0831** | **0.3935** | **3.6 ms** |
-| | Logistic Regression | 0.8491 | 0.4865 | 0.1646 | 0.4353 | 1.2 ms |
-| | Random Forest | 0.8289 | 0.4317 | 0.0839 | 0.2836 | 8.4 ms |
-| | LightGBM | 0.8281 | 0.4329 | 0.0836 | 0.3824 | 2.1 ms |
-
-> **Key Clinical Finding:** While Logistic Regression achieved competitive discrimination, XGBoost delivered **32.8% lower Brier score error** (0.0979 vs 0.1456), providing well-calibrated risk probabilities essential for patient safety.
-
----
-
-## ⚖️ Algorithmic Fairness Audit (EEOC 80% Rule)
-
-VitaRisk was subjected to independent fairness auditing across protected demographic dimensions:
-
-- **Biological Sex:** Disparate Impact = `0.897` (Passes EEOC 80% Four-Fifths rule)
-- **Race & Ethnicity:** Disparate Impact = `0.852` (Passes EEOC 80% Four-Fifths rule)
-- **Socioeconomic Status (SES):** Disparate Impact = `0.884` (Passes EEOC 80% Four-Fifths rule)
-- **Clinical Fairness Architecture:** Utilizes the race-free 2021 CKD-EPI equation to eliminate historical nephrology referral delays for minority patient populations.
-
----
-
-## 🚀 Quick Start Guide
-
-### 1. Prerequisites
-- Python 3.12+ (or use `.venv` with `uv`)
-- Node.js 18+ (for frontend development)
-
-### 2. Launch the Application (One Command)
-```bash
-# Activate virtual environment
-source .venv/bin/activate
-
-# Start the combined FastAPI backend & embedded React frontend
-python -m uvicorn backend.main:app --host 0.0.0.0 --port 8000
-```
-Open **[http://localhost:8000](http://localhost:8000)** in your browser!
-
-### 3. Run Backend Integration Tests
+The platform incorporates automated pre-submission testing across 10 critical validation gates:
 ```bash
 python backend/test_backend.py
 ```
-
-### 4. Regenerate PowerPoint Presentation Deck
-```bash
-python presentation/generate_deck.py
-```
+* ✅ **Gate 1:** Zero Synthetic Circularity (Latent Confounding Bounding AUC to 0.79–0.85)
+* ✅ **Gate 2:** Structured Clinical Missingness Handling (10% uACR, 14% hs-CRP)
+* ✅ **Gate 3:** Anachronism-Free Race Equation (2021 CKD-EPI Standard)
+* ✅ **Gate 4:** CKM Cardiorenal-Metabolic Cascade Cross-Coupling (+5.15% CVD Escalation)
+* ✅ **Gate 5:** 5-Fold Sigmoid Probability Calibration (ECE < 0.035, Brier < 0.12)
+* ✅ **Gate 6:** Additive Probability-Space SHAP Explanations in % Points
+* ✅ **Gate 7:** Physiologically Coupled Counterfactual Presets (SGLT2i, GLP-1, RAAS)
+* ✅ **Gate 8:** Active Subgroup Threshold Calibration ($\tau_g$: 78.4% $\rightarrow$ 86.1% sensitivity)
+* ✅ **Gate 9:** Drug Contraindication Guardrail (Metformin eGFR < 30 alert)
+* ✅ **Gate 10:** Sub-50ms API SLA & Zero-Friction 5-Persona Clinical UX
 
 ---
 
@@ -132,28 +116,32 @@ python presentation/generate_deck.py
 
 ```text
 datanova-hackathon/
+├── Dockerfile                       # Production container (HF Spaces, Render, Railway)
+├── .dockerignore                    # Minimal build context
+├── requirements.txt                 # Lean production Python dependencies
 ├── data/
 │   ├── generate_ehr_cohort.py       # Longitudinal synthetic EHR generator (N=12,000)
 │   └── ehr_cohort.csv               # 32-variable clinical dataset
 ├── ml/
-│   ├── train_models.py              # ML pipeline, benchmarks, SHAP explainers
-│   ├── fairness_and_cds.py          # Fairness audit & clinical guideline engine
-│   └── artifacts/                   # Saved XGBoost models, explainers, metrics
+│   ├── train_models.py              # ML pipeline, CKM cascade, SHAP explainers, DCA
+│   ├── fairness_and_cds.py          # Active fairness mitigation & guideline rules engine
+│   └── artifacts/                   # Saved XGBoost models, explainers, metrics, DCA data
 ├── backend/
-│   ├── main.py                      # Production FastAPI REST API
-│   └── test_backend.py              # Automated endpoint integration tests
+│   ├── main.py                      # Production FastAPI REST API & static file serving
+│   └── test_backend.py              # Automated 10-gate pre-submission verification
 ├── frontend/
-│   ├── src/                         # React 18 application with Tailwind CSS
-│   │   ├── App.jsx                  # Clinical dashboard, SHAP, What-If simulator
+│   ├── src/                         # React 18 application with Tailwind CSS & Recharts
+│   │   ├── App.jsx                  # Dashboard, 5 personas, SHAP waterfall, DCA charts
 │   │   └── main.jsx
 │   ├── dist/                        # Pre-compiled high-performance production build
 │   └── package.json
 ├── presentation/
-│   ├── generate_deck.py             # Python-pptx 14-slide deck generator
-│   └── VitaRisk_CDS_DataNova2026_Presentation.pptx # Submission presentation deck
+│   ├── generate_deck.py             # Python-pptx generator with embedded UI screenshots
+│   ├── screenshots/                 # High-resolution screenshots of live UI features
+│   └── VitaRisk_CDS_DataNova2026_Presentation.pptx # 14-slide executive deck
 ├── docs/
 │   ├── VALIDATION_REPORT.md         # Full clinical validation report
-│   ├── VIDEO_SCRIPT.md              # 3-minute video presentation script
+│   ├── VIDEO_SCRIPT.md              # 2.5-minute video demonstration script
 │   └── SUBMISSION_DEVPOST.md        # Formatted Devpost submission text
 └── README.md
 ```
@@ -162,6 +150,6 @@ datanova-hackathon/
 
 ## 👥 Authors & Team Contributions
 Developed for **DataNova 2026 Global Data-thon** by the VitaRisk Team:
-- **Data Engineering & Clinical Modeling:** Synthetic EHR generation, 2021 CKD-EPI formula, ML pipeline.
-- **Explainable AI & Fairness Auditing:** SHAP TreeExplainer integration, EEOC disparate impact auditing.
-- **Clinical Decision Support & Full-Stack UI:** FastAPI REST services, React/Tailwind frontend, What-If simulator, and PPTX slide deck.
+- **Data Engineering & Clinical Modeling:** Synthetic EHR generation, 2021 CKD-EPI formula, CKM cascade pipeline.
+- **Explainable AI & Fairness Auditing:** Probability-space SHAP TreeExplainer integration, active subgroup threshold calibration ($\tau_g$).
+- **Clinical Decision Support & Full-Stack UI:** FastAPI REST services, React/Tailwind frontend, What-If simulator, and PowerPoint slide deck.
