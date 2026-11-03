@@ -17,7 +17,7 @@ from typing import Dict, List, Any, Optional
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, JSONResponse
 from pydantic import BaseModel, Field
 import pandas as pd
 import numpy as np
@@ -288,8 +288,21 @@ def stream_walkthrough_video():
         return FileResponse(video_path, media_type="video/mp4")
     raise HTTPException(status_code=404, detail="Video not found")
 
+SCREENSHOTS_DIR = os.path.join(BASE_DIR, "presentation/screenshots")
+if os.path.exists(SCREENSHOTS_DIR):
+    app.mount("/presentation/screenshots", StaticFiles(directory=SCREENSHOTS_DIR), name="screenshots")
+
 FRONTEND_DIST = os.path.join(BASE_DIR, "frontend/dist")
 if os.path.exists(FRONTEND_DIST):
+    @app.exception_handler(404)
+    async def spa_fallback(request, exc):
+        if request.url.path.startswith("/api/"):
+            return JSONResponse(status_code=404, content={"detail": "API endpoint not found"})
+        index_file = os.path.join(FRONTEND_DIST, "index.html")
+        if os.path.exists(index_file):
+            return FileResponse(index_file)
+        return JSONResponse(status_code=404, content={"detail": "Resource not found"})
+
     app.mount("/", StaticFiles(directory=FRONTEND_DIST, html=True), name="frontend")
 
 if __name__ == "__main__":

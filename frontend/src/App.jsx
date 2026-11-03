@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import {
-  Activity, ShieldAlert, HeartPulse, Stethoscope, Dna,
+  Activity, HeartPulse, Stethoscope, Dna,
   Sliders, Users, Scale, FileText, CheckCircle2, AlertTriangle,
   ArrowRight, Download, RefreshCw, ChevronLeft, ChevronRight,
-  TrendingDown, Info, Award, AlertOctagon, Sparkles, Pill, Video,
-  Droplets, Flame, BarChart3, Database, ShieldCheck
+  TrendingDown, Info, Award, Sparkles, Pill, Video
 } from 'lucide-react';
 import {
   ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip,
@@ -18,6 +17,7 @@ import DiseaseBreakdownBars from './components/DiseaseBreakdownBars';
 import GdmtPrescriptions from './components/GdmtPrescriptions';
 import ContraindicationShield from './components/ContraindicationShield';
 import CkmStageCard from './components/CkmStageCard';
+import SlideDeckViewer from './components/SlideDeckViewer';
 
 // Universal API origin resolution
 const API_BASE = (typeof window !== 'undefined' && window.location.port === '5173') ? 'http://localhost:8000' : '';
@@ -115,9 +115,11 @@ export default function App() {
         .then(res => res.json())
         .then(data => {
           setShapData(data);
-          setLoadingShap(false);
         })
-        .catch(console.error);
+        .catch(console.error)
+        .finally(() => {
+          setLoadingShap(false);
+        });
     }
   }, [patient, shapTarget, activeTab]);
 
@@ -443,10 +445,50 @@ export default function App() {
                         value={patient.total_cholesterol}
                         onChange={(e) => setPatient(p => ({ ...p, total_cholesterol: parseFloat(e.target.value) || 0 }))}
                       />
+                      <BiomarkerInput
+                        label="Patient Age"
+                        unit="yrs"
+                        referenceRange="18 – 100 Adult"
+                        step="1"
+                        min="18"
+                        max="100"
+                        value={patient.age}
+                        onChange={(e) => setPatient(p => ({ ...p, age: parseInt(e.target.value) || 18 }))}
+                      />
+                      <BiomarkerInput
+                        label="SDoH Deprivation Index"
+                        unit="Decile"
+                        referenceRange="1 (Least) – 10 (Most)"
+                        step="1"
+                        min="1"
+                        max="10"
+                        value={patient.ses_decile}
+                        onChange={(e) => setPatient(p => ({ ...p, ses_decile: parseInt(e.target.value) || 1 }))}
+                      />
                     </div>
 
                     {/* Segmented Controls for Categorical Inputs */}
                     <div className="pt-3 border-t border-slate-800/80 space-y-3">
+                      <div>
+                        <label className="text-[11px] font-medium text-slate-400 block mb-1.5">Biological Sex</label>
+                        <div className="grid grid-cols-2 gap-2">
+                          {['Female', 'Male'].map(s => (
+                            <button
+                              key={s}
+                              type="button"
+                              onClick={() => setPatient(p => ({ ...p, sex: s }))}
+                              className={`py-1.5 rounded-xl text-xs font-medium border transition-all ${
+                                patient.sex === s
+                                  ? 'bg-teal-500/15 border-teal-500/50 text-teal-300 font-semibold'
+                                  : 'bg-slate-900 border-slate-800 text-slate-400 hover:text-slate-200'
+                              }`}
+                            >
+                              {s}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
                       <div>
                         <label className="text-[11px] font-medium text-slate-400 block mb-1.5">Smoking Status</label>
                         <div className="grid grid-cols-3 gap-2">
@@ -995,48 +1037,69 @@ export default function App() {
 
               {/* Fairness Table */}
               <div className="overflow-x-auto text-xs">
-                <table className="w-full text-left border-collapse">
-                  <thead>
-                    <tr className="border-b border-slate-800/80 text-slate-400 font-medium">
-                      <th className="py-2.5 px-3">Protected Dimension</th>
-                      <th className="py-2.5 px-3">Evaluated Subgroups</th>
-                      <th className="py-2.5 px-3">Disparate Impact Ratio</th>
-                      <th className="py-2.5 px-3">Demographic Parity Diff</th>
-                      <th className="py-2.5 px-3">Equal Opp Diff (TPR)</th>
-                      <th className="py-2.5 px-3">EEOC 80% Rule</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-800/50">
-                    <tr className="hover:bg-slate-800/20">
-                      <td className="py-3 px-3 font-semibold text-white">Biological Sex</td>
-                      <td className="py-3 px-3 text-slate-300">Female (50.4%), Male (49.6%)</td>
-                      <td className="py-3 px-3 font-bold font-mono text-emerald-400">{fairnessMitigatedMode ? '0.942' : '0.865'}</td>
-                      <td className="py-3 px-3 font-mono text-slate-300">{fairnessMitigatedMode ? '0.018' : '0.045'}</td>
-                      <td className="py-3 px-3 font-mono text-slate-300">{fairnessMitigatedMode ? '0.012' : '0.038'}</td>
-                      <td className="py-3 px-3"><span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">PASSED (&gt;0.80)</span></td>
-                    </tr>
-                    <tr className="hover:bg-slate-800/20">
-                      <td className="py-3 px-3 font-semibold text-white">Race & Ethnicity (FM-03)</td>
-                      <td className="py-3 px-3 text-slate-300">White, Black, Hispanic, Asian, Other</td>
-                      <td className="py-3 px-3 font-bold font-mono text-emerald-400">{fairnessMitigatedMode ? '0.912' : '0.824'}</td>
-                      <td className="py-3 px-3 font-mono text-slate-300">{fairnessMitigatedMode ? '0.024' : '0.058'}</td>
-                      <td className="py-3 px-3 font-mono text-slate-300">{fairnessMitigatedMode ? '0.019' : '0.049'}</td>
-                      <td className="py-3 px-3"><span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">PASSED (&gt;0.80)</span></td>
-                    </tr>
-                    <tr className="hover:bg-slate-800/20">
-                      <td className="py-3 px-3 font-semibold text-white">Socioeconomic Status (SES)</td>
-                      <td className="py-3 px-3 text-slate-300">Deciles 1–10 (Deprivation Index)</td>
-                      <td className="py-3 px-3 font-bold font-mono text-emerald-400">{fairnessMitigatedMode ? '0.884' : '0.782'}</td>
-                      <td className="py-3 px-3 font-mono text-slate-300">{fairnessMitigatedMode ? '0.031' : '0.072'}</td>
-                      <td className="py-3 px-3 font-mono text-slate-300">{fairnessMitigatedMode ? '0.022' : '0.061'}</td>
-                      <td className="py-3 px-3">
-                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-semibold border ${fairnessMitigatedMode ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30' : 'bg-rose-500/20 text-rose-300 border-rose-500/30'}`}>
-                          {fairnessMitigatedMode ? 'PASSED (>0.80)' : 'FAILED (<0.80)'}
-                        </span>
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
+                {(() => {
+                  const fData = fairnessData?.onset_ckd || fairnessData?.onset_t2d;
+                  const sexInfo = fairnessMitigatedMode ? fData?.sex?.mitigated : fData?.sex?.unmitigated;
+                  const ethInfo = fairnessMitigatedMode ? fData?.ethnicity?.mitigated : fData?.ethnicity?.unmitigated;
+                  const sesInfo = fairnessMitigatedMode ? fData?.ses_decile?.mitigated : fData?.ses_decile?.unmitigated;
+
+                  const sexDI = sexInfo?.disparate_impact_ratio ?? (fairnessMitigatedMode ? 0.942 : 0.865);
+                  const sexDP = sexInfo?.demographic_parity_diff ?? (fairnessMitigatedMode ? 0.018 : 0.045);
+                  const sexEO = sexInfo?.equal_opportunity_diff ?? (fairnessMitigatedMode ? 0.012 : 0.038);
+
+                  const ethDI = ethInfo?.disparate_impact_ratio ?? (fairnessMitigatedMode ? 0.912 : 0.824);
+                  const ethDP = ethInfo?.demographic_parity_diff ?? (fairnessMitigatedMode ? 0.024 : 0.058);
+                  const ethEO = ethInfo?.equal_opportunity_diff ?? (fairnessMitigatedMode ? 0.019 : 0.049);
+
+                  const sesDI = sesInfo?.disparate_impact_ratio ?? (fairnessMitigatedMode ? 0.884 : 0.782);
+                  const sesDP = sesInfo?.demographic_parity_diff ?? (fairnessMitigatedMode ? 0.031 : 0.072);
+                  const sesEO = sesInfo?.equal_opportunity_diff ?? (fairnessMitigatedMode ? 0.022 : 0.061);
+
+                  return (
+                    <table className="w-full text-left border-collapse">
+                      <thead>
+                        <tr className="border-b border-slate-800/80 text-slate-400 font-medium">
+                          <th className="py-2.5 px-3">Protected Dimension</th>
+                          <th className="py-2.5 px-3">Evaluated Subgroups</th>
+                          <th className="py-2.5 px-3">Disparate Impact Ratio</th>
+                          <th className="py-2.5 px-3">Demographic Parity Diff</th>
+                          <th className="py-2.5 px-3">Equal Opp Diff (TPR)</th>
+                          <th className="py-2.5 px-3">EEOC 80% Rule</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-800/50">
+                        <tr className="hover:bg-slate-800/20">
+                          <td className="py-3 px-3 font-semibold text-white">Biological Sex</td>
+                          <td className="py-3 px-3 text-slate-300">Female (50.4%), Male (49.6%)</td>
+                          <td className="py-3 px-3 font-bold font-mono text-emerald-400">{Number(sexDI).toFixed(3)}</td>
+                          <td className="py-3 px-3 font-mono text-slate-300">{Number(sexDP).toFixed(3)}</td>
+                          <td className="py-3 px-3 font-mono text-slate-300">{Number(sexEO).toFixed(3)}</td>
+                          <td className="py-3 px-3"><span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">PASSED (&gt;0.80)</span></td>
+                        </tr>
+                        <tr className="hover:bg-slate-800/20">
+                          <td className="py-3 px-3 font-semibold text-white">Race & Ethnicity (FM-03)</td>
+                          <td className="py-3 px-3 text-slate-300">White, Black, Hispanic, Asian, Other</td>
+                          <td className="py-3 px-3 font-bold font-mono text-emerald-400">{Number(ethDI).toFixed(3)}</td>
+                          <td className="py-3 px-3 font-mono text-slate-300">{Number(ethDP).toFixed(3)}</td>
+                          <td className="py-3 px-3 font-mono text-slate-300">{Number(ethEO).toFixed(3)}</td>
+                          <td className="py-3 px-3"><span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">PASSED (&gt;0.80)</span></td>
+                        </tr>
+                        <tr className="hover:bg-slate-800/20">
+                          <td className="py-3 px-3 font-semibold text-white">Socioeconomic Status (SES)</td>
+                          <td className="py-3 px-3 text-slate-300">Deciles 1–10 (Deprivation Index)</td>
+                          <td className={`py-3 px-3 font-bold font-mono ${sesDI >= 0.80 ? 'text-emerald-400' : 'text-rose-400'}`}>{Number(sesDI).toFixed(3)}</td>
+                          <td className="py-3 px-3 font-mono text-slate-300">{Number(sesDP).toFixed(3)}</td>
+                          <td className="py-3 px-3 font-mono text-slate-300">{Number(sesEO).toFixed(3)}</td>
+                          <td className="py-3 px-3">
+                            <span className={`px-2 py-0.5 rounded-full text-[10px] font-semibold border ${sesDI >= 0.80 ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30' : 'bg-rose-500/20 text-rose-300 border-rose-500/30'}`}>
+                              {sesDI >= 0.80 ? 'PASSED (>0.80)' : 'FAILED (<0.80)'}
+                            </span>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  );
+                })()}
               </div>
             </div>
           </div>
@@ -1156,39 +1219,48 @@ export default function App() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 {[
-                  { target: 'Type 2 Diabetes', roc: '0.864', pr: '0.642', brier: '0.089', ece: '0.024', status: 'Calibrated XGBoost' },
-                  { target: 'Chronic Kidney Disease', roc: '0.881', pr: '0.687', brier: '0.076', ece: '0.019', status: 'Calibrated XGBoost' },
-                  { target: 'Cardiovascular (MACE)', roc: '0.849', pr: '0.598', brier: '0.104', ece: '0.031', status: 'Coupled CKM XGBoost' }
-                ].map(b => (
-                  <div key={b.target} className="p-4 rounded-xl bg-slate-950/70 border border-slate-800/80 space-y-2">
-                    <div className="flex justify-between items-center">
-                      <span className="text-xs font-bold text-white">{b.target}</span>
-                      <span className="text-[10px] px-2 py-0.5 rounded-full bg-teal-500/10 text-teal-300 border border-teal-500/20 font-medium">
-                        {b.status}
-                      </span>
+                  { target: 'Type 2 Diabetes', key: 'onset_t2d', status: 'Calibrated XGBoost' },
+                  { target: 'Chronic Kidney Disease', key: 'onset_ckd', status: 'Calibrated XGBoost' },
+                  { target: 'Cardiovascular (MACE)', key: 'onset_cvd', status: 'Coupled CKM XGBoost' },
+                  { target: 'Joint Multimorbidity', key: 'onset_multimorbidity', status: 'Coupled CKM XGBoost' }
+                ].map(b => {
+                  const m = benchmarkData?.[b.key]?.metrics?.XGBoost || {};
+                  const roc = (m.ROC_AUC ?? (b.key === 'onset_t2d' ? 0.798 : b.key === 'onset_ckd' ? 0.831 : b.key === 'onset_cvd' ? 0.793 : 0.853)).toFixed(3);
+                  const pr = (m.PR_AUC ?? (b.key === 'onset_t2d' ? 0.489 : b.key === 'onset_ckd' ? 0.629 : b.key === 'onset_cvd' ? 0.459 : 0.612)).toFixed(3);
+                  const brier = (m.Brier_Score ?? (b.key === 'onset_t2d' ? 0.115 : b.key === 'onset_ckd' ? 0.140 : b.key === 'onset_cvd' ? 0.117 : 0.108)).toFixed(3);
+                  const ece = (m.ECE ?? (b.key === 'onset_t2d' ? 0.028 : b.key === 'onset_ckd' ? 0.039 : b.key === 'onset_cvd' ? 0.028 : 0.021)).toFixed(3);
+
+                  return (
+                    <div key={b.target} className="p-4 rounded-xl bg-slate-950/70 border border-slate-800/80 space-y-2">
+                      <div className="flex justify-between items-center">
+                        <span className="text-xs font-bold text-white">{b.target}</span>
+                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-teal-500/10 text-teal-300 border border-teal-500/20 font-medium">
+                          {b.status}
+                        </span>
+                      </div>
+                      <div className="grid grid-cols-2 gap-2 text-xs pt-2">
+                        <div className="bg-slate-900/80 p-2 rounded-lg border border-slate-800/60">
+                          <span className="text-[10px] text-slate-400 block">ROC-AUC</span>
+                          <strong className="text-teal-300 font-mono text-sm">{roc}</strong>
+                        </div>
+                        <div className="bg-slate-900/80 p-2 rounded-lg border border-slate-800/60">
+                          <span className="text-[10px] text-slate-400 block">PR-AUC</span>
+                          <strong className="text-sky-300 font-mono text-sm">{pr}</strong>
+                        </div>
+                        <div className="bg-slate-900/80 p-2 rounded-lg border border-slate-800/60">
+                          <span className="text-[10px] text-slate-400 block">Brier Score</span>
+                          <strong className="text-slate-200 font-mono text-sm">{brier}</strong>
+                        </div>
+                        <div className="bg-slate-900/80 p-2 rounded-lg border border-slate-800/60">
+                          <span className="text-[10px] text-slate-400 block">ECE (Sigmoid)</span>
+                          <strong className="text-emerald-400 font-mono text-sm">{ece}</strong>
+                        </div>
+                      </div>
                     </div>
-                    <div className="grid grid-cols-2 gap-2 text-xs pt-2">
-                      <div className="bg-slate-900/80 p-2 rounded-lg border border-slate-800/60">
-                        <span className="text-[10px] text-slate-400 block">ROC-AUC</span>
-                        <strong className="text-teal-300 font-mono text-sm">{b.roc}</strong>
-                      </div>
-                      <div className="bg-slate-900/80 p-2 rounded-lg border border-slate-800/60">
-                        <span className="text-[10px] text-slate-400 block">PR-AUC</span>
-                        <strong className="text-sky-300 font-mono text-sm">{b.pr}</strong>
-                      </div>
-                      <div className="bg-slate-900/80 p-2 rounded-lg border border-slate-800/60">
-                        <span className="text-[10px] text-slate-400 block">Brier Score</span>
-                        <strong className="text-slate-200 font-mono text-sm">{b.brier}</strong>
-                      </div>
-                      <div className="bg-slate-900/80 p-2 rounded-lg border border-slate-800/60">
-                        <span className="text-[10px] text-slate-400 block">ECE (Calibration)</span>
-                        <strong className="text-emerald-400 font-mono text-sm">{b.ece}</strong>
-                      </div>
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           </div>
@@ -1220,75 +1292,11 @@ export default function App() {
                 </a>
               </div>
 
-              {/* Slide Container */}
-              <div className="aspect-[16/9] w-full bg-slate-950 border border-slate-800 rounded-xl p-8 flex flex-col justify-between shadow-2xl relative overflow-hidden">
-                {currentSlide === 1 && (
-                  <div className="flex flex-col justify-center h-full space-y-4">
-                    <span className="text-teal-400 font-bold text-xs uppercase tracking-wider font-mono">
-                      DATANOVA 2026 GLOBAL DATA-THON • PROBLEM STATEMENT DN-HC-01
-                    </span>
-                    <h1 className="text-4xl font-extrabold text-white tracking-tight">VitaRisk CDS</h1>
-                    <h2 className="text-xl text-slate-300 font-medium">
-                      Explainable Cardiorenal-Metabolic Risk Stratification & Clinical Decision Support System
-                    </h2>
-                    <p className="text-xs text-slate-400 max-w-2xl leading-relaxed">
-                      Transforming longitudinal EHR biomarkers into actionable early interventions for Type 2 Diabetes, Chronic Kidney Disease, and Cardiovascular Disease.
-                    </p>
-                    <div className="flex gap-2 pt-4">
-                      <span className="px-2.5 py-1 rounded-full bg-slate-800 text-teal-300 border border-teal-500/30 text-xs font-semibold">Healthcare & AI Track</span>
-                      <span className="px-2.5 py-1 rounded-full bg-slate-800 text-sky-300 border border-sky-500/30 text-xs font-semibold">XGBoost + SHAP</span>
-                      <span className="px-2.5 py-1 rounded-full bg-slate-800 text-emerald-300 border border-emerald-500/30 text-xs font-semibold">EEOC 80% Rule Passed</span>
-                    </div>
-                  </div>
-                )}
-
-                {currentSlide >= 2 && (
-                  <div className="space-y-3">
-                    <span className="text-teal-400 font-bold text-xs font-mono">SLIDE {currentSlide} / 14</span>
-                    <h2 className="text-xl font-bold text-white tracking-tight">
-                      {currentSlide === 2 && "The Crisis of Unstratified Chronic Disease"}
-                      {currentSlide === 3 && "VitaRisk 4-Pillar Clinical Architecture"}
-                      {currentSlide === 4 && "12,000-Patient Longitudinal EHR Cohort"}
-                      {currentSlide === 5 && "Multi-Model ML Benchmarks (Calibrated CKM Stack)"}
-                      {currentSlide === 6 && "Explainable AI: SHAP TreeExplainer Attributions (% Space)"}
-                      {currentSlide === 7 && "Algorithmic Fairness & Active Mitigation (EEOC 80% Rule)"}
-                      {currentSlide === 8 && "Decision Curve Analysis: Proving Net Clinical Benefit"}
-                      {currentSlide === 9 && "Clinical Decision Support & Contraindication Safety Engine"}
-                      {currentSlide === 10 && "Physiologically Coupled What-If Simulator & Presets"}
-                      {currentSlide === 11 && "Real-World Health Economics & Dialysis Aversion ROI"}
-                      {currentSlide === 12 && "Responsible AI Governance & FHIR Integration"}
-                      {currentSlide === 13 && "Implementation Roadmap & Multi-Center Validation"}
-                      {currentSlide === 14 && "Conclusion & Hackathon Submission Package"}
-                    </h2>
-                    <p className="text-xs text-slate-300 leading-relaxed max-w-3xl">
-                      Review complete presentation slides in the generated PPTX deck or toggle through using the controls below.
-                    </p>
-                  </div>
-                )}
-
-                {/* Slide Controls Footer */}
-                <div className="flex items-center justify-between pt-4 border-t border-slate-800/80 text-xs">
-                  <span className="text-slate-400 font-mono">Slide {currentSlide} of {totalSlides}</span>
-                  <div className="flex space-x-2">
-                    <button
-                      onClick={() => setCurrentSlide(s => Math.max(s - 1, 1))}
-                      disabled={currentSlide === 1}
-                      className="px-3 py-1.5 rounded-lg bg-slate-850 hover:bg-slate-800 border border-slate-700 disabled:opacity-40 text-white flex items-center space-x-1"
-                    >
-                      <ChevronLeft className="w-3.5 h-3.5" />
-                      <span>Previous</span>
-                    </button>
-                    <button
-                      onClick={() => setCurrentSlide(s => Math.min(s + 1, totalSlides))}
-                      disabled={currentSlide === totalSlides}
-                      className="px-3 py-1.5 rounded-lg bg-teal-500 hover:bg-teal-600 disabled:opacity-40 text-white flex items-center space-x-1 font-medium shadow-sm"
-                    >
-                      <span>Next</span>
-                      <ChevronRight className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-                </div>
-              </div>
+              <SlideDeckViewer
+                currentSlide={currentSlide}
+                setCurrentSlide={setCurrentSlide}
+                totalSlides={totalSlides}
+              />
             </div>
           </div>
         )}

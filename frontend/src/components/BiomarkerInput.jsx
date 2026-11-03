@@ -108,7 +108,7 @@ export default function BiomarkerInput({
           step={step}
           value={value ?? ''}
           onChange={onChange}
-          className="w-full bg-slate-900/90 border border-slate-700/80 rounded-xl px-3 py-2 text-slate-100 font-mono tabular-nums text-xs focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500/40 transition-all placeholder:text-slate-600 hover:border-slate-600 shadow-inner"
+          className={`w-full bg-slate-900/90 border border-slate-700/80 rounded-xl pl-3 py-2 ${unit ? 'pr-14' : 'pr-3'} text-slate-100 font-mono tabular-nums text-xs focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500/40 transition-all placeholder:text-slate-600 hover:border-slate-600 shadow-inner`}
         />
         {unit && (
           <span className="absolute right-2.5 text-[10px] font-semibold text-slate-400 pointer-events-none select-none uppercase tracking-wider">

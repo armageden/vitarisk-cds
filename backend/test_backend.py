@@ -160,6 +160,27 @@ def run_pre_submission_verification():
         assert cors_res.headers.get("access-control-allow-credentials") != "true"
         print("✅ Finding 14: CORS credentials disabled for wildcard origins")
 
+        # 9. Audit Fix: Screenshots Static Mount
+        res_shot = client.get("/presentation/screenshots/screenshot_shap_waterfall.png")
+        assert res_shot.status_code == 200
+        print("✅ Audit Fix: Presentation screenshots mounted and served (200 OK)")
+
+        # 10. Audit Fix: Presentation PPTX & Walkthrough Video Route Verification
+        res_pptx = client.head("/presentation/VitaRisk_CDS_DataNova2026_Presentation.pptx")
+        assert res_pptx.status_code == 200
+        res_vid = client.head("/video/VitaRisk_CDS_Walkthrough.mp4")
+        assert res_vid.status_code == 200
+        print("✅ Audit Fix: Static PPTX & Walkthrough Video routes verified (200 OK)")
+
+        # 11. Audit Fix: SPA Client Fallback
+        res_spa = client.get("/dashboard/custom-view")
+        assert res_spa.status_code == 200
+        assert "html" in res_spa.headers.get("content-type", "").lower()
+        res_api_404 = client.get("/api/nonexistent_route")
+        assert res_api_404.status_code == 404
+        assert res_api_404.json()["detail"] == "API endpoint not found"
+        print("✅ Audit Fix: SPA deep route fallback and API 404 handling verified")
+
         print("\n🎉 ALL 10 GATES + 16 AUDIT REMEDIATIONS FULLY VALIDATED!")
 
 if __name__ == "__main__":

@@ -100,7 +100,7 @@ export default function PatientBanner({
             >
               <span>{p.name.split(':')[0]}</span>
               {p.tag && (
-                <span className={`text-[10px] px-1.5 py-0.2 rounded font-medium ${
+                <span className={`text-[10px] px-1.5 py-0.5 rounded font-medium ${
                   isSelected ? 'bg-teal-500/25 text-teal-300' : 'bg-slate-800 text-slate-500'
                 }`}>
                   {p.tag}
