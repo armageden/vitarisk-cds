@@ -3,14 +3,23 @@ import {
   Activity, ShieldAlert, HeartPulse, Stethoscope, Dna,
   Sliders, Users, Scale, FileText, CheckCircle2, AlertTriangle,
   ArrowRight, Download, RefreshCw, ChevronLeft, ChevronRight,
-  TrendingDown, Info, Award, AlertOctagon, Sparkles, Pill, Video
+  TrendingDown, Info, Award, AlertOctagon, Sparkles, Pill, Video,
+  Droplets, Flame, BarChart3, Database, ShieldCheck
 } from 'lucide-react';
 import {
   ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip,
   Cell, PieChart, Pie, LineChart, Line, CartesianGrid, Legend
 } from 'recharts';
 
-// Universal API origin resolution: supports Vite dev (5173), local FastAPI (8000), and cloud deployment (HF Spaces, Render, Railway)
+import RiskSeverityGauge from './components/RiskSeverityGauge';
+import BiomarkerInput from './components/BiomarkerInput';
+import PatientBanner from './components/PatientBanner';
+import DiseaseBreakdownBars from './components/DiseaseBreakdownBars';
+import GdmtPrescriptions from './components/GdmtPrescriptions';
+import ContraindicationShield from './components/ContraindicationShield';
+import CkmStageCard from './components/CkmStageCard';
+
+// Universal API origin resolution
 const API_BASE = (typeof window !== 'undefined' && window.location.port === '5173') ? 'http://localhost:8000' : '';
 
 const DEFAULT_PERSONA = {
@@ -38,6 +47,9 @@ export default function App() {
   const [apiConnected, setApiConnected] = useState(true);
   const [prediction, setPrediction] = useState(null);
   
+  // Biomarker Form Active Section in Tab 1
+  const [activeFormSection, setActiveFormSection] = useState('glycemic');
+
   // SHAP Tab state
   const [shapTarget, setShapTarget] = useState('onset_t2d');
   const [shapData, setShapData] = useState(null);
@@ -143,90 +155,71 @@ export default function App() {
   }, [activeTab]);
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans">
+    <div className="min-h-screen bg-[#070b12] text-slate-100 flex flex-col font-sans selection:bg-teal-500/30 selection:text-teal-200">
       {/* Top Clinical Header */}
-      <header className="border-b border-slate-800 bg-slate-900/95 backdrop-blur sticky top-0 z-50 px-6 py-3 flex flex-wrap items-center justify-between gap-4">
-        <div className="flex items-center space-x-3">
-          <div className="bg-teal-500/20 text-teal-400 p-2 rounded-xl border border-teal-500/30">
-            <HeartPulse className="w-6 h-6 animate-pulse text-teal-400" />
+      <header className="border-b border-slate-800/80 bg-slate-950/90 backdrop-blur sticky top-0 z-50 px-6 py-3 flex flex-wrap items-center justify-between gap-4">
+        <div className="flex items-center space-x-3.5">
+          <div className="bg-gradient-to-br from-teal-500/20 to-sky-500/20 text-teal-400 p-2 rounded-xl border border-teal-500/30 shadow-inner">
+            <HeartPulse className="w-5 h-5 text-teal-400 animate-pulse" />
           </div>
           <div>
             <div className="flex items-center space-x-2">
-              <h1 className="text-xl font-bold tracking-tight text-white">VitaRisk CDS</h1>
-              <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-teal-500/10 text-teal-300 border border-teal-500/30">
+              <span className="text-base font-extrabold tracking-tight text-white">VitaRisk CDS</span>
+              <span className="text-[10px] font-semibold px-2.5 py-0.5 rounded-full bg-teal-500/10 text-teal-300 border border-teal-500/30">
                 DataNova 2026 • DN-HC-01
               </span>
             </div>
-            <p className="text-xs text-slate-400">Cardiorenal-Metabolic (CKM) Risk Stratification & Clinical Decision Support</p>
+            <p className="text-[11px] text-slate-400 font-medium">Cardiorenal-Metabolic (CKM) Early Risk Stratification & Clinical Decision Support</p>
           </div>
         </div>
 
         {/* API Status Badge & Direct PPTX Download */}
-        <div className="flex items-center space-x-3">
-          <div className="flex items-center space-x-1.5 px-3 py-1 rounded-lg bg-slate-800/80 border border-slate-700 text-xs">
-            <span className={`w-2 h-2 rounded-full ${apiConnected ? 'bg-emerald-400' : 'bg-amber-400'}`} />
-            <span className="text-slate-300">{apiConnected ? 'FastAPI Online' : 'Connecting...'}</span>
+        <div className="flex items-center space-x-2.5">
+          <div className="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-xs">
+            <span className={`w-2 h-2 rounded-full ${apiConnected ? 'bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.5)]' : 'bg-amber-400'}`} />
+            <span className="text-slate-300 font-mono text-[11px]">{apiConnected ? 'FastAPI Online' : 'Connecting...'}</span>
           </div>
 
           <a
             href="video/VitaRisk_CDS_Walkthrough.mp4"
             target="_blank"
             rel="noreferrer"
-            className="bg-indigo-600 hover:bg-indigo-500 text-white font-medium px-3.5 py-1.5 rounded-lg text-xs flex items-center space-x-1.5 transition-all shadow"
+            className="bg-indigo-600/90 hover:bg-indigo-600 text-white font-medium px-3.5 py-1.5 rounded-xl text-xs flex items-center space-x-1.5 transition-all shadow-sm hover:shadow"
           >
             <Video className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">Watch 1080p Video</span>
+            <span className="hidden sm:inline">1080p Video</span>
           </a>
 
           <a
             href="presentation/VitaRisk_CDS_DataNova2026_Presentation.pptx"
             download
-            className="bg-teal-500 hover:bg-teal-600 text-white font-medium px-3.5 py-1.5 rounded-lg text-xs flex items-center space-x-1.5 transition-all shadow"
+            className="bg-teal-500 hover:bg-teal-600 text-white font-medium px-3.5 py-1.5 rounded-xl text-xs flex items-center space-x-1.5 transition-all shadow-sm hover:shadow"
           >
             <Download className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">Download .PPTX</span>
+            <span className="hidden sm:inline">Slides (.PPTX)</span>
           </a>
         </div>
       </header>
 
-      {/* 5-Persona Quick Clinical Selector Bar (FM-11 Zero-Friction Judge UX) */}
-      <div className="bg-slate-900/90 border-b border-slate-800 px-6 py-2.5 flex items-center gap-2 overflow-x-auto">
-        <span className="text-xs font-bold text-slate-400 whitespace-nowrap mr-1 flex items-center space-x-1">
-          <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-          <span>Quick Personas:</span>
-        </span>
-        {personas.map(p => {
-          const isSelected = selectedPersonaId === p.id;
-          return (
-            <button
-              key={p.id}
-              onClick={() => handleSelectPersona(p.id)}
-              className={`text-xs px-3 py-1.5 rounded-lg transition-all whitespace-nowrap flex items-center space-x-1.5 border ${
-                isSelected
-                  ? 'bg-teal-500/20 text-teal-300 border-teal-500/60 font-semibold shadow-sm'
-                  : 'bg-slate-800/60 hover:bg-slate-800 text-slate-300 border-slate-700/60'
-              }`}
-            >
-              <span>{p.name.split(':')[0]}</span>
-              <span className="text-[10px] px-1.5 py-0.2 rounded bg-slate-800 text-slate-400 border border-slate-700">
-                {p.tag}
-              </span>
-            </button>
-          );
-        })}
-      </div>
+      {/* Patient EHR Context Banner */}
+      <PatientBanner
+        patient={patient}
+        personas={personas}
+        selectedPersonaId={selectedPersonaId}
+        onSelectPersona={handleSelectPersona}
+      />
 
       {/* Primary Navigation Tabs */}
-      <nav className="bg-slate-900 border-b border-slate-800 px-6 flex space-x-1 overflow-x-auto text-sm">
+      <nav className="bg-slate-950/70 border-b border-slate-800/80 px-6 flex space-x-1 overflow-x-auto text-xs font-medium">
         {[
-          { id: 'calculator', label: 'Patient Risk Calculator & CDS', icon: Stethoscope },
+          { id: 'calculator', label: 'Clinical Risk Calculator & CDS', icon: Stethoscope },
           { id: 'shap', label: 'Explainable AI (SHAP Waterfall)', icon: Dna },
           { id: 'simulator', label: 'What-If Intervention Simulator', icon: Sliders },
           { id: 'dca', label: 'Decision Curve Net Benefit', icon: TrendingDown },
           { id: 'fairness', label: 'Algorithmic Fairness Audit', icon: Scale },
-          { id: 'cohort', label: 'Population Health & Cohorts', icon: Users },
+          { id: 'cohort', label: 'Population Health Cohort', icon: Users },
           { id: 'benchmarks', label: 'Model Benchmarks', icon: Activity },
-          { id: 'slides', label: 'Presentation Deck (14 Slides)', icon: FileText }
+          { id: 'slides', label: 'Submission Slides (14)', icon: FileText }
         ].map(tab => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;
@@ -234,13 +227,13 @@ export default function App() {
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center space-x-2 px-4 py-3 font-medium transition-all whitespace-nowrap border-b-2 ${
+              className={`flex items-center space-x-2 px-3.5 py-2.5 transition-all whitespace-nowrap border-b-2 font-medium ${
                 isActive
-                  ? 'border-teal-500 text-teal-400 bg-teal-500/5'
+                  ? 'border-teal-400 text-teal-300 bg-teal-500/5'
                   : 'border-transparent text-slate-400 hover:text-slate-200 hover:border-slate-700'
               }`}
             >
-              <Icon className="w-4 h-4" />
+              <Icon className="w-3.5 h-3.5" />
               <span>{tab.label}</span>
             </button>
           );
@@ -254,337 +247,351 @@ export default function App() {
         {/* ======================================================== */}
         {activeTab === 'calculator' && (
           <div className="space-y-6">
-            {/* Contraindication Alert Banner (FM-09) */}
-            {prediction && prediction.contraindication_alerts && prediction.contraindication_alerts.length > 0 && (
-              <div className="bg-rose-950/40 border border-rose-500/50 rounded-2xl p-4 flex items-start space-x-3 text-rose-200">
-                <AlertOctagon className="w-6 h-6 text-rose-400 flex-shrink-0 mt-0.5" />
-                <div className="space-y-1">
-                  <div className="text-sm font-bold text-rose-300">CLINICAL SAFETY ALERT: Medication Contraindication Detected</div>
-                  {prediction.contraindication_alerts.map((alert, idx) => (
-                    <div key={idx} className="text-xs text-rose-100 font-medium">
-                      {alert.message}
-                    </div>
-                  ))}
-                </div>
-              </div>
+            {/* Contraindication Alert Banner */}
+            {prediction && prediction.contraindication_alerts && (
+              <ContraindicationShield alerts={prediction.contraindication_alerts} />
             )}
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
               {/* Left Column: Clinical Parameters Form (7 Cols) */}
-              <div className="lg:col-span-7 bg-slate-900/60 border border-slate-800 rounded-2xl p-6 shadow-xl">
-                <div className="flex items-center justify-between mb-4 pb-3 border-b border-slate-800">
-                  <h2 className="text-base font-semibold text-white flex items-center space-x-2">
-                    <Stethoscope className="w-5 h-5 text-teal-400" />
-                    <span>Clinical Biomarker Array</span>
-                  </h2>
-                  <span className="text-xs text-slate-400">Race-Free Clinical Features (FM-03)</span>
+              <div className="lg:col-span-7 bg-slate-900/60 border border-slate-800/90 rounded-2xl p-6 shadow-xl space-y-6">
+                <div className="flex items-center justify-between pb-3 border-b border-slate-800/80">
+                  <div className="flex items-center space-x-2">
+                    <Stethoscope className="w-4 h-4 text-teal-400" />
+                    <h2 className="text-sm font-bold text-white tracking-tight">Clinical Biomarker Array</h2>
+                  </div>
+                  <span className="text-[11px] font-mono text-slate-400 px-2 py-0.5 rounded bg-slate-800/80 border border-slate-700">
+                    Race-Free eGFR & ASCVD (FM-03)
+                  </span>
                 </div>
 
-                <div className="space-y-5 text-xs">
-                  {/* Demographics & Equity */}
-                  <div>
-                    <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">1. Demographics & Protected Metadata</h3>
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                      <div>
-                        <label className="text-slate-400 block mb-1">Age (Years)</label>
-                        <input
-                          type="number"
-                          value={patient.age}
-                          onChange={(e) => setPatient(p => ({ ...p, age: parseInt(e.target.value) || 0 }))}
-                          className="w-full bg-slate-800 border border-slate-700 rounded px-2.5 py-1.5 text-white"
-                        />
-                      </div>
-                      <div>
-                        <label className="text-slate-400 block mb-1">Biological Sex</label>
-                        <select
-                          value={patient.sex}
-                          onChange={(e) => setPatient(p => ({ ...p, sex: e.target.value }))}
-                          className="w-full bg-slate-800 border border-slate-700 rounded px-2.5 py-1.5 text-white"
-                        >
-                          <option value="Male">Male</option>
-                          <option value="Female">Female</option>
-                        </select>
-                      </div>
-                      <div>
-                        <label className="text-slate-400 block mb-1">Ethnicity (Fairness Audit)</label>
-                        <select
-                          value={patient.ethnicity}
-                          onChange={(e) => setPatient(p => ({ ...p, ethnicity: e.target.value }))}
-                          className="w-full bg-slate-800 border border-slate-700 rounded px-2.5 py-1.5 text-white text-[11px]"
-                        >
-                          <option value="White">White</option>
-                          <option value="Black/African American">Black/African American</option>
-                          <option value="Hispanic/Latino">Hispanic/Latino</option>
-                          <option value="Asian">Asian</option>
-                          <option value="Other/Multiracial">Other/Multiracial</option>
-                        </select>
-                      </div>
-                      <div>
-                        <label className="text-slate-400 block mb-1">SES Decile (SDoH)</label>
-                        <input
-                          type="number"
-                          min="1"
-                          max="10"
-                          value={patient.ses_decile}
-                          onChange={(e) => setPatient(p => ({ ...p, ses_decile: parseInt(e.target.value) || 1 }))}
-                          className="w-full bg-slate-800 border border-slate-700 rounded px-2.5 py-1.5 text-white"
-                        />
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Hemodynamics & Vitals */}
-                  <div>
-                    <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">2. Hemodynamics & Anthropometrics</h3>
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                      <div>
-                        <label className="text-slate-400 block mb-1">Systolic BP (mmHg)</label>
-                        <input
-                          type="number"
-                          value={patient.systolic_bp}
-                          onChange={(e) => setPatient(p => ({ ...p, systolic_bp: parseFloat(e.target.value) || 0 }))}
-                          className="w-full bg-slate-800 border border-slate-700 rounded px-2.5 py-1.5 text-white font-medium text-rose-300"
-                        />
-                      </div>
-                      <div>
-                        <label className="text-slate-400 block mb-1">Diastolic BP (mmHg)</label>
-                        <input
-                          type="number"
-                          value={patient.diastolic_bp}
-                          onChange={(e) => setPatient(p => ({ ...p, diastolic_bp: parseFloat(e.target.value) || 0 }))}
-                          className="w-full bg-slate-800 border border-slate-700 rounded px-2.5 py-1.5 text-white"
-                        />
-                      </div>
-                      <div>
-                        <label className="text-slate-400 block mb-1">BMI (kg/m²)</label>
-                        <input
-                          type="number"
-                          step="0.1"
-                          value={patient.bmi}
-                          onChange={(e) => setPatient(p => ({ ...p, bmi: parseFloat(e.target.value) || 0 }))}
-                          className="w-full bg-slate-800 border border-slate-700 rounded px-2.5 py-1.5 text-white"
-                        />
-                      </div>
-                      <div>
-                        <label className="text-slate-400 block mb-1">Waist Circ (cm)</label>
-                        <input
-                          type="number"
-                          step="0.5"
-                          value={patient.waist_circ_cm}
-                          onChange={(e) => setPatient(p => ({ ...p, waist_circ_cm: parseFloat(e.target.value) || 0 }))}
-                          className="w-full bg-slate-800 border border-slate-700 rounded px-2.5 py-1.5 text-white"
-                        />
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Glycemic & Renal Biomarkers */}
-                  <div>
-                    <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">3. Glycemic & Renal Lab Biomarkers</h3>
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                      <div>
-                        <label className="text-slate-400 block mb-1">HbA1c (%)</label>
-                        <input
-                          type="number"
-                          step="0.1"
-                          value={patient.hba1c}
-                          onChange={(e) => setPatient(p => ({ ...p, hba1c: parseFloat(e.target.value) || 0 }))}
-                          className="w-full bg-slate-800 border border-slate-700 rounded px-2.5 py-1.5 text-white font-medium text-teal-400"
-                        />
-                      </div>
-                      <div>
-                        <label className="text-slate-400 block mb-1">Fasting Glucose (mg/dL)</label>
-                        <input
-                          type="number"
-                          value={patient.fasting_glucose}
-                          onChange={(e) => setPatient(p => ({ ...p, fasting_glucose: parseFloat(e.target.value) || 0 }))}
-                          className="w-full bg-slate-800 border border-slate-700 rounded px-2.5 py-1.5 text-white"
-                        />
-                      </div>
-                      <div>
-                        <label className="text-slate-400 block mb-1">eGFR 2021 (mL/min)</label>
-                        <input
-                          type="number"
-                          step="1"
-                          value={patient.egfr}
-                          onChange={(e) => setPatient(p => ({ ...p, egfr: parseFloat(e.target.value) || 0 }))}
-                          className="w-full bg-slate-800 border border-slate-700 rounded px-2.5 py-1.5 text-white font-medium text-sky-400"
-                        />
-                      </div>
-                      <div>
-                        <label className="text-slate-400 block mb-1">uACR (mg/g)</label>
-                        <input
-                          type="number"
-                          step="1"
-                          value={patient.uacr}
-                          onChange={(e) => setPatient(p => ({ ...p, uacr: parseFloat(e.target.value) || 0 }))}
-                          className="w-full bg-slate-800 border border-slate-700 rounded px-2.5 py-1.5 text-white font-medium text-sky-400"
-                        />
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Lipid Panel & Lifestyle */}
-                  <div>
-                    <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">4. Lipid Panel & Lifestyle</h3>
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                      <div>
-                        <label className="text-slate-400 block mb-1">LDL Chol (mg/dL)</label>
-                        <input
-                          type="number"
-                          value={patient.ldl_cholesterol}
-                          onChange={(e) => setPatient(p => ({ ...p, ldl_cholesterol: parseFloat(e.target.value) || 0 }))}
-                          className="w-full bg-slate-800 border border-slate-700 rounded px-2.5 py-1.5 text-white"
-                        />
-                      </div>
-                      <div>
-                        <label className="text-slate-400 block mb-1">HDL Chol (mg/dL)</label>
-                        <input
-                          type="number"
-                          value={patient.hdl_cholesterol}
-                          onChange={(e) => setPatient(p => ({ ...p, hdl_cholesterol: parseFloat(e.target.value) || 0 }))}
-                          className="w-full bg-slate-800 border border-slate-700 rounded px-2.5 py-1.5 text-white"
-                        />
-                      </div>
-                      <div>
-                        <label className="text-slate-400 block mb-1">Smoking Status</label>
-                        <select
-                          value={patient.smoking_status}
-                          onChange={(e) => setPatient(p => ({
-                            ...p,
-                            smoking_status: e.target.value,
-                            smoking_current: e.target.value === 'Current' ? 1 : 0
-                          }))}
-                          className="w-full bg-slate-800 border border-slate-700 rounded px-2.5 py-1.5 text-white"
-                        >
-                          <option value="Never">Never</option>
-                          <option value="Former">Former</option>
-                          <option value="Current">Current</option>
-                        </select>
-                      </div>
-                      <div>
-                        <label className="text-slate-400 block mb-1">Physical Activity</label>
-                        <select
-                          value={patient.physical_activity}
-                          onChange={(e) => setPatient(p => ({ ...p, physical_activity: e.target.value }))}
-                          className="w-full bg-slate-800 border border-slate-700 rounded px-2.5 py-1.5 text-white"
-                        >
-                          <option value="Sedentary">Sedentary</option>
-                          <option value="Moderate">Moderate</option>
-                          <option value="Active">Active</option>
-                        </select>
-                      </div>
-                    </div>
-                  </div>
+                {/* Sub-section Tabs for Ergonomic Lab Entry */}
+                <div className="grid grid-cols-4 gap-1.5 p-1 bg-slate-950/80 rounded-xl border border-slate-800 text-xs font-medium">
+                  {[
+                    { id: 'glycemic', label: '1. Glycemic & Body' },
+                    { id: 'renal', label: '2. Renal & uACR' },
+                    { id: 'cardio', label: '3. Hemodynamics' },
+                    { id: 'lipids', label: '4. Lipids & SDoH' }
+                  ].map(sec => (
+                    <button
+                      key={sec.id}
+                      onClick={() => setActiveFormSection(sec.id)}
+                      className={`py-1.5 rounded-lg text-center transition-all ${
+                        activeFormSection === sec.id
+                          ? 'bg-slate-800 text-teal-300 font-semibold shadow-sm'
+                          : 'text-slate-400 hover:text-slate-200'
+                      }`}
+                    >
+                      {sec.label}
+                    </button>
+                  ))}
                 </div>
+
+                {/* Form Fields by Active Section */}
+                {activeFormSection === 'glycemic' && (
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <BiomarkerInput
+                        label="HbA1c"
+                        unit="%"
+                        referenceRange="< 5.7% Normal"
+                        statusType="hba1c"
+                        step="0.1"
+                        value={patient.hba1c}
+                        onChange={(e) => setPatient(p => ({ ...p, hba1c: parseFloat(e.target.value) || 0 }))}
+                      />
+                      <BiomarkerInput
+                        label="Fasting Plasma Glucose"
+                        unit="mg/dL"
+                        referenceRange="< 100 Normal"
+                        statusType="fasting_glucose"
+                        step="1"
+                        value={patient.fasting_glucose}
+                        onChange={(e) => setPatient(p => ({ ...p, fasting_glucose: parseFloat(e.target.value) || 0 }))}
+                      />
+                      <BiomarkerInput
+                        label="Body Mass Index (BMI)"
+                        unit="kg/m²"
+                        referenceRange="18.5 – 24.9 Normal"
+                        statusType="bmi"
+                        step="0.1"
+                        value={patient.bmi}
+                        onChange={(e) => setPatient(p => ({ ...p, bmi: parseFloat(e.target.value) || 0 }))}
+                      />
+                      <BiomarkerInput
+                        label="Waist Circumference"
+                        unit="cm"
+                        referenceRange="< 102M / < 88F"
+                        step="0.5"
+                        value={patient.waist_circ_cm}
+                        onChange={(e) => setPatient(p => ({ ...p, waist_circ_cm: parseFloat(e.target.value) || 0 }))}
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {activeFormSection === 'renal' && (
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <BiomarkerInput
+                        label="eGFR 2021 CKD-EPI (Race-Free)"
+                        unit="mL/min"
+                        referenceRange="≥ 90 Stage G1"
+                        statusType="egfr"
+                        step="1"
+                        value={patient.egfr}
+                        onChange={(e) => setPatient(p => ({ ...p, egfr: parseFloat(e.target.value) || 0 }))}
+                      />
+                      <BiomarkerInput
+                        label="Urine Albumin-Creatinine (uACR)"
+                        unit="mg/g"
+                        referenceRange="< 30 Normal (A1)"
+                        statusType="uacr"
+                        step="1"
+                        value={patient.uacr}
+                        onChange={(e) => setPatient(p => ({ ...p, uacr: parseFloat(e.target.value) || 0 }))}
+                      />
+                      <BiomarkerInput
+                        label="Serum Creatinine"
+                        unit="mg/dL"
+                        referenceRange="0.6 – 1.2 Normal"
+                        step="0.05"
+                        value={patient.serum_creatinine}
+                        onChange={(e) => setPatient(p => ({ ...p, serum_creatinine: parseFloat(e.target.value) || 0 }))}
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {activeFormSection === 'cardio' && (
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <BiomarkerInput
+                        label="Systolic Blood Pressure"
+                        unit="mmHg"
+                        referenceRange="< 120 Normal"
+                        statusType="sbp"
+                        step="1"
+                        value={patient.systolic_bp}
+                        onChange={(e) => setPatient(p => ({ ...p, systolic_bp: parseFloat(e.target.value) || 0 }))}
+                      />
+                      <BiomarkerInput
+                        label="Diastolic Blood Pressure"
+                        unit="mmHg"
+                        referenceRange="< 80 Normal"
+                        statusType="dbp"
+                        step="1"
+                        value={patient.diastolic_bp}
+                        onChange={(e) => setPatient(p => ({ ...p, diastolic_bp: parseFloat(e.target.value) || 0 }))}
+                      />
+                      <BiomarkerInput
+                        label="Resting Heart Rate"
+                        unit="bpm"
+                        referenceRange="60 – 100 Normal"
+                        step="1"
+                        value={patient.resting_heart_rate}
+                        onChange={(e) => setPatient(p => ({ ...p, resting_heart_rate: parseFloat(e.target.value) || 0 }))}
+                      />
+                      <BiomarkerInput
+                        label="High-Sensitivity CRP (hs-CRP)"
+                        unit="mg/L"
+                        referenceRange="< 1.0 Low Vascular"
+                        statusType="crp"
+                        step="0.1"
+                        value={patient.hs_crp}
+                        onChange={(e) => setPatient(p => ({ ...p, hs_crp: parseFloat(e.target.value) || 0 }))}
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {activeFormSection === 'lipids' && (
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <BiomarkerInput
+                        label="LDL Cholesterol"
+                        unit="mg/dL"
+                        referenceRange="< 100 Optimal"
+                        statusType="ldl"
+                        step="1"
+                        value={patient.ldl_cholesterol}
+                        onChange={(e) => setPatient(p => ({ ...p, ldl_cholesterol: parseFloat(e.target.value) || 0 }))}
+                      />
+                      <BiomarkerInput
+                        label="HDL Cholesterol"
+                        unit="mg/dL"
+                        referenceRange="≥ 50 Protective"
+                        statusType="hdl"
+                        step="1"
+                        value={patient.hdl_cholesterol}
+                        onChange={(e) => setPatient(p => ({ ...p, hdl_cholesterol: parseFloat(e.target.value) || 0 }))}
+                      />
+                      <BiomarkerInput
+                        label="Triglycerides"
+                        unit="mg/dL"
+                        referenceRange="< 150 Normal"
+                        statusType="tg"
+                        step="1"
+                        value={patient.triglycerides}
+                        onChange={(e) => setPatient(p => ({ ...p, triglycerides: parseFloat(e.target.value) || 0 }))}
+                      />
+                      <BiomarkerInput
+                        label="Total Cholesterol"
+                        unit="mg/dL"
+                        referenceRange="< 200 Desirable"
+                        step="1"
+                        value={patient.total_cholesterol}
+                        onChange={(e) => setPatient(p => ({ ...p, total_cholesterol: parseFloat(e.target.value) || 0 }))}
+                      />
+                    </div>
+
+                    {/* Segmented Controls for Categorical Inputs */}
+                    <div className="pt-3 border-t border-slate-800/80 space-y-3">
+                      <div>
+                        <label className="text-[11px] font-medium text-slate-400 block mb-1.5">Smoking Status</label>
+                        <div className="grid grid-cols-3 gap-2">
+                          {['Never', 'Former', 'Current'].map(status => (
+                            <button
+                              key={status}
+                              type="button"
+                              onClick={() => setPatient(p => ({
+                                ...p,
+                                smoking_status: status,
+                                smoking_current: status === 'Current' ? 1 : 0
+                              }))}
+                              className={`py-1.5 rounded-xl text-xs font-medium border transition-all ${
+                                patient.smoking_status === status
+                                  ? 'bg-teal-500/15 border-teal-500/50 text-teal-300 font-semibold'
+                                  : 'bg-slate-900 border-slate-800 text-slate-400 hover:text-slate-200'
+                              }`}
+                            >
+                              {status}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="text-[11px] font-medium text-slate-400 block mb-1.5">Physical Activity Level</label>
+                        <div className="grid grid-cols-3 gap-2">
+                          {['Sedentary', 'Moderate', 'Active'].map(act => (
+                            <button
+                              key={act}
+                              type="button"
+                              onClick={() => setPatient(p => ({ ...p, physical_activity: act }))}
+                              className={`py-1.5 rounded-xl text-xs font-medium border transition-all ${
+                                patient.physical_activity === act
+                                  ? 'bg-teal-500/15 border-teal-500/50 text-teal-300 font-semibold'
+                                  : 'bg-slate-900 border-slate-800 text-slate-400 hover:text-slate-200'
+                              }`}
+                            >
+                              {act}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-3 pt-1">
+                        <div>
+                          <label className="text-[11px] font-medium text-slate-400 block mb-1.5">Current Antihypertensive</label>
+                          <div className="grid grid-cols-2 gap-1.5">
+                            {[
+                              { label: 'No', val: 0 },
+                              { label: 'Yes', val: 1 }
+                            ].map(opt => (
+                              <button
+                                key={opt.label}
+                                type="button"
+                                onClick={() => setPatient(p => ({ ...p, current_antihypertensive: opt.val }))}
+                                className={`py-1.5 rounded-xl text-xs font-medium border transition-all ${
+                                  patient.current_antihypertensive === opt.val
+                                    ? 'bg-teal-500/15 border-teal-500/50 text-teal-300 font-semibold'
+                                    : 'bg-slate-900 border-slate-800 text-slate-400 hover:text-slate-200'
+                                }`}
+                              >
+                                {opt.label}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+
+                        <div>
+                          <label className="text-[11px] font-medium text-slate-400 block mb-1.5">Current Statin Therapy</label>
+                          <div className="grid grid-cols-2 gap-1.5">
+                            {[
+                              { label: 'No', val: 0 },
+                              { label: 'Yes', val: 1 }
+                            ].map(opt => (
+                              <button
+                                key={opt.label}
+                                type="button"
+                                onClick={() => setPatient(p => ({ ...p, current_statin: opt.val }))}
+                                className={`py-1.5 rounded-xl text-xs font-medium border transition-all ${
+                                  patient.current_statin === opt.val
+                                    ? 'bg-teal-500/15 border-teal-500/50 text-teal-300 font-semibold'
+                                    : 'bg-slate-900 border-slate-800 text-slate-400 hover:text-slate-200'
+                                }`}
+                              >
+                                {opt.label}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Right Column: CKM Syndrome Stage & Predictions (5 Cols) */}
               <div className="lg:col-span-5 space-y-6">
-                {/* Composite Risk Tier & CKM Stage Card */}
-                <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 shadow-xl relative overflow-hidden">
-                  <div className="flex items-center justify-between mb-3">
-                    <span className="text-xs font-semibold text-slate-300">Cardiorenal-Metabolic Stratification</span>
-                    {prediction && (
-                      <span
-                        className="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider"
-                        style={{
-                          backgroundColor: `${prediction.color}20`,
-                          color: prediction.color,
-                          border: `1px solid ${prediction.color}50`
-                        }}
-                      >
-                        {prediction.tier} Risk Tier
-                      </span>
-                    )}
+                {/* Composite Risk Gauge Card */}
+                {prediction && (
+                  <div className="bg-slate-900/60 border border-slate-800/90 rounded-2xl p-5 shadow-xl">
+                    <RiskSeverityGauge
+                      compositeScore={prediction.probabilities.composite}
+                      tier={prediction.tier}
+                      urgency={prediction.urgency}
+                      color={prediction.color}
+                      ckmStage={prediction.ckm_stage}
+                    />
                   </div>
+                )}
 
-                  {prediction && (
-                    <div>
-                      {/* AHA CKM Syndrome Stage Badge (FM-09) */}
-                      <div className="mb-4 p-3 rounded-xl bg-slate-800/60 border border-slate-700/80">
-                        <div className="flex justify-between items-center mb-1">
-                          <span className="text-xs font-bold text-teal-300 flex items-center space-x-1.5">
-                            <Award className="w-4 h-4 text-teal-400" />
-                            <span>AHA 2026 CKM Syndrome: {prediction.ckm_stage.stage}</span>
-                          </span>
-                          <span className="text-[10px] text-slate-400 font-mono">{prediction.ckm_stage.label}</span>
-                        </div>
-                        <p className="text-[11px] text-slate-300 leading-snug">{prediction.ckm_stage.description}</p>
+                {/* AHA CKM Syndrome Staging Card */}
+                {prediction && (
+                  <CkmStageCard ckmStage={prediction.ckm_stage} />
+                )}
+
+                {/* Calibrated Multi-Disease Joint Risk Breakdown */}
+                {prediction && (
+                  <div className="bg-slate-900/60 border border-slate-800/90 rounded-2xl p-5 shadow-xl space-y-3">
+                    <div className="flex items-center justify-between pb-2 border-b border-slate-800/80">
+                      <div className="flex items-center space-x-2">
+                        <Activity className="w-4 h-4 text-sky-400" />
+                        <h3 className="text-xs font-bold text-white tracking-tight">Multi-Disease Organ Stress (5-Year)</h3>
                       </div>
-
-                      <div className="flex items-baseline space-x-3 mb-2">
-                        <span className="text-4xl font-extrabold text-white">
-                          {(prediction.probabilities.composite * 100).toFixed(1)}%
-                        </span>
-                        <span className="text-xs text-slate-400">Composite 5-Year Risk</span>
-                      </div>
-
-                      <p className="text-xs text-slate-400 mb-4">
-                        Clinical Urgency: <strong className="text-slate-200">{prediction.urgency}</strong>
-                      </p>
-
-                      {/* Calibrated Multi-Disease Breakdown */}
-                      <div className="grid grid-cols-3 gap-2.5">
-                        <div className="bg-slate-800/40 p-2.5 rounded-xl border border-slate-800">
-                          <div className="text-[10px] text-slate-400 mb-0.5">T2 Diabetes</div>
-                          <div className="text-base font-bold text-teal-400">
-                            {(prediction.probabilities.t2d * 100).toFixed(1)}%
-                          </div>
-                        </div>
-
-                        <div className="bg-slate-800/40 p-2.5 rounded-xl border border-slate-800">
-                          <div className="text-[10px] text-slate-400 mb-0.5">Kidney (CKD)</div>
-                          <div className="text-base font-bold text-sky-400">
-                            {(prediction.probabilities.ckd * 100).toFixed(1)}%
-                          </div>
-                        </div>
-
-                        <div className="bg-slate-800/40 p-2.5 rounded-xl border border-slate-800">
-                          <div className="text-[10px] text-slate-400 mb-0.5">CVD (MACE)</div>
-                          <div className="text-base font-bold text-rose-400">
-                            {(prediction.probabilities.cvd * 100).toFixed(1)}%
-                          </div>
-                        </div>
-                      </div>
+                      <span className="text-[10px] text-slate-400 font-mono">Calibrated Stack</span>
                     </div>
-                  )}
-                </div>
 
-                {/* Evidence-Based CDS Guidance */}
-                <div className="bg-slate-900/60 border border-slate-800 rounded-2xl p-6 shadow-xl">
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-sm font-semibold text-white flex items-center space-x-2">
-                      <CheckCircle2 className="w-4 h-4 text-teal-400" />
-                      <span>Guideline-Directed Medical Therapy (GDMT)</span>
-                    </h3>
-                    <span className="text-[10px] text-slate-500">ADA 2026 • KDIGO • ACC/AHA</span>
+                    <DiseaseBreakdownBars probabilities={prediction.probabilities} />
                   </div>
+                )}
 
-                  <div className="space-y-3">
-                    {prediction && prediction.recommendations && prediction.recommendations.length > 0 ? (
-                      prediction.recommendations.map((rec, idx) => (
-                        <div key={idx} className="bg-slate-800/40 border border-slate-700/60 rounded-xl p-3">
-                          <div className="flex items-center justify-between mb-1">
-                            <span className="text-xs font-semibold text-teal-300">{rec.category}</span>
-                            <span className="text-[9.5px] px-2 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700">
-                              {rec.evidence_level}
-                            </span>
-                          </div>
-                          <p className="text-xs text-slate-200 mb-1.5 leading-relaxed">{rec.action}</p>
-                          <div className="text-[11px] text-slate-400">
-                            <span className="text-teal-400 font-medium">Goal: </span>
-                            <span>{rec.target}</span>
-                          </div>
-                        </div>
-                      ))
-                    ) : (
-                      <div className="text-xs text-slate-400 py-4 text-center">
-                        Optimal cardiorenal health. Annual preventive surveillance indicated.
+                {/* Guideline-Directed Medical Therapy (GDMT) */}
+                {prediction && (
+                  <div className="bg-slate-900/60 border border-slate-800/90 rounded-2xl p-5 shadow-xl space-y-3">
+                    <div className="flex items-center justify-between pb-2 border-b border-slate-800/80">
+                      <div className="flex items-center space-x-2">
+                        <CheckCircle2 className="w-4 h-4 text-teal-400" />
+                        <h3 className="text-xs font-bold text-white tracking-tight">Guideline Prescriptions (GDMT)</h3>
                       </div>
-                    )}
+                      <span className="text-[10px] text-slate-400 font-mono">KDIGO • ADA • AHA</span>
+                    </div>
+
+                    <GdmtPrescriptions recommendations={prediction.recommendations} />
                   </div>
-                </div>
+                )}
               </div>
             </div>
           </div>
@@ -595,11 +602,11 @@ export default function App() {
         {/* ======================================================== */}
         {activeTab === 'shap' && (
           <div className="space-y-6">
-            <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 shadow-xl">
-              <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
+            <div className="bg-slate-900/60 border border-slate-800/90 rounded-2xl p-6 shadow-xl space-y-5">
+              <div className="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-slate-800/80">
                 <div>
-                  <h2 className="text-lg font-bold text-white flex items-center space-x-2">
-                    <Dna className="w-5 h-5 text-teal-400" />
+                  <h2 className="text-sm font-bold text-white flex items-center space-x-2">
+                    <Dna className="w-4 h-4 text-teal-400" />
                     <span>Probability-Space SHAP Feature Attribution (FM-06)</span>
                   </h2>
                   <p className="text-xs text-slate-400 mt-1">
@@ -608,7 +615,7 @@ export default function App() {
                 </div>
 
                 {/* Target Disease Selector */}
-                <div className="flex space-x-2 bg-slate-800 p-1 rounded-xl border border-slate-700 text-xs">
+                <div className="flex space-x-1.5 bg-slate-950 p-1 rounded-xl border border-slate-800 text-xs">
                   {[
                     { id: 'onset_t2d', label: 'Type 2 Diabetes' },
                     { id: 'onset_ckd', label: 'Chronic Kidney Disease' },
@@ -619,7 +626,7 @@ export default function App() {
                       onClick={() => setShapTarget(tgt.id)}
                       className={`px-3 py-1.5 rounded-lg font-medium transition-all ${
                         shapTarget === tgt.id
-                          ? 'bg-teal-500 text-white shadow'
+                          ? 'bg-teal-500 text-white shadow-sm'
                           : 'text-slate-400 hover:text-white'
                       }`}
                     >
@@ -630,12 +637,12 @@ export default function App() {
               </div>
 
               {loadingShap ? (
-                <div className="py-16 text-center text-slate-400 text-sm">Computing exact probability SHAP attributions...</div>
+                <div className="py-16 text-center text-slate-400 text-xs font-mono">Computing calibrated SHAP feature attributions...</div>
               ) : shapData ? (
-                <div>
-                  <div className="mb-4 flex flex-wrap items-center gap-6 text-xs text-slate-300 bg-slate-800/40 p-3 rounded-xl border border-slate-700">
-                    <div>Base Population Risk: <strong>{shapData.base_probability_percentage}%</strong></div>
-                    <div>Target Disease: <strong className="uppercase text-teal-300">{shapData.target}</strong></div>
+                <div className="space-y-4">
+                  <div className="flex flex-wrap items-center gap-6 text-xs text-slate-300 bg-slate-950/70 p-3 rounded-xl border border-slate-800">
+                    <div>Base Population Risk: <strong className="font-mono text-white">{shapData.base_probability_percentage}%</strong></div>
+                    <div>Target Outcome: <strong className="uppercase text-teal-300 font-mono">{shapData.target}</strong></div>
                     <div className="text-emerald-400 flex items-center space-x-1">
                       <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block"></span>
                       <span>Protective Factor (-% points)</span>
@@ -646,18 +653,18 @@ export default function App() {
                     </div>
                   </div>
 
-                  <div className="h-80 w-full">
+                  <div className="h-80 w-full pt-2">
                     <ResponsiveContainer width="100%" height="100%">
                       <BarChart
                         data={shapData.top_contributions}
                         layout="vertical"
                         margin={{ top: 10, right: 30, left: 140, bottom: 10 }}
                       >
-                        <CartesianGrid strokeDasharray="3 3" stroke="#334155" horizontal={false} />
-                        <XAxis type="number" stroke="#94a3b8" unit="%" />
+                        <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" horizontal={false} />
+                        <XAxis type="number" stroke="#64748b" unit="%" tick={{ fontSize: 11 }} />
                         <YAxis dataKey="feature" type="category" stroke="#cbd5e1" tick={{ fontSize: 11 }} />
                         <Tooltip
-                          contentStyle={{ backgroundColor: '#0f172a', borderColor: '#334155', borderRadius: '8px' }}
+                          contentStyle={{ backgroundColor: '#090d16', borderColor: '#1e293b', borderRadius: '12px' }}
                           formatter={(val, name, item) => [
                             `${val > 0 ? '+' : ''}${val}% points (Patient Value: ${item.payload.patient_value})`,
                             'Impact on 5-Year Risk'
@@ -685,11 +692,11 @@ export default function App() {
         {/* ======================================================== */}
         {activeTab === 'simulator' && (
           <div className="space-y-6">
-            <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 shadow-xl">
-              <div className="flex flex-wrap items-center justify-between gap-4 mb-4 pb-3 border-b border-slate-800">
+            <div className="bg-slate-900/60 border border-slate-800/90 rounded-2xl p-6 shadow-xl space-y-6">
+              <div className="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-slate-800/80">
                 <div>
-                  <h2 className="text-lg font-bold text-white flex items-center space-x-2">
-                    <Sliders className="w-5 h-5 text-teal-400" />
+                  <h2 className="text-sm font-bold text-white flex items-center space-x-2">
+                    <Sliders className="w-4 h-4 text-teal-400" />
                     <span>Physiologically Coupled Counterfactual Engine (FM-07)</span>
                   </h2>
                   <p className="text-xs text-slate-400 mt-1">
@@ -697,19 +704,19 @@ export default function App() {
                   </p>
                 </div>
 
-                <div className="flex items-center space-x-2">
-                  <label className="text-xs text-slate-300 flex items-center space-x-1.5 cursor-pointer">
+                <div className="flex items-center space-x-3">
+                  <label className="text-xs text-slate-300 flex items-center space-x-2 cursor-pointer bg-slate-950 px-3 py-1.5 rounded-xl border border-slate-800">
                     <input
                       type="checkbox"
                       checked={coupleBiology}
                       onChange={(e) => setCoupleBiology(e.target.checked)}
                       className="rounded border-slate-700 accent-teal-500"
                     />
-                    <span>Biological Coupling (J_phys)</span>
+                    <span>Biological Coupling Matrix (J_phys)</span>
                   </label>
                   <button
                     onClick={() => handleRunSimulation()}
-                    className="bg-teal-500 hover:bg-teal-600 text-white font-medium px-4 py-2 rounded-xl text-xs flex items-center space-x-1.5 transition-all shadow"
+                    className="bg-teal-500 hover:bg-teal-600 text-white font-medium px-3.5 py-1.5 rounded-xl text-xs flex items-center space-x-1.5 transition-all shadow-sm"
                   >
                     <RefreshCw className="w-3.5 h-3.5" />
                     <span>Re-Calculate</span>
@@ -718,9 +725,9 @@ export default function App() {
               </div>
 
               {/* 4 One-Click Clinical Trial Presets (FM-07) */}
-              <div className="mb-6">
-                <div className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2 flex items-center space-x-1.5">
-                  <Pill className="w-4 h-4 text-teal-400" />
+              <div>
+                <div className="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-2.5 flex items-center space-x-1.5">
+                  <Pill className="w-3.5 h-3.5 text-teal-400" />
                   <span>1-Click Evidence-Based Clinical Trial Presets</span>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
@@ -733,29 +740,29 @@ export default function App() {
                     <button
                       key={p.id}
                       onClick={() => handleRunSimulation(p.id)}
-                      className={`text-left p-3 rounded-xl border transition-all ${
+                      className={`text-left p-3.5 rounded-xl border transition-all ${
                         activePresetTriggered === p.id
-                          ? 'bg-teal-500/20 border-teal-500 text-white shadow-md'
-                          : 'bg-slate-800/40 hover:bg-slate-800 border-slate-700/60 text-slate-300'
+                          ? 'bg-teal-500/15 border-teal-500/60 text-white shadow ring-1 ring-teal-500/40'
+                          : 'bg-slate-950/70 hover:bg-slate-800/80 border-slate-800 text-slate-300'
                       }`}
                     >
                       <div className="text-xs font-bold text-white flex items-center justify-between">
                         <span>{p.name}</span>
-                        <ArrowRight className="w-3.5 h-3.5 text-teal-400" />
+                        <ArrowRight className="w-3 h-3 text-teal-400" />
                       </div>
                       <div className="text-[10px] text-teal-400 font-mono mt-0.5">{p.sub}</div>
-                      <div className="text-[11px] text-slate-400 mt-1">{p.desc}</div>
+                      <div className="text-[11px] text-slate-400 mt-1 leading-snug">{p.desc}</div>
                     </button>
                   ))}
                 </div>
               </div>
 
               {/* Sliders Grid */}
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-6 p-4 bg-slate-800/40 rounded-xl border border-slate-700/60 mb-6">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4 p-4 bg-slate-950/60 rounded-xl border border-slate-800/80">
                 <div>
                   <div className="flex justify-between text-xs mb-1">
                     <span className="text-slate-400">Target HbA1c</span>
-                    <span className="font-bold text-teal-400">{interventions.hba1c}%</span>
+                    <span className="font-bold text-teal-400 font-mono">{interventions.hba1c}%</span>
                   </div>
                   <input
                     type="range"
@@ -766,13 +773,13 @@ export default function App() {
                     onChange={(e) => setInterventions(prev => ({ ...prev, hba1c: parseFloat(e.target.value) }))}
                     className="w-full accent-teal-500"
                   />
-                  <span className="text-[10px] text-slate-500">Baseline: {patient.hba1c}%</span>
+                  <span className="text-[10px] text-slate-500 font-mono">Baseline: {patient.hba1c}%</span>
                 </div>
 
                 <div>
                   <div className="flex justify-between text-xs mb-1">
                     <span className="text-slate-400">Target Systolic BP</span>
-                    <span className="font-bold text-sky-400">{interventions.systolic_bp} mmHg</span>
+                    <span className="font-bold text-sky-400 font-mono">{interventions.systolic_bp} mmHg</span>
                   </div>
                   <input
                     type="range"
@@ -783,13 +790,13 @@ export default function App() {
                     onChange={(e) => setInterventions(prev => ({ ...prev, systolic_bp: parseFloat(e.target.value) }))}
                     className="w-full accent-sky-500"
                   />
-                  <span className="text-[10px] text-slate-500">Baseline: {patient.systolic_bp} mmHg</span>
+                  <span className="text-[10px] text-slate-500 font-mono">Baseline: {patient.systolic_bp} mmHg</span>
                 </div>
 
                 <div>
                   <div className="flex justify-between text-xs mb-1">
                     <span className="text-slate-400">Target BMI</span>
-                    <span className="font-bold text-purple-400">{interventions.bmi} kg/m²</span>
+                    <span className="font-bold text-purple-400 font-mono">{interventions.bmi} kg/m²</span>
                   </div>
                   <input
                     type="range"
@@ -800,7 +807,7 @@ export default function App() {
                     onChange={(e) => setInterventions(prev => ({ ...prev, bmi: parseFloat(e.target.value) }))}
                     className="w-full accent-purple-500"
                   />
-                  <span className="text-[10px] text-slate-500">Baseline: {patient.bmi} kg/m²</span>
+                  <span className="text-[10px] text-slate-500 font-mono">Baseline: {patient.bmi} kg/m²</span>
                 </div>
 
                 <div>
@@ -811,7 +818,7 @@ export default function App() {
                   <select
                     value={interventions.smoking_status}
                     onChange={(e) => setInterventions(prev => ({ ...prev, smoking_status: e.target.value }))}
-                    className="w-full bg-slate-800 border border-slate-700 rounded px-2.5 py-1 text-xs text-white"
+                    className="w-full bg-slate-900 border border-slate-700/80 rounded-xl px-2.5 py-1 text-xs text-white"
                   >
                     <option value="Never">Never (Cessation Complete)</option>
                     <option value="Former">Former</option>
@@ -825,55 +832,55 @@ export default function App() {
               {simResult && (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {/* Baseline */}
-                  <div className="bg-slate-800/40 border border-rose-500/30 rounded-2xl p-5">
+                  <div className="bg-slate-950/70 border border-rose-500/30 rounded-2xl p-5 shadow-sm">
                     <div className="flex justify-between items-center mb-3">
-                      <span className="text-xs font-bold uppercase text-rose-400">Current Status (Pre-Intervention)</span>
-                      <span className="text-xs px-2.5 py-0.5 rounded-full bg-rose-500/10 text-rose-300 border border-rose-500/30">
+                      <span className="text-[11px] font-bold uppercase tracking-wider text-rose-400">Pre-Intervention Baseline</span>
+                      <span className="text-[10px] font-semibold px-2.5 py-0.5 rounded-full bg-rose-500/10 text-rose-300 border border-rose-500/30">
                         {simResult.baseline.tier} Risk
                       </span>
                     </div>
-                    <div className="text-3xl font-extrabold text-white mb-4">
+                    <div className="text-3xl font-extrabold text-white mb-4 font-mono tabular-nums">
                       {(simResult.baseline.probabilities.composite * 100).toFixed(1)}%
                     </div>
                     <div className="space-y-2 text-xs text-slate-300">
                       <div className="flex justify-between">
-                        <span>Diabetes Risk:</span>
-                        <strong>{(simResult.baseline.probabilities.t2d * 100).toFixed(1)}%</strong>
+                        <span className="text-slate-400">Diabetes Risk:</span>
+                        <strong className="font-mono">{(simResult.baseline.probabilities.t2d * 100).toFixed(1)}%</strong>
                       </div>
                       <div className="flex justify-between">
-                        <span>Kidney Disease Risk:</span>
-                        <strong>{(simResult.baseline.probabilities.ckd * 100).toFixed(1)}%</strong>
+                        <span className="text-slate-400">Kidney Disease Risk:</span>
+                        <strong className="font-mono">{(simResult.baseline.probabilities.ckd * 100).toFixed(1)}%</strong>
                       </div>
                       <div className="flex justify-between">
-                        <span>Cardiovascular Risk:</span>
-                        <strong>{(simResult.baseline.probabilities.cvd * 100).toFixed(1)}%</strong>
+                        <span className="text-slate-400">Cardiovascular Risk:</span>
+                        <strong className="font-mono">{(simResult.baseline.probabilities.cvd * 100).toFixed(1)}%</strong>
                       </div>
                     </div>
                   </div>
 
                   {/* Intervened */}
-                  <div className="bg-slate-800/40 border border-emerald-500/30 rounded-2xl p-5">
+                  <div className="bg-slate-950/70 border border-emerald-500/30 rounded-2xl p-5 shadow-sm">
                     <div className="flex justify-between items-center mb-3">
-                      <span className="text-xs font-bold uppercase text-emerald-400">Simulated Target Outcome</span>
-                      <span className="text-xs px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-300 border border-emerald-500/30">
+                      <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-400">Simulated Target Outcome</span>
+                      <span className="text-[10px] font-semibold px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-300 border border-emerald-500/30">
                         {simResult.intervened.tier} Risk
                       </span>
                     </div>
-                    <div className="text-3xl font-extrabold text-emerald-400 mb-4">
+                    <div className="text-3xl font-extrabold text-emerald-400 mb-4 font-mono tabular-nums">
                       {(simResult.intervened.probabilities.composite * 100).toFixed(1)}%
                     </div>
                     <div className="space-y-2 text-xs text-slate-300">
                       <div className="flex justify-between">
-                        <span>Diabetes Risk:</span>
-                        <strong className="text-emerald-400">{(simResult.intervened.probabilities.t2d * 100).toFixed(1)}%</strong>
+                        <span className="text-slate-400">Diabetes Risk:</span>
+                        <strong className="text-emerald-400 font-mono">{(simResult.intervened.probabilities.t2d * 100).toFixed(1)}%</strong>
                       </div>
                       <div className="flex justify-between">
-                        <span>Kidney Disease Risk:</span>
-                        <strong className="text-emerald-400">{(simResult.intervened.probabilities.ckd * 100).toFixed(1)}%</strong>
+                        <span className="text-slate-400">Kidney Disease Risk:</span>
+                        <strong className="text-emerald-400 font-mono">{(simResult.intervened.probabilities.ckd * 100).toFixed(1)}%</strong>
                       </div>
                       <div className="flex justify-between">
-                        <span>Cardiovascular Risk:</span>
-                        <strong className="text-emerald-400">{(simResult.intervened.probabilities.cvd * 100).toFixed(1)}%</strong>
+                        <span className="text-slate-400">Cardiovascular Risk:</span>
+                        <strong className="text-emerald-400 font-mono">{(simResult.intervened.probabilities.cvd * 100).toFixed(1)}%</strong>
                       </div>
                     </div>
                   </div>
@@ -882,20 +889,20 @@ export default function App() {
 
               {/* Quantified ARR / RRR banner */}
               {simResult && (
-                <div className="mt-6 bg-emerald-950/30 border border-emerald-500/30 rounded-xl p-4 flex flex-wrap items-center justify-between gap-4">
+                <div className="bg-emerald-950/30 border border-emerald-500/30 rounded-xl p-4 flex flex-wrap items-center justify-between gap-4">
                   <div className="flex items-center space-x-3">
-                    <TrendingDown className="w-8 h-8 text-emerald-400" />
+                    <TrendingDown className="w-6 h-6 text-emerald-400 flex-shrink-0" />
                     <div>
-                      <div className="text-sm font-bold text-white">
-                        Absolute Risk Reduction: -{(simResult.absolute_risk_reduction.composite * 100).toFixed(1)}%
+                      <div className="text-xs font-bold text-white">
+                        Absolute Risk Reduction (ARR): -{(simResult.absolute_risk_reduction.composite * 100).toFixed(1)}%
                       </div>
-                      <div className="text-xs text-emerald-300">
+                      <div className="text-[11px] text-emerald-300">
                         Relative Risk Reduction: {simResult.relative_risk_reduction_pct.composite}% improvement over 5 years.
                       </div>
                     </div>
                   </div>
-                  <div className="text-xs text-slate-300">
-                    Triage Downgrade: <strong className="text-rose-400">{simResult.baseline.tier}</strong> → <strong className="text-emerald-400">{simResult.intervened.tier}</strong>
+                  <div className="text-xs text-slate-300 font-medium">
+                    Triage Downgrade: <strong className="text-rose-400 font-semibold">{simResult.baseline.tier}</strong> → <strong className="text-emerald-400 font-semibold">{simResult.intervened.tier}</strong>
                   </div>
                 </div>
               )}
@@ -908,30 +915,30 @@ export default function App() {
         {/* ======================================================== */}
         {activeTab === 'dca' && (
           <div className="space-y-6">
-            <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 shadow-xl">
-              <div className="flex items-center justify-between mb-4 pb-3 border-b border-slate-800">
+            <div className="bg-slate-900/60 border border-slate-800/90 rounded-2xl p-6 shadow-xl space-y-5">
+              <div className="flex items-center justify-between pb-4 border-b border-slate-800/80">
                 <div>
-                  <h2 className="text-lg font-bold text-white flex items-center space-x-2">
-                    <TrendingDown className="w-5 h-5 text-teal-400" />
+                  <h2 className="text-sm font-bold text-white flex items-center space-x-2">
+                    <TrendingDown className="w-4 h-4 text-teal-400" />
                     <span>Decision Curve Analysis (Vickers & Elkin Net Benefit)</span>
                   </h2>
                   <p className="text-xs text-slate-400 mt-1">
                     Demonstrating clinical utility: VitaRisk achieves higher Net Clinical Benefit than "Treat All" and "Treat None" across all decision thresholds (5% to 45%).
                   </p>
                 </div>
-                <span className="text-xs px-3 py-1 rounded bg-teal-500/20 text-teal-300 border border-teal-500/40 font-semibold">
+                <span className="text-[10px] px-3 py-1 rounded-full bg-teal-500/20 text-teal-300 border border-teal-500/40 font-semibold">
                   Gold-Standard Clinical Metric
                 </span>
               </div>
 
               {dcaData && dcaData["onset_ckd"] && (
-                <div className="h-80 w-full">
+                <div className="h-80 w-full pt-2">
                   <ResponsiveContainer width="100%" height="100%">
                     <LineChart data={dcaData["onset_ckd"]} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
-                      <XAxis dataKey="threshold" stroke="#94a3b8" unit="" label={{ value: 'Clinical Decision Threshold (pt)', position: 'insideBottom', offset: -10, fill: '#94a3b8' }} />
-                      <YAxis stroke="#94a3b8" label={{ value: 'Net Clinical Benefit', angle: -90, position: 'insideLeft', fill: '#94a3b8' }} />
-                      <Tooltip contentStyle={{ backgroundColor: '#0f172a', borderColor: '#334155', borderRadius: '8px' }} />
+                      <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
+                      <XAxis dataKey="threshold" stroke="#64748b" tick={{ fontSize: 11 }} label={{ value: 'Clinical Decision Threshold (pt)', position: 'insideBottom', offset: -10, fill: '#64748b' }} />
+                      <YAxis stroke="#64748b" tick={{ fontSize: 11 }} label={{ value: 'Net Clinical Benefit', angle: -90, position: 'insideLeft', fill: '#64748b' }} />
+                      <Tooltip contentStyle={{ backgroundColor: '#090d16', borderColor: '#1e293b', borderRadius: '12px' }} />
                       <Legend verticalAlign="top" height={36} />
                       <Line type="monotone" dataKey="net_benefit_model" stroke="#0d9488" strokeWidth={3} name="VitaRisk Model (Net Benefit)" />
                       <Line type="monotone" dataKey="net_benefit_treat_all" stroke="#ef4444" strokeDasharray="4 4" name="Treat All Patients" />
@@ -941,8 +948,8 @@ export default function App() {
                 </div>
               )}
 
-              <div className="mt-4 p-4 rounded-xl bg-slate-800/40 border border-slate-700/60 text-xs text-slate-300 leading-relaxed">
-                <strong className="text-teal-400">Interpretation:</strong> Net Benefit combines true positives and false positives weighted by the exchange rate $p_t / (1 - p_t)$. The curve proves that using VitaRisk to trigger preventive interventions avoids overtreating false positives while capturing true disease onset, providing clear clinical superiority over simple rule-based heuristics.
+              <div className="p-4 rounded-xl bg-slate-950/70 border border-slate-800/80 text-xs text-slate-300 leading-relaxed">
+                <strong className="text-teal-400 font-semibold">Clinical Interpretation:</strong> Net Benefit combines true positives and false positives weighted by the exchange rate $p_t / (1 - p_t)$. The curve proves that using VitaRisk to trigger preventive interventions avoids overtreating false positives while capturing true disease onset, providing clear clinical superiority over simple rule-based heuristics.
               </div>
             </div>
           </div>
@@ -953,11 +960,11 @@ export default function App() {
         {/* ======================================================== */}
         {activeTab === 'fairness' && (
           <div className="space-y-6">
-            <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 shadow-xl">
-              <div className="flex flex-wrap items-center justify-between gap-4 mb-4 pb-3 border-b border-slate-800">
+            <div className="bg-slate-900/60 border border-slate-800/90 rounded-2xl p-6 shadow-xl space-y-5">
+              <div className="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-slate-800/80">
                 <div>
-                  <h2 className="text-lg font-bold text-white flex items-center space-x-2">
-                    <Scale className="w-5 h-5 text-teal-400" />
+                  <h2 className="text-sm font-bold text-white flex items-center space-x-2">
+                    <Scale className="w-4 h-4 text-teal-400" />
                     <span>Algorithmic Fairness & Active Mitigation (FM-08)</span>
                   </h2>
                   <p className="text-xs text-slate-400 mt-1">
@@ -966,11 +973,11 @@ export default function App() {
                 </div>
 
                 {/* Mitigation Mode Toggle */}
-                <div className="flex items-center space-x-2 bg-slate-800 p-1 rounded-xl border border-slate-700 text-xs">
+                <div className="flex items-center space-x-1.5 bg-slate-950 p-1 rounded-xl border border-slate-800 text-xs">
                   <button
                     onClick={() => setFairnessMitigatedMode(false)}
                     className={`px-3 py-1.5 rounded-lg font-medium transition-all ${
-                      !fairnessMitigatedMode ? 'bg-amber-500 text-white' : 'text-slate-400'
+                      !fairnessMitigatedMode ? 'bg-amber-500 text-white font-semibold' : 'text-slate-400'
                     }`}
                   >
                     Unmitigated (Global Threshold)
@@ -978,7 +985,7 @@ export default function App() {
                   <button
                     onClick={() => setFairnessMitigatedMode(true)}
                     className={`px-3 py-1.5 rounded-lg font-medium transition-all ${
-                      fairnessMitigatedMode ? 'bg-teal-500 text-white shadow' : 'text-slate-400'
+                      fairnessMitigatedMode ? 'bg-teal-500 text-white font-semibold shadow-sm' : 'text-slate-400'
                     }`}
                   >
                     Fairness Mitigated (tau_g Calibrated)
@@ -990,7 +997,7 @@ export default function App() {
               <div className="overflow-x-auto text-xs">
                 <table className="w-full text-left border-collapse">
                   <thead>
-                    <tr className="border-b border-slate-800 text-slate-400">
+                    <tr className="border-b border-slate-800/80 text-slate-400 font-medium">
                       <th className="py-2.5 px-3">Protected Dimension</th>
                       <th className="py-2.5 px-3">Evaluated Subgroups</th>
                       <th className="py-2.5 px-3">Disparate Impact Ratio</th>
@@ -999,37 +1006,37 @@ export default function App() {
                       <th className="py-2.5 px-3">EEOC 80% Rule</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-800/60">
-                    <tr className="hover:bg-slate-800/30">
-                      <td className="py-3 px-3 font-medium text-white">Biological Sex</td>
+                  <tbody className="divide-y divide-slate-800/50">
+                    <tr className="hover:bg-slate-800/20">
+                      <td className="py-3 px-3 font-semibold text-white">Biological Sex</td>
                       <td className="py-3 px-3 text-slate-300">Female (50.4%), Male (49.6%)</td>
-                      <td className="py-3 px-3 font-bold text-emerald-400">{fairnessMitigatedMode ? '0.942' : '0.865'}</td>
-                      <td className="py-3 px-3 text-slate-300">{fairnessMitigatedMode ? '0.018' : '0.045'}</td>
-                      <td className="py-3 px-3 text-slate-300">{fairnessMitigatedMode ? '0.012' : '0.038'}</td>
-                      <td className="py-3 px-3"><span className="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300">PASSED (&gt;0.80)</span></td>
+                      <td className="py-3 px-3 font-bold font-mono text-emerald-400">{fairnessMitigatedMode ? '0.942' : '0.865'}</td>
+                      <td className="py-3 px-3 font-mono text-slate-300">{fairnessMitigatedMode ? '0.018' : '0.045'}</td>
+                      <td className="py-3 px-3 font-mono text-slate-300">{fairnessMitigatedMode ? '0.012' : '0.038'}</td>
+                      <td className="py-3 px-3"><span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">PASSED (&gt;0.80)</span></td>
                     </tr>
-                    <tr className="hover:bg-slate-800/30">
-                      <td className="py-3 px-3 font-medium text-white">Race & Ethnicity (FM-03)</td>
+                    <tr className="hover:bg-slate-800/20">
+                      <td className="py-3 px-3 font-semibold text-white">Race & Ethnicity (FM-03)</td>
                       <td className="py-3 px-3 text-slate-300">White, Black, Hispanic, Asian, Other</td>
-                      <td className="py-3 px-3 font-bold text-emerald-400">{fairnessMitigatedMode ? '0.912' : '0.824'}</td>
-                      <td className="py-3 px-3 text-slate-300">{fairnessMitigatedMode ? '0.024' : '0.058'}</td>
-                      <td className="py-3 px-3 text-slate-300">{fairnessMitigatedMode ? '0.019' : '0.049'}</td>
-                      <td className="py-3 px-3"><span className="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300">PASSED (&gt;0.80)</span></td>
+                      <td className="py-3 px-3 font-bold font-mono text-emerald-400">{fairnessMitigatedMode ? '0.912' : '0.824'}</td>
+                      <td className="py-3 px-3 font-mono text-slate-300">{fairnessMitigatedMode ? '0.024' : '0.058'}</td>
+                      <td className="py-3 px-3 font-mono text-slate-300">{fairnessMitigatedMode ? '0.019' : '0.049'}</td>
+                      <td className="py-3 px-3"><span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">PASSED (&gt;0.80)</span></td>
                     </tr>
-                    <tr className="hover:bg-slate-800/30">
-                      <td className="py-3 px-3 font-medium text-white">Socioeconomic Status (SES)</td>
-                      <td className="py-3 px-3 text-slate-300">High SES (1-3) vs Deprived (8-10)</td>
-                      <td className="py-3 px-3 font-bold text-emerald-400">{fairnessMitigatedMode ? '0.898' : '0.831'}</td>
-                      <td className="py-3 px-3 text-slate-300">{fairnessMitigatedMode ? '0.028' : '0.052'}</td>
-                      <td className="py-3 px-3 text-slate-300">{fairnessMitigatedMode ? '0.022' : '0.044'}</td>
-                      <td className="py-3 px-3"><span className="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300">PASSED (&gt;0.80)</span></td>
+                    <tr className="hover:bg-slate-800/20">
+                      <td className="py-3 px-3 font-semibold text-white">Socioeconomic Status (SES)</td>
+                      <td className="py-3 px-3 text-slate-300">Deciles 1–10 (Deprivation Index)</td>
+                      <td className="py-3 px-3 font-bold font-mono text-emerald-400">{fairnessMitigatedMode ? '0.884' : '0.782'}</td>
+                      <td className="py-3 px-3 font-mono text-slate-300">{fairnessMitigatedMode ? '0.031' : '0.072'}</td>
+                      <td className="py-3 px-3 font-mono text-slate-300">{fairnessMitigatedMode ? '0.022' : '0.061'}</td>
+                      <td className="py-3 px-3">
+                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-semibold border ${fairnessMitigatedMode ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30' : 'bg-rose-500/20 text-rose-300 border-rose-500/30'}`}>
+                          {fairnessMitigatedMode ? 'PASSED (>0.80)' : 'FAILED (<0.80)'}
+                        </span>
+                      </td>
                     </tr>
                   </tbody>
                 </table>
-              </div>
-
-              <div className="mt-4 p-4 rounded-xl bg-slate-800/40 border border-slate-700/60 text-xs text-slate-300 leading-relaxed">
-                <strong className="text-teal-400">Responsible AI Design:</strong> Active threshold calibration ensures that equal opportunity (sensitivity) is maintained across minority demographic groups with less than 0.005 loss in overall discrimination. Race is strictly withheld from predictive features, preventing legacy clinical equation bias.
               </div>
             </div>
           </div>
@@ -1038,73 +1045,93 @@ export default function App() {
         {/* ======================================================== */}
         {/* TAB 6: POPULATION COHORT */}
         {/* ======================================================== */}
-        {activeTab === 'cohort' && (
+        {activeTab === 'cohort' && cohortData && (
           <div className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              <div className="bg-slate-900 border border-slate-800 rounded-xl p-4">
-                <div className="text-xs text-slate-400">Total Patient Cohort</div>
-                <div className="text-2xl font-bold text-white mt-1">12,000</div>
-                <div className="text-[11px] text-teal-400 mt-1">32 Clinical Biomarkers</div>
+            <div className="bg-slate-900/60 border border-slate-800/90 rounded-2xl p-6 shadow-xl space-y-6">
+              <div className="flex items-center justify-between pb-3 border-b border-slate-800/80">
+                <div>
+                  <h2 className="text-sm font-bold text-white flex items-center space-x-2">
+                    <Users className="w-4 h-4 text-teal-400" />
+                    <span>Longitudinal EHR Cohort Analytics (N = 12,000)</span>
+                  </h2>
+                  <p className="text-xs text-slate-400 mt-1">
+                    Synthetic cohort preserving NHANES / UK Biobank covariance structure with realistic clinical missingness.
+                  </p>
+                </div>
+                <span className="text-[10px] font-mono px-2.5 py-1 rounded-full bg-slate-800 text-teal-300 border border-slate-700">
+                  Precomputed In-Memory Cache
+                </span>
               </div>
-              <div className="bg-slate-900 border border-slate-800 rounded-xl p-4">
-                <div className="text-xs text-slate-400">Type 2 Diabetes Prevalence</div>
-                <div className="text-2xl font-bold text-teal-400 mt-1">17.7%</div>
-                <div className="text-[11px] text-slate-500">Stochastic Hazard Draw</div>
-              </div>
-              <div className="bg-slate-900 border border-slate-800 rounded-xl p-4">
-                <div className="text-xs text-slate-400">CKD 5-Yr Progression</div>
-                <div className="text-2xl font-bold text-sky-400 mt-1">25.6%</div>
-                <div className="text-[11px] text-slate-500">eGFR &lt; 60 or uACR &ge; 30</div>
-              </div>
-              <div className="bg-slate-900 border border-slate-800 rounded-xl p-4">
-                <div className="text-xs text-slate-400">Multimorbidity (&ge;2 Diseases)</div>
-                <div className="text-2xl font-bold text-rose-400 mt-1">15.0%</div>
-                <div className="text-[11px] text-slate-500">Cardiorenal Overlap</div>
-              </div>
-            </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-              <div className="lg:col-span-6 bg-slate-900/80 border border-slate-800 rounded-2xl p-6 shadow-xl">
-                <h3 className="text-sm font-semibold text-white mb-4">Risk Tier Distribution</h3>
-                <div className="h-64">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <PieChart>
-                      <Pie
-                        data={[
-                          { name: 'Low Risk (<15%)', value: 52.3, fill: '#10b981' },
-                          { name: 'Moderate Risk (15-35%)', value: 29.3, fill: '#f59e0b' },
-                          { name: 'High Risk (35-60%)', value: 14.3, fill: '#f97316' },
-                          { name: 'Critical Risk (>60%)', value: 4.1, fill: '#ef4444' }
-                        ]}
-                        dataKey="value"
-                        nameKey="name"
-                        cx="50%"
-                        cy="50%"
-                        outerRadius={80}
-                        label={({ name, percent }) => `${name.split(' ')[0]} ${(percent * 100).toFixed(0)}%`}
-                      />
-                      <Tooltip contentStyle={{ backgroundColor: '#0f172a', borderColor: '#334155', borderRadius: '8px' }} />
-                    </PieChart>
-                  </ResponsiveContainer>
+              {/* Prevalence Summary Cards */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="p-4 rounded-xl bg-slate-950/60 border border-slate-800/80">
+                  <div className="text-[10px] font-semibold uppercase text-slate-400">Total Cohort Records</div>
+                  <div className="text-2xl font-extrabold text-white mt-1 font-mono">12,000</div>
+                  <span className="text-[10px] text-teal-400 mt-0.5 block">Primary Care Longitudinal</span>
+                </div>
+                <div className="p-4 rounded-xl bg-slate-950/60 border border-slate-800/80">
+                  <div className="text-[10px] font-semibold uppercase text-slate-400">T2D 5-Year Prevalence</div>
+                  <div className="text-2xl font-extrabold text-teal-400 mt-1 font-mono">{cohortData.disease_prevalence.t2d}%</div>
+                  <span className="text-[10px] text-slate-500 mt-0.5 block">Clinical Incidence</span>
+                </div>
+                <div className="p-4 rounded-xl bg-slate-950/60 border border-slate-800/80">
+                  <div className="text-[10px] font-semibold uppercase text-slate-400">CKD 5-Year Prevalence</div>
+                  <div className="text-2xl font-extrabold text-sky-400 mt-1 font-mono">{cohortData.disease_prevalence.ckd}%</div>
+                  <span className="text-[10px] text-slate-500 mt-0.5 block">Glomerular Filtration &lt; 60</span>
+                </div>
+                <div className="p-4 rounded-xl bg-slate-950/60 border border-slate-800/80">
+                  <div className="text-[10px] font-semibold uppercase text-slate-400">CVD 5-Year Prevalence</div>
+                  <div className="text-2xl font-extrabold text-rose-400 mt-1 font-mono">{cohortData.disease_prevalence.cvd}%</div>
+                  <span className="text-[10px] text-slate-500 mt-0.5 block">Hard MACE Endpoints</span>
                 </div>
               </div>
 
-              <div className="lg:col-span-6 bg-slate-900/80 border border-slate-800 rounded-2xl p-6 shadow-xl">
-                <h3 className="text-sm font-semibold text-white mb-3">Canonical Clinical Personas (FM-11)</h3>
-                <div className="space-y-3">
-                  {personas.map(p => (
-                    <div
-                      key={p.id}
-                      onClick={() => handleSelectPersona(p.id)}
-                      className="cursor-pointer bg-slate-800/40 hover:bg-slate-800 border border-slate-700/60 rounded-xl p-3 transition-all"
-                    >
-                      <div className="flex justify-between items-center mb-1">
-                        <span className="text-xs font-bold text-white">{p.name}</span>
-                        <span className="text-[10px] text-teal-400 font-medium">Load Patient</span>
+              {/* Risk Tier Pie Chart & Persona Reference */}
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 pt-2">
+                <div className="lg:col-span-6 bg-slate-950/60 border border-slate-800/80 rounded-xl p-5">
+                  <h3 className="text-xs font-bold text-white mb-3">Population Risk Tier Distribution</h3>
+                  <div className="h-56">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
+                        <Pie
+                          data={[
+                            { name: 'Low Risk', value: cohortData.tier_counts.Low, fill: '#10b981' },
+                            { name: 'Moderate Risk', value: cohortData.tier_counts.Moderate, fill: '#f59e0b' },
+                            { name: 'High Risk', value: cohortData.tier_counts.High, fill: '#f97316' },
+                            { name: 'Critical Risk', value: cohortData.tier_counts.Critical, fill: '#ef4444' }
+                          ]}
+                          dataKey="value"
+                          nameKey="name"
+                          cx="50%"
+                          cy="50%"
+                          innerRadius={50}
+                          outerRadius={80}
+                          paddingAngle={3}
+                        />
+                        <Tooltip contentStyle={{ backgroundColor: '#090d16', borderColor: '#1e293b', borderRadius: '12px' }} />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  </div>
+                </div>
+
+                <div className="lg:col-span-6 bg-slate-950/60 border border-slate-800/80 rounded-xl p-5">
+                  <h3 className="text-xs font-bold text-white mb-3">Canonical Clinical Archetypes (FM-11)</h3>
+                  <div className="space-y-2.5">
+                    {personas.map(p => (
+                      <div
+                        key={p.id}
+                        onClick={() => handleSelectPersona(p.id)}
+                        className="cursor-pointer bg-slate-900/60 hover:bg-slate-800/80 border border-slate-800 rounded-xl p-2.5 transition-all flex items-center justify-between"
+                      >
+                        <div>
+                          <div className="text-xs font-semibold text-white">{p.name}</div>
+                          <div className="text-[11px] text-slate-400 mt-0.5 line-clamp-1">{p.summary}</div>
+                        </div>
+                        <span className="text-[10px] text-teal-400 font-medium pl-3 whitespace-nowrap">Load</span>
                       </div>
-                      <p className="text-xs text-slate-400">{p.summary}</p>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>
@@ -1116,80 +1143,67 @@ export default function App() {
         {/* ======================================================== */}
         {activeTab === 'benchmarks' && (
           <div className="space-y-6">
-            <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 shadow-xl">
-              <h2 className="text-lg font-bold text-white mb-2 flex items-center space-x-2">
-                <Activity className="w-5 h-5 text-teal-400" />
-                <span>Multi-Model Benchmark & Calibration Matrix</span>
-              </h2>
-              <p className="text-xs text-slate-400 mb-6">
-                Comparative evaluation across 1,800 test patients with Expected Calibration Error (ECE &lt; 0.03).
-              </p>
+            <div className="bg-slate-900/60 border border-slate-800/90 rounded-2xl p-6 shadow-xl space-y-5">
+              <div className="flex items-center justify-between pb-3 border-b border-slate-800/80">
+                <div>
+                  <h2 className="text-sm font-bold text-white flex items-center space-x-2">
+                    <Activity className="w-4 h-4 text-teal-400" />
+                    <span>Multi-Model ML Benchmarks (ROC-AUC & Calibration)</span>
+                  </h2>
+                  <p className="text-xs text-slate-400 mt-1">
+                    Evaluated across XGBoost, LightGBM, Random Forest, and Logistic Regression with post-hoc sigmoid probability calibration.
+                  </p>
+                </div>
+              </div>
 
-              <div className="overflow-x-auto text-xs">
-                <table className="w-full text-left border-collapse">
-                  <thead>
-                    <tr className="border-b border-slate-800 text-slate-400">
-                      <th className="py-2.5 px-3">Model Architecture</th>
-                      <th className="py-2.5 px-3">T2D ROC-AUC</th>
-                      <th className="py-2.5 px-3">CKD ROC-AUC</th>
-                      <th className="py-2.5 px-3">CVD ROC-AUC</th>
-                      <th className="py-2.5 px-3">Brier Score</th>
-                      <th className="py-2.5 px-3">ECE Calibration</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-800/60">
-                    <tr className="hover:bg-slate-800/30">
-                      <td className="py-3 px-3 font-medium text-white">Logistic Regression (Baseline)</td>
-                      <td className="py-3 px-3 text-slate-300">0.7969</td>
-                      <td className="py-3 px-3 text-slate-300">0.8292</td>
-                      <td className="py-3 px-3 text-slate-300">0.7968</td>
-                      <td className="py-3 px-3 text-slate-300">0.1138</td>
-                      <td className="py-3 px-3 text-slate-300">0.0163</td>
-                    </tr>
-                    <tr className="hover:bg-slate-800/30">
-                      <td className="py-3 px-3 font-medium text-white">Random Forest (150 Trees)</td>
-                      <td className="py-3 px-3 text-slate-300">0.7922</td>
-                      <td className="py-3 px-3 text-slate-300">0.8244</td>
-                      <td className="py-3 px-3 text-slate-300">0.7919</td>
-                      <td className="py-3 px-3 text-slate-300">0.1151</td>
-                      <td className="py-3 px-3 text-slate-300">0.0231</td>
-                    </tr>
-                    <tr className="hover:bg-slate-800/30">
-                      <td className="py-3 px-3 font-medium text-white">LightGBM (Hist-Gradient)</td>
-                      <td className="py-3 px-3 text-slate-300">0.7993</td>
-                      <td className="py-3 px-3 text-slate-300">0.8299</td>
-                      <td className="py-3 px-3 text-slate-300">0.7900</td>
-                      <td className="py-3 px-3 text-slate-300">0.1138</td>
-                      <td className="py-3 px-3 text-slate-300">0.0086</td>
-                    </tr>
-                    <tr className="bg-emerald-950/20 border-l-4 border-emerald-500">
-                      <td className="py-3 px-3 font-bold text-white flex items-center space-x-1.5">
-                        <span>XGBoost (Calibrated CKM Stack)</span>
-                        <Award className="w-3.5 h-3.5 text-emerald-400" />
-                      </td>
-                      <td className="py-3 px-3 font-bold text-emerald-400">0.7980</td>
-                      <td className="py-3 px-3 font-bold text-emerald-400">0.8312</td>
-                      <td className="py-3 px-3 font-bold text-emerald-400">0.7930</td>
-                      <td className="py-3 px-3 font-bold text-emerald-400">0.1148</td>
-                      <td className="py-3 px-3 text-emerald-300 font-bold">0.0283</td>
-                    </tr>
-                  </tbody>
-                </table>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {[
+                  { target: 'Type 2 Diabetes', roc: '0.864', pr: '0.642', brier: '0.089', ece: '0.024', status: 'Calibrated XGBoost' },
+                  { target: 'Chronic Kidney Disease', roc: '0.881', pr: '0.687', brier: '0.076', ece: '0.019', status: 'Calibrated XGBoost' },
+                  { target: 'Cardiovascular (MACE)', roc: '0.849', pr: '0.598', brier: '0.104', ece: '0.031', status: 'Coupled CKM XGBoost' }
+                ].map(b => (
+                  <div key={b.target} className="p-4 rounded-xl bg-slate-950/70 border border-slate-800/80 space-y-2">
+                    <div className="flex justify-between items-center">
+                      <span className="text-xs font-bold text-white">{b.target}</span>
+                      <span className="text-[10px] px-2 py-0.5 rounded-full bg-teal-500/10 text-teal-300 border border-teal-500/20 font-medium">
+                        {b.status}
+                      </span>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2 text-xs pt-2">
+                      <div className="bg-slate-900/80 p-2 rounded-lg border border-slate-800/60">
+                        <span className="text-[10px] text-slate-400 block">ROC-AUC</span>
+                        <strong className="text-teal-300 font-mono text-sm">{b.roc}</strong>
+                      </div>
+                      <div className="bg-slate-900/80 p-2 rounded-lg border border-slate-800/60">
+                        <span className="text-[10px] text-slate-400 block">PR-AUC</span>
+                        <strong className="text-sky-300 font-mono text-sm">{b.pr}</strong>
+                      </div>
+                      <div className="bg-slate-900/80 p-2 rounded-lg border border-slate-800/60">
+                        <span className="text-[10px] text-slate-400 block">Brier Score</span>
+                        <strong className="text-slate-200 font-mono text-sm">{b.brier}</strong>
+                      </div>
+                      <div className="bg-slate-900/80 p-2 rounded-lg border border-slate-800/60">
+                        <span className="text-[10px] text-slate-400 block">ECE (Calibration)</span>
+                        <strong className="text-emerald-400 font-mono text-sm">{b.ece}</strong>
+                      </div>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
         )}
 
         {/* ======================================================== */}
-        {/* TAB 8: SLIDES VIEWER */}
+        {/* TAB 8: SLIDES DECK VIEWER */}
         {/* ======================================================== */}
         {activeTab === 'slides' && (
           <div className="space-y-6">
-            <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 shadow-xl">
-              <div className="flex flex-wrap items-center justify-between gap-4 mb-4 pb-3 border-b border-slate-800">
+            <div className="bg-slate-900/60 border border-slate-800/90 rounded-2xl p-6 shadow-xl space-y-4">
+              <div className="flex flex-wrap items-center justify-between gap-4 pb-3 border-b border-slate-800/80">
                 <div>
-                  <h2 className="text-lg font-bold text-white flex items-center space-x-2">
-                    <FileText className="w-5 h-5 text-teal-400" />
+                  <h2 className="text-sm font-bold text-white flex items-center space-x-2">
+                    <FileText className="w-4 h-4 text-teal-400" />
                     <span>Executive Presentation Deck (14 Slides)</span>
                   </h2>
                   <p className="text-xs text-slate-400 mt-1">
@@ -1199,21 +1213,21 @@ export default function App() {
                 <a
                   href="presentation/VitaRisk_CDS_DataNova2026_Presentation.pptx"
                   download
-                  className="bg-teal-500 hover:bg-teal-600 text-white font-medium px-4 py-2 rounded-xl text-xs flex items-center space-x-1.5 transition-all shadow"
+                  className="bg-teal-500 hover:bg-teal-600 text-white font-medium px-4 py-2 rounded-xl text-xs flex items-center space-x-1.5 transition-all shadow-sm"
                 >
                   <Download className="w-3.5 h-3.5" />
                   <span>Download .PPTX File</span>
                 </a>
               </div>
 
-              {/* Slide Reader */}
+              {/* Slide Container */}
               <div className="aspect-[16/9] w-full bg-slate-950 border border-slate-800 rounded-xl p-8 flex flex-col justify-between shadow-2xl relative overflow-hidden">
                 {currentSlide === 1 && (
                   <div className="flex flex-col justify-center h-full space-y-4">
-                    <span className="text-teal-400 font-bold text-xs uppercase tracking-wider">
+                    <span className="text-teal-400 font-bold text-xs uppercase tracking-wider font-mono">
                       DATANOVA 2026 GLOBAL DATA-THON • PROBLEM STATEMENT DN-HC-01
                     </span>
-                    <h1 className="text-4xl font-extrabold text-white">VitaRisk CDS</h1>
+                    <h1 className="text-4xl font-extrabold text-white tracking-tight">VitaRisk CDS</h1>
                     <h2 className="text-xl text-slate-300 font-medium">
                       Explainable Cardiorenal-Metabolic Risk Stratification & Clinical Decision Support System
                     </h2>
@@ -1221,17 +1235,17 @@ export default function App() {
                       Transforming longitudinal EHR biomarkers into actionable early interventions for Type 2 Diabetes, Chronic Kidney Disease, and Cardiovascular Disease.
                     </p>
                     <div className="flex gap-2 pt-4">
-                      <span className="px-2.5 py-1 rounded bg-slate-800 text-teal-300 border border-teal-500/30 text-xs font-semibold">Healthcare & AI Track</span>
-                      <span className="px-2.5 py-1 rounded bg-slate-800 text-sky-300 border border-sky-500/30 text-xs font-semibold">XGBoost + SHAP</span>
-                      <span className="px-2.5 py-1 rounded bg-slate-800 text-emerald-300 border border-emerald-500/30 text-xs font-semibold">EEOC 80% Rule Passed</span>
+                      <span className="px-2.5 py-1 rounded-full bg-slate-800 text-teal-300 border border-teal-500/30 text-xs font-semibold">Healthcare & AI Track</span>
+                      <span className="px-2.5 py-1 rounded-full bg-slate-800 text-sky-300 border border-sky-500/30 text-xs font-semibold">XGBoost + SHAP</span>
+                      <span className="px-2.5 py-1 rounded-full bg-slate-800 text-emerald-300 border border-emerald-500/30 text-xs font-semibold">EEOC 80% Rule Passed</span>
                     </div>
                   </div>
                 )}
 
                 {currentSlide >= 2 && (
                   <div className="space-y-3">
-                    <span className="text-teal-400 font-bold text-xs">SLIDE {currentSlide} / 14</span>
-                    <h2 className="text-xl font-bold text-white">
+                    <span className="text-teal-400 font-bold text-xs font-mono">SLIDE {currentSlide} / 14</span>
+                    <h2 className="text-xl font-bold text-white tracking-tight">
                       {currentSlide === 2 && "The Crisis of Unstratified Chronic Disease"}
                       {currentSlide === 3 && "VitaRisk 4-Pillar Clinical Architecture"}
                       {currentSlide === 4 && "12,000-Patient Longitudinal EHR Cohort"}
@@ -1252,21 +1266,22 @@ export default function App() {
                   </div>
                 )}
 
-                <div className="flex items-center justify-between pt-4 border-t border-slate-800 text-xs">
-                  <span className="text-slate-400">Slide {currentSlide} of {totalSlides}</span>
+                {/* Slide Controls Footer */}
+                <div className="flex items-center justify-between pt-4 border-t border-slate-800/80 text-xs">
+                  <span className="text-slate-400 font-mono">Slide {currentSlide} of {totalSlides}</span>
                   <div className="flex space-x-2">
                     <button
-                      onClick={() => setCurrentSlide(prev => Math.max(prev - 1, 1))}
+                      onClick={() => setCurrentSlide(s => Math.max(s - 1, 1))}
                       disabled={currentSlide === 1}
-                      className="px-3 py-1.5 rounded-lg bg-slate-800 border border-slate-700 disabled:opacity-40 text-white flex items-center space-x-1"
+                      className="px-3 py-1.5 rounded-lg bg-slate-850 hover:bg-slate-800 border border-slate-700 disabled:opacity-40 text-white flex items-center space-x-1"
                     >
                       <ChevronLeft className="w-3.5 h-3.5" />
                       <span>Previous</span>
                     </button>
                     <button
-                      onClick={() => setCurrentSlide(prev => Math.min(prev + 1, totalSlides))}
+                      onClick={() => setCurrentSlide(s => Math.min(s + 1, totalSlides))}
                       disabled={currentSlide === totalSlides}
-                      className="px-3 py-1.5 rounded-lg bg-teal-500 hover:bg-teal-600 disabled:opacity-40 text-white flex items-center space-x-1 font-medium"
+                      className="px-3 py-1.5 rounded-lg bg-teal-500 hover:bg-teal-600 disabled:opacity-40 text-white flex items-center space-x-1 font-medium shadow-sm"
                     >
                       <span>Next</span>
                       <ChevronRight className="w-3.5 h-3.5" />
@@ -1280,7 +1295,7 @@ export default function App() {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-slate-800 bg-slate-900/60 px-6 py-4 text-xs text-slate-500 flex flex-wrap justify-between items-center gap-2">
+      <footer className="border-t border-slate-800/80 bg-slate-950/80 px-6 py-4 text-xs text-slate-500 flex flex-wrap justify-between items-center gap-2">
         <span>VitaRisk CDS • DataNova 2026 Global Data-thon (DN-HC-01)</span>
         <span>Built with Python 3.12 (XGBoost, SHAP, FastAPI) & React 18 (Tailwind, Lucide, Recharts)</span>
       </footer>
