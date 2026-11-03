@@ -269,6 +269,7 @@ def get_global_importance():
     return GLOBAL_SHAP
 
 @app.get("/presentation/VitaRisk_CDS_DataNova2026_Presentation.pptx")
+@app.head("/presentation/VitaRisk_CDS_DataNova2026_Presentation.pptx")
 def download_presentation():
     pptx_path = os.path.join(BASE_DIR, "presentation/VitaRisk_CDS_DataNova2026_Presentation.pptx")
     if os.path.exists(pptx_path):
@@ -280,6 +281,7 @@ def download_presentation():
     raise HTTPException(status_code=404, detail="Presentation not found")
 
 @app.get("/video/VitaRisk_CDS_Walkthrough.mp4")
+@app.head("/video/VitaRisk_CDS_Walkthrough.mp4")
 def stream_walkthrough_video():
     video_path = os.path.join(BASE_DIR, "presentation/video/VitaRisk_CDS_Walkthrough.mp4")
     if os.path.exists(video_path):
