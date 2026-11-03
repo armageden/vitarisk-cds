@@ -20,3 +20,6 @@ screenshot_test.png
 .coverage
 htmlcov/
 .DS_Store
+presentation/video/raw/
+presentation/video/*.webm
+presentation/video/seg*.mp3

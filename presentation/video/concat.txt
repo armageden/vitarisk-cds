@@ -1,4 +1,0 @@
-file '/home/farhan/Downloads/datanova-hackathon/presentation/video/seg1.mp3'
-file '/home/farhan/Downloads/datanova-hackathon/presentation/video/seg2.mp3'
-file '/home/farhan/Downloads/datanova-hackathon/presentation/video/seg3.mp3'
-file '/home/farhan/Downloads/datanova-hackathon/presentation/video/seg4.mp3'

@@ -13,88 +13,28 @@ import {
 // Universal API origin resolution: supports Vite dev (5173), local FastAPI (8000), and cloud deployment (HF Spaces, Render, Railway)
 const API_BASE = (typeof window !== 'undefined' && window.location.port === '5173') ? 'http://localhost:8000' : '';
 
-const CANONICAL_PERSONAS = [
-  {
-    id: "PERSONA-1",
-    name: "Persona 1: Silent Cardiorenal Progression (58F)",
-    tag: "Primary Care Miss",
-    summary: "Stage 3a CKD with microalbuminuria & prediabetes. Standard siloed screening misses joint risk.",
-    data: {
-      age: 58, sex: "Female", ethnicity: "Black/African American", ses_decile: 7, insurance_type: "Commercial",
-      smoking_status: "Former", smoking_current: 0, physical_activity: "Sedentary", bmi: 30.5, waist_circ_cm: 94.0,
-      systolic_bp: 144.0, diastolic_bp: 88.0, resting_heart_rate: 74.0, hba1c: 6.3, fasting_glucose: 118.0,
-      serum_creatinine: 1.25, egfr: 52.0, uacr: 145.0, total_cholesterol: 215.0, ldl_cholesterol: 132.0,
-      hdl_cholesterol: 44.0, triglycerides: 195.0, non_hdl_cholesterol: 171.0, hs_crp: 3.4,
-      history_hypertension: 1, history_dyslipidemia: 1, family_history_diabetes: 1, family_history_cvd: 0,
-      current_antihypertensive: 1, current_statin: 0
-    }
-  },
-  {
-    id: "PERSONA-2",
-    name: "Persona 2: Early Metabolic Syndrome (42M)",
-    tag: "High Lifestyle ROI",
-    summary: "Younger obese male with prediabetes and hypertriglyceridemia. Prime candidate for GLP-1 / lifestyle ARR.",
-    data: {
-      age: 42, sex: "Male", ethnicity: "Hispanic/Latino", ses_decile: 5, insurance_type: "Commercial",
-      smoking_status: "Never", smoking_current: 0, physical_activity: "Sedentary", bmi: 33.8, waist_circ_cm: 104.0,
-      systolic_bp: 132.0, diastolic_bp: 84.0, resting_heart_rate: 78.0, hba1c: 6.1, fasting_glucose: 112.0,
-      serum_creatinine: 0.92, egfr: 96.0, uacr: 18.0, total_cholesterol: 225.0, ldl_cholesterol: 138.0,
-      hdl_cholesterol: 39.0, triglycerides: 240.0, non_hdl_cholesterol: 186.0, hs_crp: 2.8,
-      history_hypertension: 0, history_dyslipidemia: 1, family_history_diabetes: 1, family_history_cvd: 1,
-      current_antihypertensive: 0, current_statin: 0
-    }
-  },
-  {
-    id: "PERSONA-3",
-    name: "Persona 3: High-Risk CKM Stage 3 (67M)",
-    tag: "Safety Guardrail",
-    summary: "Elderly smoker with Stage 3b CKD, diabetic nephropathy, severe SBP. Triggers Metformin dose/contraindication guardrail.",
-    data: {
-      age: 67, sex: "Male", ethnicity: "White", ses_decile: 7, insurance_type: "Medicare",
-      smoking_status: "Current", smoking_current: 1, physical_activity: "Sedentary", bmi: 32.5, waist_circ_cm: 105.0,
-      systolic_bp: 158.0, diastolic_bp: 92.0, resting_heart_rate: 80.0, hba1c: 8.4, fasting_glucose: 178.0,
-      serum_creatinine: 1.85, egfr: 36.0, uacr: 410.0, total_cholesterol: 240.0, ldl_cholesterol: 155.0,
-      hdl_cholesterol: 36.0, triglycerides: 250.0, non_hdl_cholesterol: 204.0, hs_crp: 5.2,
-      history_hypertension: 1, history_dyslipidemia: 1, family_history_diabetes: 1, family_history_cvd: 1,
-      current_antihypertensive: 1, current_statin: 1
-    }
-  },
-  {
-    id: "PERSONA-4",
-    name: "Persona 4: Discordant Lipid / Vascular Risk (54F)",
-    tag: "Inflammatory CVD",
-    summary: "Normal BMI & glucose, but severe hypercholesterolemia and vascular inflammation (elevated hs-CRP).",
-    data: {
-      age: 54, sex: "Female", ethnicity: "Asian", ses_decile: 3, insurance_type: "Commercial",
-      smoking_status: "Never", smoking_current: 0, physical_activity: "Moderate", bmi: 23.5, waist_circ_cm: 76.0,
-      systolic_bp: 138.0, diastolic_bp: 86.0, resting_heart_rate: 68.0, hba1c: 5.4, fasting_glucose: 92.0,
-      serum_creatinine: 0.78, egfr: 94.0, uacr: 14.0, total_cholesterol: 272.0, ldl_cholesterol: 178.0,
-      hdl_cholesterol: 58.0, triglycerides: 180.0, non_hdl_cholesterol: 214.0, hs_crp: 4.8,
-      history_hypertension: 1, history_dyslipidemia: 1, family_history_diabetes: 0, family_history_cvd: 1,
-      current_antihypertensive: 1, current_statin: 0
-    }
-  },
-  {
-    id: "PERSONA-5",
-    name: "Persona 5: Optimal Baseline / Control (39F)",
-    tag: "Healthy Control",
-    summary: "Physiologically optimal biomarkers across all 30 dimensions (<3% 5-year risk; CKM Stage 0).",
-    data: {
-      age: 39, sex: "Female", ethnicity: "White", ses_decile: 2, insurance_type: "Commercial",
-      smoking_status: "Never", smoking_current: 0, physical_activity: "Active", bmi: 21.8, waist_circ_cm: 70.0,
-      systolic_bp: 112.0, diastolic_bp: 72.0, resting_heart_rate: 60.0, hba1c: 5.0, fasting_glucose: 84.0,
-      serum_creatinine: 0.68, egfr: 118.0, uacr: 6.0, total_cholesterol: 160.0, ldl_cholesterol: 84.0,
-      hdl_cholesterol: 66.0, triglycerides: 70.0, non_hdl_cholesterol: 94.0, hs_crp: 0.4,
-      history_hypertension: 0, history_dyslipidemia: 0, family_history_diabetes: 0, family_history_cvd: 0,
-      current_antihypertensive: 0, current_statin: 0
-    }
+const DEFAULT_PERSONA = {
+  id: "PERSONA-1",
+  name: "Persona 1: Silent Cardiorenal Progression (58F)",
+  tag: "Primary Care Miss",
+  summary: "Stage 3a CKD with microalbuminuria & prediabetes. Standard siloed screening misses joint risk.",
+  data: {
+    age: 58, sex: "Female", ethnicity: "Black/African American", ses_decile: 7, insurance_type: "Commercial",
+    smoking_status: "Former", smoking_current: 0, physical_activity: "Sedentary", bmi: 30.5, waist_circ_cm: 94.0,
+    systolic_bp: 144.0, diastolic_bp: 88.0, resting_heart_rate: 74.0, hba1c: 6.3, fasting_glucose: 118.0,
+    serum_creatinine: 1.25, egfr: 52.0, uacr: 145.0, total_cholesterol: 215.0, ldl_cholesterol: 132.0,
+    hdl_cholesterol: 44.0, triglycerides: 195.0, non_hdl_cholesterol: 171.0, hs_crp: 3.4,
+    history_hypertension: 1, history_dyslipidemia: 1, family_history_diabetes: 1, family_history_cvd: 0,
+    current_antihypertensive: 1, current_statin: 0
   }
-];
+};
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('calculator');
-  const [patient, setPatient] = useState(CANONICAL_PERSONAS[0].data);
-  const [selectedPersonaId, setSelectedPersonaId] = useState(CANONICAL_PERSONAS[0].id);
+  const [cohortData, setCohortData] = useState(null);
+  const personas = cohortData?.presets || [DEFAULT_PERSONA];
+  const [patient, setPatient] = useState(DEFAULT_PERSONA.data);
+  const [selectedPersonaId, setSelectedPersonaId] = useState(DEFAULT_PERSONA.id);
   const [apiConnected, setApiConnected] = useState(true);
   const [prediction, setPrediction] = useState(null);
   
@@ -115,7 +55,6 @@ export default function App() {
   const [activePresetTriggered, setActivePresetTriggered] = useState(null);
 
   // Metadata from API
-  const [cohortData, setCohortData] = useState(null);
   const [fairnessData, setFairnessData] = useState(null);
   const [benchmarkData, setBenchmarkData] = useState(null);
   const [dcaData, setDcaData] = useState(null);
@@ -171,7 +110,7 @@ export default function App() {
   }, [patient, shapTarget, activeTab]);
 
   const handleSelectPersona = (id) => {
-    const p = CANONICAL_PERSONAS.find(item => item.id === id);
+    const p = personas.find(item => item.id === id);
     if (p) {
       setSelectedPersonaId(id);
       setPatient({ ...p.data });
@@ -226,7 +165,7 @@ export default function App() {
         <div className="flex items-center space-x-3">
           <div className="flex items-center space-x-1.5 px-3 py-1 rounded-lg bg-slate-800/80 border border-slate-700 text-xs">
             <span className={`w-2 h-2 rounded-full ${apiConnected ? 'bg-emerald-400' : 'bg-amber-400'}`} />
-            <span className="text-slate-300">{apiConnected ? 'FastAPI Active (:8000)' : 'Connecting...'}</span>
+            <span className="text-slate-300">{apiConnected ? 'FastAPI Online' : 'Connecting...'}</span>
           </div>
 
           <a
@@ -256,7 +195,7 @@ export default function App() {
           <Sparkles className="w-3.5 h-3.5 text-amber-400" />
           <span>Quick Personas:</span>
         </span>
-        {CANONICAL_PERSONAS.map(p => {
+        {personas.map(p => {
           const isSelected = selectedPersonaId === p.id;
           return (
             <button
@@ -1153,7 +1092,7 @@ export default function App() {
               <div className="lg:col-span-6 bg-slate-900/80 border border-slate-800 rounded-2xl p-6 shadow-xl">
                 <h3 className="text-sm font-semibold text-white mb-3">Canonical Clinical Personas (FM-11)</h3>
                 <div className="space-y-3">
-                  {CANONICAL_PERSONAS.map(p => (
+                  {personas.map(p => (
                     <div
                       key={p.id}
                       onClick={() => handleSelectPersona(p.id)}

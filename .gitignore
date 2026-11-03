@@ -4,3 +4,6 @@ __pycache__/
 node_modules/
 .DS_Store
 *.log
+presentation/video/raw/
+presentation/video/*.webm
+presentation/video/seg*.mp3

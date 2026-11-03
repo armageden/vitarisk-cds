@@ -35,12 +35,13 @@ BENCHMARK_METRICS = {}
 FAIRNESS_AUDIT = {}
 GLOBAL_SHAP = {}
 DCA_DATA = {}
-COHORT_DF = None
+COHORT_ANALYTICS = {}
 
 CANONICAL_PERSONAS = [
     {
         "id": "PERSONA-1",
-        "name": "Persona 1 — Silent Cardiorenal Progression (58F)",
+        "name": "Persona 1: Silent Cardiorenal Progression (58F)",
+        "tag": "Primary Care Miss",
         "summary": "Stage 3a CKD with microalbuminuria & prediabetes. Demonstrates why siloed disease screening misses joint risk.",
         "data": {
             "age": 58, "sex": "Female", "ethnicity": "Black/African American", "ses_decile": 7, "insurance_type": "Commercial",
@@ -54,7 +55,8 @@ CANONICAL_PERSONAS = [
     },
     {
         "id": "PERSONA-2",
-        "name": "Persona 2 — Early Metabolic Syndrome (42M)",
+        "name": "Persona 2: Early Metabolic Syndrome (42M)",
+        "tag": "High Lifestyle ROI",
         "summary": "Younger obese male with prediabetes and hypertriglyceridemia. Prime candidate for GLP-1 / lifestyle ARR.",
         "data": {
             "age": 42, "sex": "Male", "ethnicity": "Hispanic/Latino", "ses_decile": 5, "insurance_type": "Commercial",
@@ -68,7 +70,8 @@ CANONICAL_PERSONAS = [
     },
     {
         "id": "PERSONA-3",
-        "name": "Persona 3 — High-Risk Multi-Morbid CKM Stage 3 (67M)",
+        "name": "Persona 3: High-Risk CKM Stage 3 (67M)",
+        "tag": "Safety Guardrail",
         "summary": "Elderly smoker with Stage 3b CKD, diabetic nephropathy, severe hypertension. Triggers Metformin guardrail.",
         "data": {
             "age": 67, "sex": "Male", "ethnicity": "White", "ses_decile": 7, "insurance_type": "Medicare",
@@ -82,7 +85,8 @@ CANONICAL_PERSONAS = [
     },
     {
         "id": "PERSONA-4",
-        "name": "Persona 4 — Discordant Lipid / Inflammatory Vascular Risk (54F)",
+        "name": "Persona 4: Discordant Lipid / Vascular Risk (54F)",
+        "tag": "Inflammatory CVD",
         "summary": "Normal BMI & glucose, but severe hypercholesterolemia and vascular inflammation (elevated hs-CRP).",
         "data": {
             "age": 54, "sex": "Female", "ethnicity": "Asian", "ses_decile": 3, "insurance_type": "Commercial",
@@ -96,7 +100,8 @@ CANONICAL_PERSONAS = [
     },
     {
         "id": "PERSONA-5",
-        "name": "Persona 5 — Optimal Baseline / Healthy Control (39F)",
+        "name": "Persona 5: Optimal Baseline / Healthy Control (39F)",
+        "tag": "Healthy Control",
         "summary": "Physiologically optimal biomarkers across all 30 dimensions (<3% 5-year risk; CKM Stage 0).",
         "data": {
             "age": 39, "sex": "Female", "ethnicity": "White", "ses_decile": 2, "insurance_type": "Commercial",
@@ -112,7 +117,7 @@ CANONICAL_PERSONAS = [
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    global cds_engine, BENCHMARK_METRICS, FAIRNESS_AUDIT, GLOBAL_SHAP, DCA_DATA, COHORT_DF
+    global cds_engine, BENCHMARK_METRICS, FAIRNESS_AUDIT, GLOBAL_SHAP, DCA_DATA, COHORT_ANALYTICS
     print("Pre-warming VitaRisk CDS Engine & artifacts (FM-10)...")
     cds_engine = ClinicalDecisionSupportEngine(artifacts_dir=ARTIFACTS_DIR)
     
@@ -125,7 +130,19 @@ async def lifespan(app: FastAPI):
     with open(os.path.join(ARTIFACTS_DIR, "decision_curve_analysis.json")) as f:
         DCA_DATA = json.load(f)
         
-    COHORT_DF = pd.read_csv(os.path.join(BASE_DIR, "data/ehr_cohort.csv"))
+    cohort_df = pd.read_csv(os.path.join(BASE_DIR, "data/ehr_cohort.csv"))
+    COHORT_ANALYTICS = {
+        "total_patients": len(cohort_df),
+        "tier_counts": cohort_df["risk_tier"].value_counts().to_dict(),
+        "tier_percentages": (cohort_df["risk_tier"].value_counts(normalize=True).round(4) * 100).to_dict(),
+        "disease_prevalence": {
+            "t2d": round(float(cohort_df["onset_t2d"].mean()) * 100, 2),
+            "ckd": round(float(cohort_df["onset_ckd"].mean()) * 100, 2),
+            "cvd": round(float(cohort_df["onset_cvd"].mean()) * 100, 2),
+            "multimorbidity": round(float(cohort_df["onset_multimorbidity"].mean()) * 100, 2)
+        },
+        "presets": CANONICAL_PERSONAS
+    }
     
     # Warm-up inference
     cds_engine.predict_patient(CANONICAL_PERSONAS[0]["data"])
@@ -143,7 +160,7 @@ app = FastAPI(
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
-    allow_credentials=True,
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -215,30 +232,25 @@ def explain_risk(req: ExplainRequest):
 @app.post("/api/simulate")
 def simulate_intervention(req: SimulationRequest):
     patient_dict = req.patient.model_dump()
+    # Sanitize interventions (Finding 2)
+    safe_interventions = {}
+    for k, v in req.interventions.items():
+        if v is not None:
+            try:
+                safe_interventions[k] = float(v)
+            except (ValueError, TypeError):
+                continue
     return cds_engine.simulate_counterfactual(
         patient_dict,
-        req.interventions,
+        safe_interventions,
         preset_name=req.preset_name,
         couple_biology=req.couple_biology
     )
 
 @app.get("/api/cohorts")
 def get_cohort_analytics():
-    tier_counts = COHORT_DF["risk_tier"].value_counts().to_dict()
-    tier_pct = (COHORT_DF["risk_tier"].value_counts(normalize=True).round(4) * 100).to_dict()
-    disease_prev = {
-        "t2d": round(float(COHORT_DF["onset_t2d"].mean()) * 100, 2),
-        "ckd": round(float(COHORT_DF["onset_ckd"].mean()) * 100, 2),
-        "cvd": round(float(COHORT_DF["onset_cvd"].mean()) * 100, 2),
-        "multimorbidity": round(float(COHORT_DF["onset_multimorbidity"].mean()) * 100, 2)
-    }
-    return {
-        "total_patients": len(COHORT_DF),
-        "tier_counts": tier_counts,
-        "tier_percentages": tier_pct,
-        "disease_prevalence": disease_prev,
-        "presets": CANONICAL_PERSONAS
-    }
+    # Return precomputed analytics cache (Finding 8)
+    return COHORT_ANALYTICS
 
 @app.get("/api/dca")
 def get_decision_curve_analysis():
@@ -266,6 +278,13 @@ def download_presentation():
             media_type="application/vnd.openxmlformats-officedocument.presentationml.presentation"
         )
     raise HTTPException(status_code=404, detail="Presentation not found")
+
+@app.get("/video/VitaRisk_CDS_Walkthrough.mp4")
+def stream_walkthrough_video():
+    video_path = os.path.join(BASE_DIR, "presentation/video/VitaRisk_CDS_Walkthrough.mp4")
+    if os.path.exists(video_path):
+        return FileResponse(video_path, media_type="video/mp4")
+    raise HTTPException(status_code=404, detail="Video not found")
 
 FRONTEND_DIST = os.path.join(BASE_DIR, "frontend/dist")
 if os.path.exists(FRONTEND_DIST):

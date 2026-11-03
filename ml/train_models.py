@@ -127,6 +127,18 @@ def build_preprocessor(df):
     return imputer, scaler, encoder, all_feature_names
 
 def transform_features(df, imputer, scaler, encoder):
+    # Ensure all expected columns are present, handling missing features gracefully
+    df = df.copy()
+    for col in FEATURE_COLS_NUMERIC:
+        if col not in df.columns:
+            df[col] = np.nan
+    for col in FEATURE_COLS_BINARY:
+        if col not in df.columns:
+            df[col] = 0
+    for col in FEATURE_COLS_CATEGORICAL:
+        if col not in df.columns:
+            df[col] = "Missing"
+
     imputed_num = imputer.transform(df[FEATURE_COLS_NUMERIC])
     num_scaled = scaler.transform(imputed_num)
     cat_encoded = encoder.transform(df[FEATURE_COLS_CATEGORICAL])
@@ -138,6 +150,12 @@ def train_and_evaluate(data_path="data/ehr_cohort.csv", artifacts_dir="ml/artifa
     os.makedirs(artifacts_dir, exist_ok=True)
     df = pd.read_csv(data_path)
     print(f"Loaded {len(df)} records from {data_path}")
+
+    # Map realistic clinical missingness into feature columns (Finding 5 / FM-02)
+    if "uacr_observed" in df.columns:
+        df["uacr"] = df["uacr_observed"]
+    if "hs_crp_observed" in df.columns:
+        df["hs_crp"] = df["hs_crp_observed"]
     
     # Stratified Train/Val/Test Split (70% train, 15% val, 15% test)
     train_df, test_df = train_test_split(df, test_size=0.30, random_state=SEED, stratify=df["risk_tier"])
@@ -200,14 +218,18 @@ def train_and_evaluate(data_path="data/ehr_cohort.csv", artifacts_dir="ml/artifa
             ece = compute_ece(y_test, y_pred_prob)
             f1 = f1_score(y_test, y_pred_bin, zero_division=0)
             
+            val_prob = cal_model.predict_proba(X_val)[:, 1]
+            val_auc = roc_auc_score(y_val, val_prob)
+            
             target_results[m_name] = {
                 "ROC_AUC": round(float(roc_auc), 4),
                 "PR_AUC": round(float(pr_auc), 4),
                 "Brier_Score": round(float(brier), 4),
                 "ECE": round(float(ece), 4),
-                "F1_Score": round(float(f1), 4)
+                "F1_Score": round(float(f1), 4),
+                "Val_ROC_AUC": round(float(val_auc), 4)
             }
-            print(f"[{m_name}] ROC-AUC: {roc_auc:.4f} | PR-AUC: {pr_auc:.4f} | Brier: {brier:.4f} | ECE: {ece:.4f}")
+            print(f"[{m_name}] ROC-AUC: {roc_auc:.4f} (Val: {val_auc:.4f}) | PR-AUC: {pr_auc:.4f} | Brier: {brier:.4f} | ECE: {ece:.4f}")
             
             if m_name == "XGBoost":
                 calibrated_models[target] = cal_model
@@ -262,14 +284,18 @@ def train_and_evaluate(data_path="data/ehr_cohort.csv", artifacts_dir="ml/artifa
         ece = compute_ece(y_test_cvd, y_pred_prob)
         f1 = f1_score(y_test_cvd, y_pred_bin, zero_division=0)
         
+        val_pred_prob = cal_model.predict_proba(X_val_ckm)[:, 1]
+        val_auc = roc_auc_score(y_val_cvd, val_pred_prob)
+        
         cvd_results[m_name] = {
             "ROC_AUC": round(float(roc_auc), 4),
             "PR_AUC": round(float(pr_auc), 4),
             "Brier_Score": round(float(brier), 4),
             "ECE": round(float(ece), 4),
-            "F1_Score": round(float(f1), 4)
+            "F1_Score": round(float(f1), 4),
+            "Val_ROC_AUC": round(float(val_auc), 4)
         }
-        print(f"[{m_name}] ROC-AUC: {roc_auc:.4f} | PR-AUC: {pr_auc:.4f} | Brier: {brier:.4f} | ECE: {ece:.4f}")
+        print(f"[{m_name}] ROC-AUC: {roc_auc:.4f} (Val: {val_auc:.4f}) | PR-AUC: {pr_auc:.4f} | Brier: {brier:.4f} | ECE: {ece:.4f}")
         
         if m_name == "XGBoost":
             calibrated_models["onset_cvd"] = cal_model
@@ -301,15 +327,17 @@ def train_and_evaluate(data_path="data/ehr_cohort.csv", artifacts_dir="ml/artifa
     
     y_prob_mm = cal_mm.predict_proba(X_test_ckm)[:, 1]
     roc_mm = roc_auc_score(y_test_mm, y_prob_mm)
+    val_prob_mm = cal_mm.predict_proba(X_val_ckm)[:, 1]
+    val_roc_mm = roc_auc_score(y_val_mm, val_prob_mm)
     brier_mm = brier_score_loss(y_test_mm, y_prob_mm)
     ece_mm = compute_ece(y_test_mm, y_prob_mm)
-    print(f"[XGBoost Multimorbidity] ROC-AUC: {roc_mm:.4f} | Brier: {brier_mm:.4f} | ECE: {ece_mm:.4f}")
+    print(f"[XGBoost Multimorbidity] ROC-AUC: {roc_mm:.4f} (Val: {val_roc_mm:.4f}) | Brier: {brier_mm:.4f} | ECE: {ece_mm:.4f}")
     
     calibrated_models["onset_multimorbidity"] = cal_mm
     joblib.dump(cal_mm, os.path.join(artifacts_dir, "best_model_onset_multimorbidity.joblib"))
     benchmark_results["onset_multimorbidity"] = {
         "primary_production_model": "XGBoost (Stacked CKM)",
-        "metrics": {"XGBoost": {"ROC_AUC": round(float(roc_mm), 4), "Brier_Score": round(float(brier_mm), 4), "ECE": round(float(ece_mm), 4)}}
+        "metrics": {"XGBoost": {"ROC_AUC": round(float(roc_mm), 4), "Val_ROC_AUC": round(float(val_roc_mm), 4), "Brier_Score": round(float(brier_mm), 4), "ECE": round(float(ece_mm), 4)}}
     }
     dca_results["onset_multimorbidity"] = compute_decision_curve_net_benefit(y_test_mm, y_prob_mm)
 

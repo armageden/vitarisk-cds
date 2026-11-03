@@ -16,6 +16,16 @@ import joblib
 import numpy as np
 import pandas as pd
 from sklearn.metrics import roc_auc_score, brier_score_loss
+from ml.train_models import transform_features
+
+def _safe_float(val, default):
+    if val is None:
+        return default
+    try:
+        f = float(val)
+        return default if np.isnan(f) else f
+    except (ValueError, TypeError):
+        return default
 
 IMMUTABLE_FEATURES = {"age", "sex", "ethnicity", "family_history_diabetes", "family_history_cvd"}
 
@@ -82,17 +92,26 @@ def determine_ckm_stage(patient_dict, composite_risk, prob_cvd):
     """
     Classifies patient into AHA 2026 Cardiovascular-Kidney-Metabolic (CKM) Syndrome Stages 0-4.
     """
-    bmi = patient_dict.get("bmi", 25.0)
-    waist = patient_dict.get("waist_circ_cm", 85.0)
-    sex = patient_dict.get("sex", "Male")
-    hba1c = patient_dict.get("hba1c", 5.4)
-    fpg = patient_dict.get("fasting_glucose", 90.0)
-    sbp = patient_dict.get("systolic_bp", 120.0)
-    egfr = patient_dict.get("egfr", 90.0)
-    uacr = patient_dict.get("uacr", 10.0)
-    tg = patient_dict.get("triglycerides", 120.0)
+    bmi = _safe_float(patient_dict.get("bmi"), 25.0)
+    waist = _safe_float(patient_dict.get("waist_circ_cm"), 85.0)
+    sex = str(patient_dict.get("sex") or "Male")
+    hba1c = _safe_float(patient_dict.get("hba1c"), 5.4)
+    fpg = _safe_float(patient_dict.get("fasting_glucose"), 90.0)
+    sbp = _safe_float(patient_dict.get("systolic_bp"), 120.0)
+    egfr = _safe_float(patient_dict.get("egfr"), 90.0)
+    uacr = _safe_float(patient_dict.get("uacr"), 10.0)
+    tg = _safe_float(patient_dict.get("triglycerides"), 120.0)
+    prob_cvd = _safe_float(prob_cvd, 0.0)
+    composite_risk = _safe_float(composite_risk, 0.0)
     
-    # Stage 4: Clinical CVD (not modeled as baseline in primary care cohort, or high MACE)
+    # Stage 4: Clinical CVD / Advanced CKM Syndrome (prob_cvd >= 0.40 or composite_risk >= 0.70)
+    if prob_cvd >= 0.40 or composite_risk >= 0.70:
+        return {
+            "stage": "Stage 4",
+            "label": "Clinical CVD / Advanced CKM Syndrome",
+            "description": "Established clinical cardiovascular-kidney-metabolic disease; requires aggressive multi-specialty intervention."
+        }
+
     # Stage 3: Subclinical CVD / Very high risk CKD (eGFR < 30 or uACR > 300) or high predicted risk (>= 20%)
     if egfr < 30.0 or uacr > 300.0 or prob_cvd >= 0.20 or composite_risk >= 0.50:
         return {
@@ -131,7 +150,6 @@ def audit_and_mitigate_fairness(test_csv_path="ml/artifacts/test_cohort.csv", ar
     scaler = joblib.load(os.path.join(artifacts_dir, "scaler.joblib"))
     encoder = joblib.load(os.path.join(artifacts_dir, "encoder.joblib"))
     
-    from ml.train_models import transform_features
     X_test = transform_features(df, imputer, scaler, encoder)
     
     # Load calibrated production models
@@ -299,11 +317,11 @@ class ClinicalDecisionSupportEngine:
         self.explainer_cvd = joblib.load(os.path.join(artifacts_dir, "shap_explainer_onset_cvd.joblib"))
 
     def predict_patient(self, patient_dict):
-        from ml.train_models import transform_features
-        # Ensure non_hdl_cholesterol is computed if missing
-        if "non_hdl_cholesterol" not in patient_dict:
-            tc = patient_dict.get("total_cholesterol", 200.0)
-            hdl = patient_dict.get("hdl_cholesterol", 50.0)
+        patient_dict = dict(patient_dict)
+        # Ensure non_hdl_cholesterol is computed if missing (Finding 1)
+        if patient_dict.get("non_hdl_cholesterol") is None:
+            tc = _safe_float(patient_dict.get("total_cholesterol"), 200.0)
+            hdl = _safe_float(patient_dict.get("hdl_cholesterol"), 50.0)
             patient_dict["non_hdl_cholesterol"] = max(30.0, tc - hdl)
             
         df_patient = pd.DataFrame([patient_dict])
@@ -347,12 +365,12 @@ class ClinicalDecisionSupportEngine:
         recommendations = []
         contraindication_alerts = []
         
-        egfr = patient_dict.get("egfr", 90.0)
-        uacr = patient_dict.get("uacr", 10.0)
-        hba1c = patient_dict.get("hba1c", 5.5)
-        sbp = patient_dict.get("systolic_bp", 120.0)
-        ldl = patient_dict.get("ldl_cholesterol", 100.0)
-        smoking = patient_dict.get("smoking_status", "Never")
+        egfr = _safe_float(patient_dict.get("egfr"), 90.0)
+        uacr = _safe_float(patient_dict.get("uacr"), 10.0)
+        hba1c = _safe_float(patient_dict.get("hba1c"), 5.5)
+        sbp = _safe_float(patient_dict.get("systolic_bp"), 120.0)
+        ldl = _safe_float(patient_dict.get("ldl_cholesterol"), 100.0)
+        smoking = str(patient_dict.get("smoking_status") or "Never")
         
         # 1. Metformin Contraindication / Dose Adjustment Check (FM-09)
         if egfr < 30.0:
@@ -443,10 +461,10 @@ class ClinicalDecisionSupportEngine:
         }
 
     def explain_patient(self, patient_dict, target="onset_t2d"):
-        from ml.train_models import transform_features
-        if "non_hdl_cholesterol" not in patient_dict:
-            tc = patient_dict.get("total_cholesterol", 200.0)
-            hdl = patient_dict.get("hdl_cholesterol", 50.0)
+        patient_dict = dict(patient_dict)
+        if patient_dict.get("non_hdl_cholesterol") is None:
+            tc = _safe_float(patient_dict.get("total_cholesterol"), 200.0)
+            hdl = _safe_float(patient_dict.get("hdl_cholesterol"), 50.0)
             patient_dict["non_hdl_cholesterol"] = max(30.0, tc - hdl)
             
         df_patient = pd.DataFrame([patient_dict])
@@ -459,21 +477,31 @@ class ClinicalDecisionSupportEngine:
             explainer = self.explainer_t2d
             shap_obj = explainer(X)
             feat_names = self.feature_names
+            target_prob = prob_t2d
         elif target == "onset_ckd":
             explainer = self.explainer_ckd
             shap_obj = explainer(X)
             feat_names = self.feature_names
+            target_prob = prob_ckd
         else:
             explainer = self.explainer_cvd
             X_ckm = np.hstack([X, np.array([[prob_t2d, prob_ckd]])])
+            prob_cvd = float(self.model_cvd.predict_proba(X_ckm)[0, 1])
             shap_obj = explainer(X_ckm)
             feat_names = self.feature_names + ["predicted_risk_t2d", "predicted_risk_ckd"]
+            target_prob = prob_cvd
             
         base_val = float(explainer.expected_value) if not isinstance(explainer.expected_value, np.ndarray) else float(explainer.expected_value[0])
-        values = shap_obj.values[0]
+        values = np.array(shap_obj.values[0], dtype=float)
+        
+        # Calibrate SHAP decomposition to match calibrated risk probability (Finding 6)
+        raw_sum = float(np.sum(values))
+        target_diff = (target_prob * 100.0) - (base_val * 100.0)
+        scale = (target_diff / (raw_sum * 100.0)) if abs(raw_sum) > 1e-5 else 1.0
+        calibrated_values = values * scale
         
         contributions = []
-        for fn, val in zip(feat_names, values):
+        for fn, val in zip(feat_names, calibrated_values):
             # Express in percentage points (FM-06)
             contributions.append({
                 "feature": fn,
@@ -538,17 +566,33 @@ class ClinicalDecisionSupportEngine:
                 
         # Apply explicit user overrides
         for k, v in overrides.items():
-            if k not in IMMUTABLE_FEATURES:
-                cf[k] = v
+            if k not in IMMUTABLE_FEATURES and v is not None:
+                try:
+                    cf[k] = float(v) if k in PHYSIOLOGICAL_BOUNDS else v
+                except (ValueError, TypeError):
+                    continue
                 
-        # Clamp to physiological bounds
+        # Coherent lipid re-calculation (Finding 9)
+        preset_deltas = CLINICAL_TRIAL_PRESETS.get(preset_name, {}).get("deltas", {}) if preset_name else {}
+        if "ldl_pct" in preset_deltas or "ldl_cholesterol" in overrides:
+            if "total_cholesterol" not in overrides:
+                delta_ldl = cf.get("ldl_cholesterol", 100.0) - patient_dict.get("ldl_cholesterol", cf.get("ldl_cholesterol", 100.0))
+                cf["total_cholesterol"] = max(90.0, cf.get("total_cholesterol", 200.0) + delta_ldl)
+        if "total_cholesterol" in cf and "hdl_cholesterol" in cf:
+            cf["non_hdl_cholesterol"] = max(30.0, cf["total_cholesterol"] - cf["hdl_cholesterol"])
+
+        # Clamp to physiological bounds safely (Finding 2)
         for k, (low, high) in PHYSIOLOGICAL_BOUNDS.items():
-            if k in cf:
-                cf[k] = float(np.clip(cf[k], low, high))
+            if k in cf and cf[k] is not None:
+                try:
+                    cf[k] = float(np.clip(float(cf[k]), low, high))
+                except (ValueError, TypeError):
+                    cf[k] = float(patient_dict.get(k, low))
                 
         # Prevent impossible short-term nephron regeneration
-        if cf.get("egfr", 90.0) > patient_dict.get("egfr", 90.0) + 8.0:
-            cf["egfr"] = min(120.0, patient_dict.get("egfr", 90.0) + 8.0)
+        patient_egfr = _safe_float(patient_dict.get("egfr"), 90.0)
+        if _safe_float(cf.get("egfr"), 90.0) > patient_egfr + 8.0:
+            cf["egfr"] = min(120.0, patient_egfr + 8.0)
             
         intervened_result = self.predict_patient(cf)
         
