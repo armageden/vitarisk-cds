@@ -200,8 +200,8 @@ export default function SlideDeckViewer({ currentSlide, setCurrentSlide, totalSl
       deliverables: [
         { title: "Working Interactive Demo", desc: "FastAPI + React Production Service running with sub-15ms inference latency, pre-warmed singleton models, and zero-friction 1-click clinical personas." },
         { title: "Complete Code Repository", desc: "Self-contained modular Python & React code with automated integration tests (all 10 pre-submission gates passing), trained model artifacts, and data generator." },
-        { title: "Validation & Evidence Report", desc: "Comprehensive clinical report covering ROC-AUC (0.798-0.853), 5-fold sigmoid calibration (ECE < 0.035), Decision Curve Net Benefit, and subgroup parity." },
-        { title: "1080p Video Walkthrough", desc: "Complete 3-minute video demonstration highlighting Persona 3, Metformin contraindication shield, SHAP waterfall, and SGLT2i trial simulation." }
+        { title: "Validation & Evidence Report", desc: "Comprehensive clinical report covering ROC-AUC (0.794-0.851), 5-fold sigmoid calibration (ECE <= 0.042), Decision Curve Net Benefit, and subgroup parity." },
+        { title: "1080p Video Walkthrough", desc: "Complete 3:38 walkthrough video demonstration highlighting Persona 3, Metformin contraindication shield, SHAP waterfall, and SGLT2i trial simulation." }
       ]
     }
   ];

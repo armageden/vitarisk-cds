@@ -593,7 +593,7 @@ class ClinicalDecisionSupportEngine:
                 
         # Biological Coupling: BMI shift propagation (FM-07 Tier 2)
         if couple_biology and "bmi" in overrides:
-            delta_bmi = overrides["bmi"] - patient_dict["bmi"]
+            delta_bmi = overrides["bmi"] - _safe_float(patient_dict.get("bmi"), 27.0)
             if "hba1c" not in overrides:
                 cf["hba1c"] = round(max(4.8, cf["hba1c"] + 0.11 * delta_bmi), 2)
             if "systolic_bp" not in overrides:
@@ -608,6 +608,10 @@ class ClinicalDecisionSupportEngine:
                     cf[k] = float(v) if k in PHYSIOLOGICAL_BOUNDS else v
                 except (ValueError, TypeError):
                     continue
+
+        # Keep the binary smoking feature consistent with any status override
+        if cf.get("smoking_status") != patient_dict.get("smoking_status"):
+            cf["smoking_current"] = 1 if cf.get("smoking_status") == "Current" else 0
                 
         # Coherent lipid re-calculation (Finding 9)
         preset_deltas = CLINICAL_TRIAL_PRESETS.get(preset_name, {}).get("deltas", {}) if preset_name else {}

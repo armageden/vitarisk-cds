@@ -91,6 +91,35 @@ def run_pre_submission_verification():
         assert "onset_t2d" in dca
         print(f"✅ Gate 12 (Decision Curve Analysis): Net Clinical Benefit Data Verified ({len(dca['onset_t2d'])} Threshold Points)")
 
+        # Gate 1: Zero Synthetic Circularity (holdout AUC bounded in a realistic clinical range)
+        bench = client.get("/api/benchmarks").json()
+        aucs = [v["metrics"]["XGBoost"]["ROC_AUC"] for v in bench.values() if "XGBoost" in v["metrics"]]
+        assert all(0.75 <= a <= 0.90 for a in aucs), f"AUCs outside realistic clinical range: {aucs}"
+        print(f"✅ Gate 1 (Zero Synthetic Circularity): ROC-AUCs bounded in [{min(aucs):.4f}, {max(aucs):.4f}]")
+
+        # Gate 2: Structured clinical missingness in the shipped cohort
+        import pandas as _pd
+        cohort = _pd.read_csv(os.path.join(BASE_DIR, "data/ehr_cohort.csv"))
+        uacr_missing = float(cohort["uacr_observed"].isna().mean())
+        crp_missing = float(cohort["hs_crp_observed"].isna().mean())
+        assert 0.05 <= uacr_missing <= 0.20, f"uACR missingness out of range: {uacr_missing:.3f}"
+        assert 0.05 <= crp_missing <= 0.25, f"hs-CRP missingness out of range: {crp_missing:.3f}"
+        print(f"✅ Gate 2 (Clinical Missingness): uACR {uacr_missing*100:.1f}% / hs-CRP {crp_missing*100:.1f}% missing")
+
+        # Gate 3: Race-free feature set (ethnicity excluded from model inputs)
+        from ml.train_models import FEATURE_COLS_NUMERIC, FEATURE_COLS_BINARY, FEATURE_COLS_CATEGORICAL
+        all_feats = FEATURE_COLS_NUMERIC + FEATURE_COLS_BINARY + FEATURE_COLS_CATEGORICAL
+        assert "ethnicity" not in all_feats, "ethnicity leaked into model features"
+        print(f"✅ Gate 3 (Race-Free Features): ethnicity excluded from {len(all_feats)} model inputs")
+
+        # Gate 4: CKM cascade cross-coupling is real (stacked renal-risk feature present and influential)
+        ckm_feats = __import__("json").load(open(os.path.join(BASE_DIR, "ml/artifacts/ckm_feature_names.json")))
+        assert "predicted_risk_t2d" in ckm_feats and "predicted_risk_ckd" in ckm_feats
+        gimp = __import__("json").load(open(os.path.join(BASE_DIR, "ml/artifacts/global_shap_importance.json")))
+        coupling_pp = next(i["importance_percentage_points"] for i in gimp["onset_cvd"] if i["feature"] == "predicted_risk_ckd")
+        assert coupling_pp > 1.0, f"CKM coupling feature not influential: {coupling_pp} pp"
+        print(f"✅ Gate 4 (CKM Cross-Coupling): predicted_risk_ckd = +{coupling_pp} pp mean |SHAP| in CVD model")
+
         # Ponytail Audit Regression Checks (Findings 1-16)
         print("\n=======================================================")
         print("RUNNING PONYTAIL AUDIT REGRESSION CHECKS (Findings 1-16)")

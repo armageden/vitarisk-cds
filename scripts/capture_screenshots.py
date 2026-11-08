@@ -27,9 +27,9 @@ with sync_playwright() as p:
     page.click("button:has-text('What-If Intervention Simulator')")
     time.sleep(1.5)
     
-    # Click SGLT2i Trial Preset
-    print("Clicking SGLT2i Trial Preset...")
-    sglt2_btn = page.locator("button:has-text('SGLT2i Trial')")
+       # Click SGLT2i Initiation Preset
+    print("Clicking SGLT2i Initiation Preset...")
+    sglt2_btn = page.locator("button:has-text('SGLT2i Initiation')")
     if sglt2_btn.count() > 0:
         sglt2_btn.click()
         time.sleep(1.5)

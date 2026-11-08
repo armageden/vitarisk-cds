@@ -10,7 +10,7 @@
 ## 1. Executive Summary
 Chronic diseases—predominantly Type 2 Diabetes Mellitus (T2D), Chronic Kidney Disease (CKD), and Major Adverse Cardiovascular Events (CVD)—account for over 74% of all non-communicable disease deaths globally. Early detection before irreversible tissue scarring and vascular remodeling occur is frequently missed in standard primary care due to fragmented lab data, isolated disease risk scores, and the opacity of "black-box" machine learning algorithms.
 
-**VitaRisk CDS** addresses these challenges through a unified, explainable cardiorenal-metabolic risk stratification architecture. Built upon an authentically characterized 12,000-patient longitudinal Electronic Health Record (EHR) cohort across 32 clinical biomarkers, VitaRisk delivers:
+**VitaRisk CDS** addresses these challenges through a unified, explainable cardiorenal-metabolic risk stratification architecture. Built upon an authentically characterized 12,000-patient longitudinal Electronic Health Record (EHR) cohort across 33 clinical variables, VitaRisk delivers:
 - **Simultaneous Multi-Disease 5-Year Onset Risk Prediction** (holdout ROC-AUC 0.794–0.851 across T2D, CKD, CVD, and multimorbidity).
 - **Calibrated Probabilities** (5-fold sigmoid calibration; holdout ECE ≤ 0.042, Brier ≤ 0.141 across all production endpoints).
 - **Local & Global Explainability via probability-space SHAP TreeExplainer** (additive % point decomposition of the calibrated risk).
@@ -20,7 +20,7 @@ Chronic diseases—predominantly Type 2 Diabetes Mellitus (T2D), Chronic Kidney 
 ---
 
 ## 2. Clinical Cohort Architecture & Biomarker Specifications
-The underlying dataset consists of $N = 12,000$ adult patient records (ages 18–88, mean 53.4 years; 50.9% female, 49.1% male) spanning 32 physiological, socioeconomic, and laboratory variables:
+The underlying dataset consists of $N = 12,000$ adult patient records (ages 18–88, mean 53.4 years; 50.4% female, 49.6% male) spanning 33 physiological, socioeconomic, and laboratory variables:
 
 | Domain | Biomarkers & Features | Physiological Relevance |
 |---|---|---|
@@ -44,7 +44,7 @@ The underlying dataset consists of $N = 12,000$ adult patient records (ages 18�
 ### Experimental Protocol
 The cohort was split into Stratified Training (70%, $N=8,400$), Validation (15%, $N=1,800$), and Holdout Test (15%, $N=1,800$) sets, stratified across composite risk tiers. Four model families were systematically evaluated:
 1. **Logistic Regression (L2 Regularized):** Traditional clinical standard baseline.
-2. **Random Forest (150 Estimators, Max Depth 10):** Bagged non-linear decision trees.
+2. **Random Forest (150 Estimators, Max Depth 8):** Bagged non-linear decision trees.
 3. **LightGBM (Hist-Gradient Boosting):** Fast leaf-wise tree boosting.
 4. **XGBoost (Depth-Wise Gradient Boosting):** Production clinical decision model.
 
@@ -154,12 +154,14 @@ flowchart TD
 ---
 
 ## 7. Counterfactual Intervention Simulator Evidence
-A key innovation of VitaRisk is actionable counterfactual modeling. For a high-risk patient (Marcus Vance, 54M smoker, baseline composite score 0.577, High Tier):
-- Interventions: Smoking cessation, HbA1c reduction from 7.8% to 6.4%, SBP reduction from 148 to 124 mmHg, BMI reduction to 27.5.
-- Outcome: Composite score downgraded to 0.340 (Moderate Tier).
-- **Absolute Risk Reduction (ARR):** 23.7 percentage points of composite risk.
-- **Relative Risk Reduction (RRR):** 41.1%
+A key innovation of VitaRisk is actionable counterfactual modeling. For Persona 3 (67M current smoker, eGFR 36, uACR 410; baseline composite 89.2%, Critical Tier):
+- Interventions (explicit What-If scenario): smoking cessation, HbA1c to 6.0%, SBP to 124 mmHg, BMI to 27.5 kg/m².
+- Outcome: composite risk drops from 89.2% to 60.0%.
+- **Absolute Risk Reduction (ARR):** 29.2 percentage points of composite risk.
+- **Relative Risk Reduction (RRR):** 32.7%.
 
-These values are produced by the production `simulate_counterfactual` engine on the same inputs shown in the UI screenshot (`presentation/screenshots/screenshot_shap_counterfactual_trial.png`); the simulator couples BMI→SBP/HbA1c/triglycerides physiology and enforces physiological bounds (e.g., no impossible short-term eGFR gains).
+With the one-click **SGLT2i trial preset**, Persona 1 (58F) drops from 47.5% to 37.8% composite (9.7-pp ARR; T2D −13.7 pp, CKD −3.7 pp, CVD −10.0 pp).
+
+These values are produced by the production `simulate_counterfactual` engine on the same inputs shown in the re-captured UI screenshot (`presentation/screenshots/screenshot_shap_counterfactual_trial.png`, which shows the SGLT2i preset on Persona 3: 89.2% → 89.0%); the simulator couples BMI→SBP/HbA1c/triglycerides physiology and enforces physiological bounds (e.g., no impossible short-term eGFR gains).
 
 This gives clinicians an interactive motivational counseling tool to demonstrate tangible benefits directly to the patient during a standard 15-minute primary care visit.

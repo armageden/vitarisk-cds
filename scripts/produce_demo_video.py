@@ -140,7 +140,7 @@ def record_ui(durations):
         time.sleep(4.0)
         
         # Switch back to Calculator to highlight Contraindication Alert
-        safe_click("button:has-text('Patient Risk Calculator & CDS')", 2.0)
+        safe_click("button:has-text('Clinical Risk Calculator & CDS')", 2.0)
         page.evaluate("window.scrollBy({top: 200, behavior: 'smooth'})")
         time.sleep(4.0)
         
@@ -161,7 +161,7 @@ def record_ui(durations):
         time.sleep(4.0)
         
         # Switch to Presentation Tab
-        safe_click("button:has-text('Presentation Deck (14 Slides)')", 5.0)
+        safe_click("button:has-text('Submission Slides (14)')", 5.0)
         
         elapsed = time.time() - start_t
         rem = max(0.5, durations[3] - elapsed)

@@ -70,7 +70,7 @@ CANONICAL_PERSONAS = [
     },
     {
         "id": "PERSONA-3",
-        "name": "Persona 3: High-Risk CKM Stage 3 (67M)",
+        "name": "Persona 3: High-Risk CKM Stage 4 (67M)",
         "tag": "Safety Guardrail",
         "summary": "Elderly smoker with Stage 3b CKD, diabetic nephropathy, severe hypertension. Triggers Metformin guardrail.",
         "data": {
@@ -238,14 +238,20 @@ def simulate_intervention(req: SimulationRequest):
             detail=f"Unknown preset '{req.preset_name}'. Available presets: {sorted(CLINICAL_TRIAL_PRESETS)}"
         )
     patient_dict = req.patient.model_dump()
-    # Sanitize interventions (Finding 2)
+    # Sanitize interventions (Finding 2): numbers clamped to float, known string
+    # fields (categorical lifestyle overrides) pass through verbatim.
+    STRING_INTERVENTION_FIELDS = {"smoking_status", "physical_activity"}
     safe_interventions = {}
     for k, v in req.interventions.items():
-        if v is not None:
-            try:
-                safe_interventions[k] = float(v)
-            except (ValueError, TypeError):
-                continue
+        if v is None:
+            continue
+        if k in STRING_INTERVENTION_FIELDS and isinstance(v, str):
+            safe_interventions[k] = v
+            continue
+        try:
+            safe_interventions[k] = float(v)
+        except (ValueError, TypeError):
+            continue
     return cds_engine.simulate_counterfactual(
         patient_dict,
         safe_interventions,

@@ -19,8 +19,8 @@ import ContraindicationShield from './components/ContraindicationShield';
 import CkmStageCard from './components/CkmStageCard';
 import SlideDeckViewer from './components/SlideDeckViewer';
 
-// Universal API origin resolution
-const API_BASE = (typeof window !== 'undefined' && window.location.port === '5173') ? 'http://localhost:8000' : '';
+// Universal API origin resolution (Vite dev server runs on port 3000; production is same-origin)
+const API_BASE = (typeof window !== 'undefined' && window.location.port === '3000') ? 'http://localhost:8000' : '';
 
 const DEFAULT_PERSONA = {
   id: "PERSONA-1",
@@ -91,36 +91,48 @@ export default function App() {
     fetch(`${API_BASE}/api/dca`).then(res => res.json()).then(setDcaData).catch(console.error);
   }, []);
 
-  // Update prediction when patient changes
+  // Update prediction when patient changes (abort stale requests; ignore non-2xx so a 422 never clobbers state)
   useEffect(() => {
+    const controller = new AbortController();
     fetch(`${API_BASE}/api/predict`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(patient)
+      body: JSON.stringify(patient),
+      signal: controller.signal
     })
-      .then(res => res.json())
-      .then(setPrediction)
-      .catch(console.error);
+      .then(res => {
+        if (!res.ok) return undefined;
+        return res.json();
+      })
+      .then(data => { if (data) setPrediction(data); })
+      .catch(err => { if (err.name !== 'AbortError') console.error(err); });
+    return () => controller.abort();
   }, [patient]);
 
-  // Update SHAP when tab or patient or target changes
+  // Stale simulation results must not survive a biomarker edit
+  useEffect(() => { setSimResult(null); }, [patient]);
+
+  // Update SHAP when tab or patient or target changes (same abort + ok guards)
   useEffect(() => {
-    if (activeTab === 'shap') {
-      setLoadingShap(true);
-      fetch(`${API_BASE}/api/explain`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ patient, target: shapTarget })
+    if (activeTab !== 'shap') return undefined;
+    const controller = new AbortController();
+    setLoadingShap(true);
+    fetch(`${API_BASE}/api/explain`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ patient, target: shapTarget }),
+      signal: controller.signal
+    })
+      .then(res => {
+        if (!res.ok) return undefined;
+        return res.json();
       })
-        .then(res => res.json())
-        .then(data => {
-          setShapData(data);
-        })
-        .catch(console.error)
-        .finally(() => {
-          setLoadingShap(false);
-        });
-    }
+      .then(data => { if (data) setShapData(data); })
+      .catch(err => { if (err.name !== 'AbortError') console.error(err); })
+      .finally(() => {
+        setLoadingShap(false);
+      });
+    return () => controller.abort();
   }, [patient, shapTarget, activeTab]);
 
   const handleSelectPersona = (id) => {
@@ -135,6 +147,7 @@ export default function App() {
 
   const handleRunSimulation = (presetName = null) => {
     setActivePresetTriggered(presetName);
+    const controller = new AbortController();
     fetch(`${API_BASE}/api/simulate`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -143,11 +156,15 @@ export default function App() {
         interventions: presetName ? {} : interventions,
         preset_name: presetName,
         couple_biology: coupleBiology
-      })
+      }),
+      signal: controller.signal
     })
-      .then(res => res.json())
-      .then(setSimResult)
-      .catch(console.error);
+      .then(res => {
+        if (!res.ok) return undefined;
+        return res.json();
+      })
+      .then(data => { if (data) setSimResult(data); })
+      .catch(err => { if (err.name !== 'AbortError') console.error(err); });
   };
 
   useEffect(() => {
@@ -936,7 +953,7 @@ export default function App() {
                     <TrendingDown className="w-6 h-6 text-emerald-400 flex-shrink-0" />
                     <div>
                       <div className="text-xs font-bold text-white">
-                        Absolute Risk Reduction (ARR): -{(simResult.absolute_risk_reduction.composite * 100).toFixed(1)}%
+                        Absolute Risk Reduction (ARR): {simResult.absolute_risk_reduction.composite >= 0 ? '-' : '+'}{Math.abs(simResult.absolute_risk_reduction.composite * 100).toFixed(1)}%
                       </div>
                       <div className="text-[11px] text-emerald-300">
                         Relative Risk Reduction: {simResult.relative_risk_reduction_pct.composite}% improvement over 5 years.
@@ -1041,7 +1058,7 @@ export default function App() {
                   const fData = fairnessData?.onset_ckd || fairnessData?.onset_t2d;
                   const sexInfo = fairnessMitigatedMode ? fData?.sex?.mitigated : fData?.sex?.unmitigated;
                   const ethInfo = fairnessMitigatedMode ? fData?.ethnicity?.mitigated : fData?.ethnicity?.unmitigated;
-                  const sesInfo = fairnessMitigatedMode ? fData?.ses_decile?.mitigated : fData?.ses_decile?.unmitigated;
+                  const sesInfo = fairnessMitigatedMode ? fData?.ses_group?.mitigated : fData?.ses_group?.unmitigated;
 
                   const sexDI = sexInfo?.disparate_impact_ratio ?? (fairnessMitigatedMode ? 0.942 : 0.865);
                   const sexDP = sexInfo?.demographic_parity_diff ?? (fairnessMitigatedMode ? 0.018 : 0.045);
@@ -1071,18 +1088,26 @@ export default function App() {
                         <tr className="hover:bg-slate-800/20">
                           <td className="py-3 px-3 font-semibold text-white">Biological Sex</td>
                           <td className="py-3 px-3 text-slate-300">Female (50.4%), Male (49.6%)</td>
-                          <td className="py-3 px-3 font-bold font-mono text-emerald-400">{Number(sexDI).toFixed(3)}</td>
+                          <td className={`py-3 px-3 font-bold font-mono ${sexDI >= 0.80 ? 'text-emerald-400' : 'text-rose-400'}`}>{Number(sexDI).toFixed(3)}</td>
                           <td className="py-3 px-3 font-mono text-slate-300">{Number(sexDP).toFixed(3)}</td>
                           <td className="py-3 px-3 font-mono text-slate-300">{Number(sexEO).toFixed(3)}</td>
-                          <td className="py-3 px-3"><span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">PASSED (&gt;0.80)</span></td>
+                          <td className="py-3 px-3">
+                            <span className={`px-2 py-0.5 rounded-full text-[10px] font-semibold border ${sexDI >= 0.80 ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30' : 'bg-rose-500/20 text-rose-300 border-rose-500/30'}`}>
+                              {sexDI >= 0.80 ? 'PASSED (>0.80)' : 'FAILED (<0.80)'}
+                            </span>
+                          </td>
                         </tr>
                         <tr className="hover:bg-slate-800/20">
                           <td className="py-3 px-3 font-semibold text-white">Race & Ethnicity (FM-03)</td>
                           <td className="py-3 px-3 text-slate-300">White, Black, Hispanic, Asian, Other</td>
-                          <td className="py-3 px-3 font-bold font-mono text-emerald-400">{Number(ethDI).toFixed(3)}</td>
+                          <td className={`py-3 px-3 font-bold font-mono ${ethDI >= 0.80 ? 'text-emerald-400' : 'text-rose-400'}`}>{Number(ethDI).toFixed(3)}</td>
                           <td className="py-3 px-3 font-mono text-slate-300">{Number(ethDP).toFixed(3)}</td>
                           <td className="py-3 px-3 font-mono text-slate-300">{Number(ethEO).toFixed(3)}</td>
-                          <td className="py-3 px-3"><span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">PASSED (&gt;0.80)</span></td>
+                          <td className="py-3 px-3">
+                            <span className={`px-2 py-0.5 rounded-full text-[10px] font-semibold border ${ethDI >= 0.80 ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30' : 'bg-rose-500/20 text-rose-300 border-rose-500/30'}`}>
+                              {ethDI >= 0.80 ? 'PASSED (>0.80)' : 'FAILED (<0.80)'}
+                            </span>
+                          </td>
                         </tr>
                         <tr className="hover:bg-slate-800/20">
                           <td className="py-3 px-3 font-semibold text-white">Socioeconomic Status (SES)</td>

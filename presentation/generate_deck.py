@@ -236,7 +236,7 @@ def create_deck(output_path="presentation/VitaRisk_CDS_DataNova2026_Presentation
     add_header(s3, "VitaRisk CDS: A Unified 4-Pillar Clinical Intelligence Engine")
 
     pillars = [
-        ("Pillar 1: CKM Cascade Modeling", "Joint 3-stage conditional modeling across AHA 2026 CKM Stages 0-4. Upstream predicted T2D & CKD probabilities dynamically elevate downstream CVD risk (+5.15%).", TEAL),
+        ("Pillar 1: CKM Cascade Modeling", "Joint 3-stage conditional modeling across AHA 2026 CKM Stages 0-4. Upstream predicted T2D & CKD probabilities dynamically elevate downstream CVD risk (mean |SHAP| of the coupling feature: +5.28 pp).", TEAL),
         ("Pillar 2: Probability-Space SHAP", "Transparent TreeExplainer decomposition in additive % points rather than log-odds, showing exact positive risk escalators and protective buffers.", BLUE),
         ("Pillar 3: Active Algorithmic Fairness", "Validation-fitted subgroup thresholds (tau_g) shrink Equal-Opportunity sensitivity gaps across subgroups (e.g., T2D sex gap 0.077 -> 0.007; CKD age gap 0.44 -> 0.13), audited before vs after on held-out test data.", GREEN_ACCENT),
         ("Pillar 4: Guardrailed CDS & Trials", "Actionable guideline therapy (ADA 2026, KDIGO, ACC/AHA) with hard contraindication safety checks (Metformin eGFR < 30) and 4 clinical trial counterfactual presets.", NAVY)
@@ -384,9 +384,9 @@ def create_deck(output_path="presentation/VitaRisk_CDS_DataNova2026_Presentation
 
     s6_bullets = [
         "• Shift from Log-Odds to Probability: TreeExplainer margins mapped to percentage points (+Delta p_i%) for immediate clinical comprehension.",
-        "• Type 2 Diabetes: Driven by HbA1c (+24.37%), fasting glucose (+8.12%), and BMI (+6.45%).",
+        "• Type 2 Diabetes: Global mean |SHAP| drivers — HbA1c (+5.18 pp), fasting glucose (+4.22 pp), BMI (+3.67 pp).",
         "• Chronic Kidney Disease: Driven by eGFR loss (+31.2%), UACR microalbuminuria (+12.4%), and SBP.",
-        "• Cardiovascular MACE: Driven by age, LDL cholesterol, and conditioned CKM cross-disease input (+5.15%).",
+        "• Cardiovascular MACE: Driven by age, non-HDL cholesterol, and the CKM cross-disease coupling feature (+5.28 pp mean |SHAP|).",
         "• Actionable Trust: Clinicians inspect positive risk escalators vs protective buffers in 10 seconds."
     ]
     for b in s6_bullets:
@@ -501,7 +501,7 @@ def create_deck(output_path="presentation/VitaRisk_CDS_DataNova2026_Presentation
 
     s9_bullets = [
         "• Replaces Unconstrained Free Sliders: Coupled multi-biomarker shifts based on published clinical trials (EMPA-REG, DAPA-CKD, LEADER).",
-        "• SGLT2i Trial Preset: Produces -18.4% ARR in CKD progression, -7.2% ARR in CVD, with automatic systolic BP and glycemic reduction.",
+        "• SGLT2i Trial Preset: On Persona 1 (58F) composite risk drops 47.5% → 37.8% (9.7-pp ARR) with automatic systolic BP, glycemic, and albuminuria reduction.",
         "• GLP-1 RA Trial Preset: Yields substantial weight loss (-4.2 kg/m2 BMI), glycemic normalization (-1.4% HbA1c), and vascular protection.",
         "• Real-Time Quantified Benefit: Automatically calculates Absolute Risk Reduction (ARR) and Relative Risk Reduction (RRR) for patient communication."
     ]
