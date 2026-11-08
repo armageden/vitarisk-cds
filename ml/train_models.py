@@ -13,7 +13,8 @@ import json
 import joblib
 import numpy as np
 import pandas as pd
-from sklearn.model_selection import StratifiedKFold, train_test_split
+from pathlib import Path
+from sklearn.model_selection import StratifiedKFold, train_test_split, cross_val_predict
 from sklearn.preprocessing import StandardScaler, OneHotEncoder
 from sklearn.impute import SimpleImputer
 from sklearn.linear_model import LogisticRegression
@@ -74,12 +75,13 @@ PROTECTED_ATTRIBUTES = ["ethnicity", "sex", "age", "ses_decile"]
 TARGETS = ["onset_t2d", "onset_ckd", "onset_cvd", "onset_multimorbidity"]
 
 def compute_ece(y_true, y_prob, n_bins=10):
-    """Computes Expected Calibration Error (ECE) across decile bins."""
+    """Computes Expected Calibration Error (ECE) across decile bins (last bin includes 1.0)."""
     bin_edges = np.linspace(0.0, 1.0, n_bins + 1)
     ece = 0.0
     n = len(y_true)
     for i in range(n_bins):
-        idx = (y_prob >= bin_edges[i]) & (y_prob < bin_edges[i + 1])
+        right_cmp = np.less_equal if i == n_bins - 1 else np.less
+        idx = (y_prob >= bin_edges[i]) & right_cmp(y_prob, bin_edges[i + 1])
         if np.sum(idx) > 0:
             bin_acc = np.mean(y_true[idx])
             bin_conf = np.mean(y_prob[idx])
@@ -106,10 +108,21 @@ def compute_decision_curve_net_benefit(y_true, y_prob, thresholds=None):
         results.append({
             "threshold": round(float(pt), 3),
             "net_benefit_model": round(float(net_benefit_model), 4),
-            "net_benefit_treat_all": round(float(max(-0.05, net_benefit_treat_all)), 4),
+            "net_benefit_treat_all": round(float(net_benefit_treat_all), 4),
             "net_benefit_treat_none": 0.0
         })
     return results
+
+def oof_calibrated_proba(model_fn, X, y, cv=5):
+    """
+    Out-of-fold probabilities from a calibrated estimator (nested CV):
+    each training sample is scored only by models that never saw it, so the
+    stacked CKM training features match the out-of-sample probabilities the
+    production engine receives at inference time.
+    """
+    cal = CalibratedClassifierCV(estimator=model_fn(), method="sigmoid", cv=5)
+    # n_jobs=1: process-pool workers (loky) fail under sandboxed exec on some hosts; fits are small
+    return cross_val_predict(cal, X, y, cv=cv, method="predict_proba", n_jobs=1)[:, 1]
 
 def build_preprocessor(df):
     imputer = SimpleImputer(strategy="median")
@@ -147,6 +160,8 @@ def transform_features(df, imputer, scaler, encoder):
     return X
 
 def train_and_evaluate(data_path="data/ehr_cohort.csv", artifacts_dir="ml/artifacts"):
+    # Canonicalize the output directory once so every artifact write stays inside it
+    artifacts_dir = os.path.realpath(artifacts_dir)
     os.makedirs(artifacts_dir, exist_ok=True)
     df = pd.read_csv(data_path)
     print(f"Loaded {len(df)} records from {data_path}")
@@ -170,8 +185,7 @@ def train_and_evaluate(data_path="data/ehr_cohort.csv", artifacts_dir="ml/artifa
     joblib.dump(imputer, os.path.join(artifacts_dir, "imputer.joblib"))
     joblib.dump(scaler, os.path.join(artifacts_dir, "scaler.joblib"))
     joblib.dump(encoder, os.path.join(artifacts_dir, "encoder.joblib"))
-    with open(os.path.join(artifacts_dir, "feature_names.json"), "w") as f:
-        json.dump(feature_names, f, indent=2)
+    Path(artifacts_dir, "feature_names.json").write_text(json.dumps(feature_names, indent=2))
         
     X_train = transform_features(train_df, imputer, scaler, encoder)
     X_val = transform_features(val_df, imputer, scaler, encoder)
@@ -250,9 +264,11 @@ def train_and_evaluate(data_path="data/ehr_cohort.csv", artifacts_dir="ml/artifa
     print(f"\n==========================================")
     print("Training CKM Stage 2: CVD (Cardiorenal-Metabolic Coupled)")
     print("==========================================")
-    # Augment features with predicted T2D & CKD risk states (capturing CKM syndrome)
-    p_t2d_train = calibrated_models["onset_t2d"].predict_proba(X_train)[:, 1:2]
-    p_ckd_train = calibrated_models["onset_ckd"].predict_proba(X_train)[:, 1:2]
+    # Augment features with predicted T2D & CKD risk states (capturing CKM syndrome).
+    # Training-time stacked features are OUT-OF-FOLD (Finding 4) so they match the
+    # out-of-sample probabilities the engine feeds at inference.
+    p_t2d_train = oof_calibrated_proba(models_config["XGBoost"], X_train, train_df["onset_t2d"].values).reshape(-1, 1)
+    p_ckd_train = oof_calibrated_proba(models_config["XGBoost"], X_train, train_df["onset_ckd"].values).reshape(-1, 1)
     X_train_ckm = np.hstack([X_train, p_t2d_train, p_ckd_train])
     
     p_t2d_val = calibrated_models["onset_t2d"].predict_proba(X_val)[:, 1:2]
@@ -342,10 +358,8 @@ def train_and_evaluate(data_path="data/ehr_cohort.csv", artifacts_dir="ml/artifa
     dca_results["onset_multimorbidity"] = compute_decision_curve_net_benefit(y_test_mm, y_prob_mm)
 
     # Save benchmark metrics and DCA curves
-    with open(os.path.join(artifacts_dir, "benchmark_metrics.json"), "w") as f:
-        json.dump(benchmark_results, f, indent=2)
-    with open(os.path.join(artifacts_dir, "decision_curve_analysis.json"), "w") as f:
-        json.dump(dca_results, f, indent=2)
+    Path(artifacts_dir, "benchmark_metrics.json").write_text(json.dumps(benchmark_results, indent=2))
+    Path(artifacts_dir, "decision_curve_analysis.json").write_text(json.dumps(dca_results, indent=2))
         
     # =========================================================
     # SHAP TreeExplainers in Probability Space (FM-06)
@@ -376,8 +390,7 @@ def train_and_evaluate(data_path="data/ehr_cohort.csv", artifacts_dir="ml/artifa
             
     # For CVD with CKM features
     ckm_feature_names = feature_names + ["predicted_risk_t2d", "predicted_risk_ckd"]
-    with open(os.path.join(artifacts_dir, "ckm_feature_names.json"), "w") as f:
-        json.dump(ckm_feature_names, f, indent=2)
+    Path(artifacts_dir, "ckm_feature_names.json").write_text(json.dumps(ckm_feature_names, indent=2))
         
     X_bg_ckm = np.hstack([X_background, calibrated_models["onset_t2d"].predict_proba(X_background)[:, 1:2], calibrated_models["onset_ckd"].predict_proba(X_background)[:, 1:2]])
     joblib.dump(X_bg_ckm, os.path.join(artifacts_dir, "shap_background_ckm.joblib"))
@@ -397,8 +410,7 @@ def train_and_evaluate(data_path="data/ehr_cohort.csv", artifacts_dir="ml/artifa
     for item in ranking_cvd[:5]:
         print(f"  {item['feature']}: +{item['importance_percentage_points']}%")
         
-    with open(os.path.join(artifacts_dir, "global_shap_importance.json"), "w") as f:
-        json.dump(global_importance, f, indent=2)
+    Path(artifacts_dir, "global_shap_importance.json").write_text(json.dumps(global_importance, indent=2))
         
     print("\n✅ CKM Pipeline, Calibration (ECE < 0.03), and Probability-Space SHAP Complete!")
     return benchmark_results

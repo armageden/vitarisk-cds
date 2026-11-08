@@ -6,13 +6,33 @@ real high-resolution UI screenshots from the live application.
 """
 
 import os
+import json
 from pptx import Presentation
 from pptx.util import Inches, Pt
 from pptx.dml.color import RGBColor
 from pptx.enum.text import PP_ALIGN, MSO_ANCHOR
 from pptx.enum.shapes import MSO_SHAPE
 
+_BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+def _load_artifacts():
+    """Load benchmark & fairness artifacts so deck numbers can never drift from the pipeline."""
+    with open(os.path.join(_BASE, "ml/artifacts/benchmark_metrics.json")) as f:
+        bm = json.load(f)
+    with open(os.path.join(_BASE, "ml/artifacts/fairness_audit.json")) as f:
+        fa = json.load(f)
+    return bm, fa
+
+def _fmt(m, k):
+    return f"{m[k]:.4f}"
+
+def _mean_brier(bm, model_key):
+    """Mean holdout Brier across the three production endpoints."""
+    vals = [bm[t]["metrics"][model_key]["Brier_Score"] for t in ["onset_t2d", "onset_ckd", "onset_cvd"]]
+    return f"{sum(vals) / len(vals):.4f}"
+
 def create_deck(output_path="presentation/VitaRisk_CDS_DataNova2026_Presentation.pptx"):
+    bm, fa = _load_artifacts()
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
     prs = Presentation()
     prs.slide_width = Inches(13.333)
@@ -218,7 +238,7 @@ def create_deck(output_path="presentation/VitaRisk_CDS_DataNova2026_Presentation
     pillars = [
         ("Pillar 1: CKM Cascade Modeling", "Joint 3-stage conditional modeling across AHA 2026 CKM Stages 0-4. Upstream predicted T2D & CKD probabilities dynamically elevate downstream CVD risk (+5.15%).", TEAL),
         ("Pillar 2: Probability-Space SHAP", "Transparent TreeExplainer decomposition in additive % points rather than log-odds, showing exact positive risk escalators and protective buffers.", BLUE),
-        ("Pillar 3: Active Algorithmic Fairness", "Active subgroup threshold calibration (tau_g) boosting sensitivity in underrepresented cohorts from 78.4% to 86.1%, passing EEOC 80% Rule.", GREEN_ACCENT),
+        ("Pillar 3: Active Algorithmic Fairness", "Validation-fitted subgroup thresholds (tau_g) shrink Equal-Opportunity sensitivity gaps across subgroups (e.g., T2D sex gap 0.077 -> 0.007; CKD age gap 0.44 -> 0.13), audited before vs after on held-out test data.", GREEN_ACCENT),
         ("Pillar 4: Guardrailed CDS & Trials", "Actionable guideline therapy (ADA 2026, KDIGO, ACC/AHA) with hard contraindication safety checks (Metformin eGFR < 30) and 4 clinical trial counterfactual presets.", NAVY)
     ]
 
@@ -308,10 +328,10 @@ def create_deck(output_path="presentation/VitaRisk_CDS_DataNova2026_Presentation
         p.alignment = PP_ALIGN.CENTER
 
     data_rows = [
-        ("Logistic Regression (Clinical Baseline)", "0.7812", "0.8145", "0.7723", "0.1456", "1.2 ms"),
-        ("Random Forest (150 Trees)", "0.7915", "0.8224", "0.7841", "0.1085", "8.4 ms"),
-        ("LightGBM (Fast Gradient Boosting)", "0.7952", "0.8286", "0.7894", "0.1012", "2.1 ms"),
-        ("XGBoost Calibrated (Production CDS)", "0.7984", "0.8309", "0.7933", "0.0979", "3.2 ms")
+        ("Logistic Regression (Clinical Baseline)", _fmt(bm["onset_t2d"]["metrics"]["LogisticRegression"], "ROC_AUC"), _fmt(bm["onset_ckd"]["metrics"]["LogisticRegression"], "ROC_AUC"), _fmt(bm["onset_cvd"]["metrics"]["LogisticRegression"], "ROC_AUC"), _mean_brier(bm, "LogisticRegression"), "1.2 ms"),
+        ("Random Forest (150 Trees)", _fmt(bm["onset_t2d"]["metrics"]["RandomForest"], "ROC_AUC"), _fmt(bm["onset_ckd"]["metrics"]["RandomForest"], "ROC_AUC"), _fmt(bm["onset_cvd"]["metrics"]["RandomForest"], "ROC_AUC"), _mean_brier(bm, "RandomForest"), "8.4 ms"),
+        ("LightGBM (Fast Gradient Boosting)", _fmt(bm["onset_t2d"]["metrics"]["LightGBM"], "ROC_AUC"), _fmt(bm["onset_ckd"]["metrics"]["LightGBM"], "ROC_AUC"), _fmt(bm["onset_cvd"]["metrics"]["LightGBM"], "ROC_AUC"), _mean_brier(bm, "LightGBM"), "2.1 ms"),
+        ("XGBoost Calibrated (Production CDS)", _fmt(bm["onset_t2d"]["metrics"]["XGBoost"], "ROC_AUC"), _fmt(bm["onset_ckd"]["metrics"]["XGBoost"], "ROC_AUC"), _fmt(bm["onset_cvd"]["metrics"]["XGBoost"], "ROC_AUC"), _mean_brier(bm, "XGBoost"), "3.2 ms")
     ]
 
     for row_idx, row_vals in enumerate(data_rows, start=1):
@@ -338,7 +358,7 @@ def create_deck(output_path="presentation/VitaRisk_CDS_DataNova2026_Presentation
     p.font.color.rgb = TEAL
 
     p2 = tf.add_paragraph()
-    p2.text = "Sigmoid post-hoc calibration via CalibratedClassifierCV reduced Expected Calibration Error (ECE) to <0.035 and Brier score to 0.0979 across all endpoints. Bounded ROC-AUCs (0.79-0.85) reflect real-world clinical data distributions with latent biological confounding rather than toy generator artifacts."
+    p2.text = "Sigmoid post-hoc calibration via CalibratedClassifierCV keeps Expected Calibration Error at or below 0.042 and Brier score at or below 0.141 across all production endpoints. Bounded ROC-AUCs (0.79-0.85) reflect real-world clinical data distributions with latent biological confounding rather than toy generator artifacts."
     p2.font.size = Pt(12)
     p2.font.color.rgb = DARK_TEXT
     p2.space_before = Pt(4)
@@ -403,9 +423,9 @@ def create_deck(output_path="presentation/VitaRisk_CDS_DataNova2026_Presentation
     p.font.color.rgb = GREEN_ACCENT
 
     s7_bullets = [
-        "• Active Threshold Calibration: Optimizes subgroup decision thresholds tau_g to equalize False Negative Rates, boosting Black sensitivity from 78.4% to 86.1%.",
+        "• Active Threshold Calibration: Subgroup thresholds tau_g, fitted on the validation cohort and evaluated on held-out test data, equalize sensitivity (Equal Opportunity).",
         "• Race-Free Clinical Features (FM-03): Models utilize the 2021 race-free CKD-EPI eGFR equation, eliminating race coefficients while retaining race for equity audits.",
-        "• EEOC 80% Rule Compliance: Disparate impact ratio exceeds 0.85 across sex, race, and socioeconomic deciles.",
+        "• Honest Equity Audit: All 16 endpoint x attribute combinations published; tau_g shrinks sensitivity gaps dramatically (T2D sex 0.077 -> 0.007, CKD age 0.44 -> 0.13), while demographic parity across age is structurally unattainable and not enforced.",
         "• Net Clinical Benefit: Vickers & Elkin Decision Curve Analysis confirms positive net benefit over Treat All/Treat None across the 5%-40% threshold spectrum."
     ]
     for b in s7_bullets:
@@ -677,7 +697,7 @@ def create_deck(output_path="presentation/VitaRisk_CDS_DataNova2026_Presentation
     box_items = [
         ("Working Interactive Demo", "FastAPI + React Production Service running with sub-15ms inference latency, pre-warmed singleton models, and zero-friction 1-click clinical personas."),
         ("Complete Code Repository", "Self-contained modular Python & React code with automated integration tests (all 10 pre-submission gates passing), trained model artifacts, and data generator."),
-        ("Validation & Fairness Report", "Comprehensive clinical evidence document covering ROC-AUC (0.798-0.853), 5-fold sigmoid calibration (ECE < 0.035), Decision Curve Net Benefit, and subgroup parity.")
+        ("Validation & Fairness Report", "Comprehensive clinical evidence document covering ROC-AUC (0.794-0.851), 5-fold sigmoid calibration (ECE <= 0.042), Decision Curve Net Benefit, and the full before/after subgroup equity audit.")
     ]
 
     for i, (b_title, b_desc) in enumerate(box_items):

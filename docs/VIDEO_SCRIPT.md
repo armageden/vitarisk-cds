@@ -58,14 +58,14 @@
 ### Segment 4: Calibration, Decision Curve Net Benefit & Active Fairness ($\tau_g$) (1:55 – 2:30)
 * **Screen Display:**
   1. Click **Decision Curve Net Benefit** tab: show the Vickers & Elkin net benefit curves across 17 threshold points above the grey 'Treat All' and 'Treat None' baselines.
-  2. Click **Algorithmic Fairness Audit** tab: toggle between "Unmitigated" and "Active Mitigated ($\tau_g$)", showing Black subgroup sensitivity increasing from **78.4% to 86.1%**.
+  2. Click **Algorithmic Fairness Audit** tab: toggle between "Unmitigated" and "Active Mitigated ($\tau_g$)", showing subgroup sensitivity gaps shrinking (e.g., T2D sex gap **0.077 → 0.007**, CKD age gap **0.44 → 0.13**).
   3. Click **Presentation Deck (14 Slides)** tab or flash the terminal showing `test_backend.py: ALL 10 PRE-SUBMISSION GATES PASSED`.
 * **Presenter Teleprompter / Narration:**
   > "Behind the interface is rigorous epidemiology:
   > - We incorporated latent unobserved confounders to eliminate synthetic circularity, bounding ROC-AUCs to a realistic 0.80 to 0.85.
-  > - 5-fold sigmoid calibration slashed Expected Calibration Error to under 0.035.
+  > - 5-fold sigmoid calibration keeps Expected Calibration Error at or below 0.042 on every endpoint.
   > - Decision Curve Analysis confirms positive net clinical benefit across all treatment thresholds from 5% to 40%.
-  > - And in our Fairness tab, we don't just passively report disparities—our active threshold calibration raises sensitivity in historically underserved Black patients from 78.4% to 86.1%, passing EEOC standards.
+  > - And in our Fairness tab, we don't just passively report disparities—our validation-fitted threshold calibration shrinks sensitivity gaps across subgroups, and we publish every combination honestly, including where demographic parity remains structurally out of reach.
   >
   > All 10 pre-submission gates pass automated testing. VitaRisk CDS delivers the precision, safety, and transparency modern medicine demands.
   >

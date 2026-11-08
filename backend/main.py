@@ -231,6 +231,12 @@ def explain_risk(req: ExplainRequest):
 
 @app.post("/api/simulate")
 def simulate_intervention(req: SimulationRequest):
+    # Finding 3: reject unknown clinical trial presets instead of silently simulating nothing
+    if req.preset_name and req.preset_name not in CLINICAL_TRIAL_PRESETS:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Unknown preset '{req.preset_name}'. Available presets: {sorted(CLINICAL_TRIAL_PRESETS)}"
+        )
     patient_dict = req.patient.model_dump()
     # Sanitize interventions (Finding 2)
     safe_interventions = {}

@@ -17,7 +17,7 @@ pinned: false
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.115+-009688.svg)](https://fastapi.tiangolo.com)
 [![React](https://img.shields.io/badge/React-18-61dafb.svg)](https://react.dev)
 [![XGBoost](https://img.shields.io/badge/ML-XGBoost%20%2B%20SHAP-orange.svg)](https://xgboost.readthedocs.io)
-[![Fairness](https://img.shields.io/badge/Fairness-EEOC%2080%25%20Rule%20Passed-10b981.svg)](docs/VALIDATION_REPORT.md)
+[![Fairness](https://img.shields.io/badge/Fairness-Equal%20Opportunity%20Gaps%20Reduced-10b981.svg)](docs/VALIDATION_REPORT.md)
 
 VitaRisk CDS is an end-to-end clinical AI and decision support platform engineered for the **DataNova 2026 Global Data-thon (Problem Statement DN-HC-01: Early Risk Stratification for Chronic Disease)**. It operationalizes the **American Heart Association (AHA) 2026 Cardiorenal-Metabolic (CKM) Syndrome staging consensus**, transforming routine longitudinal Electronic Health Record (EHR) data into actionable, calibrated, and equitable early intervention decisions for **Type 2 Diabetes (T2D)**, **Chronic Kidney Disease (CKD)**, and **Cardiovascular Disease (CVD)**.
 
@@ -29,7 +29,7 @@ VitaRisk CDS is an end-to-end clinical AI and decision support platform engineer
 |---|---|---|
 | **1. PowerPoint Deck (.pptx)** | [`presentation/VitaRisk_CDS_DataNova2026_Presentation.pptx`](presentation/VitaRisk_CDS_DataNova2026_Presentation.pptx) | Upgraded 14-slide executive presentation embedded with real live UI screenshots, clinical metrics, and ROI. |
 | **2. Interactive Working Demo** | `http://localhost:8000` (or deployed URL) | Full-stack clinical web application (FastAPI backend + embedded React frontend with live calculator, SHAP waterfall, what-if simulator, and 5 canonical personas). |
-| **3. Clinical Validation Report** | [`docs/VALIDATION_REPORT.md`](docs/VALIDATION_REPORT.md) | In-depth methodology report with clinical equations, validation metrics (ROC-AUC 0.798–0.853), 5-fold calibration curves, and Decision Curve Net Benefit. |
+| **3. Clinical Validation Report** | [`docs/VALIDATION_REPORT.md`](docs/VALIDATION_REPORT.md) | In-depth methodology report with clinical equations, validation metrics (ROC-AUC 0.794–0.851), 5-fold calibration curves, and Decision Curve Net Benefit. |
 | **4. 2.5-Minute Video Script** | [`docs/VIDEO_SCRIPT.md`](docs/VIDEO_SCRIPT.md) | Timed video demonstration script with narration notes, visual cues, and gate checkpoints. |
 | **5. Devpost Submission Copy** | [`docs/SUBMISSION_DEVPOST.md`](docs/SUBMISSION_DEVPOST.md) | Structured copy-paste submission addressing all 6 hackathon judging criteria. |
 | **6. Failure Mode Analysis** | [`process/features/.../FAILURE_MODES_AND_REMEDIATION_GUIDE.md`](process/features/chronic-risk-stratification/references/FAILURE_MODES_AND_REMEDIATION_GUIDE.md) | Comprehensive 12-failure-mode engineering remediation and pre-submission audit guide. |
@@ -82,7 +82,7 @@ docker run -p 8000:8000 vitarisk-cds
 flowchart TD
     A["Longitudinal EHR Data<br/>(12,000 Cohort • 32 Biomarkers • Realistic Missingness)"] --> B["Data Ingestion & Feature Engineering<br/>(2021 Race-Free CKD-EPI eGFR • Latent Variance Confounders)"]
     B --> C["3-Stage Cardiorenal-Metabolic (CKM) Modeling<br/>(Stage 1-2: T2D & CKD -> Stage 3: CVD -> Stage 4: Multimorbidity)"]
-    C --> D["5-Fold Sigmoid Probability Calibration<br/>(CalibratedClassifierCV • ECE &lt; 0.035 • Brier &lt; 0.12)"]
+    C --> D["5-Fold Sigmoid Probability Calibration<br/>(CalibratedClassifierCV • ECE ≤ 0.042 • Brier ≤ 0.141)"]
     D --> E["Probability-Space TreeSHAP<br/>(Additive % Point Decompositions)"]
     D --> F["Decision Curve Analysis (DCA)<br/>(Net Clinical Benefit across 17 Thresholds)"]
     D --> G["Active Fairness Threshold Mitigation<br/>(tau_g Equalizing False Negative Rates across Subgroups)"]
@@ -95,18 +95,18 @@ flowchart TD
 
 ## ⚡ Pre-Submission Verification Gates Passed
 
-The platform incorporates automated pre-submission testing across 10 critical validation gates:
+The platform incorporates automated pre-submission testing across 10 critical validation gates plus the full audit-remediation suite:
 ```bash
-python backend/test_backend.py
+./run_tests.sh   # prefers .venv, falls back to ~/.venvs/vitarisk
 ```
 * ✅ **Gate 1:** Zero Synthetic Circularity (Latent Confounding Bounding AUC to 0.79–0.85)
 * ✅ **Gate 2:** Structured Clinical Missingness Handling (10% uACR, 14% hs-CRP)
 * ✅ **Gate 3:** Anachronism-Free Race Equation (2021 CKD-EPI Standard)
 * ✅ **Gate 4:** CKM Cardiorenal-Metabolic Cascade Cross-Coupling (+5.15% CVD Escalation)
-* ✅ **Gate 5:** 5-Fold Sigmoid Probability Calibration (ECE < 0.035, Brier < 0.12)
+* ✅ **Gate 5:** 5-Fold Sigmoid Probability Calibration (ECE ≤ 0.042, Brier ≤ 0.141)
 * ✅ **Gate 6:** Additive Probability-Space SHAP Explanations in % Points
 * ✅ **Gate 7:** Physiologically Coupled Counterfactual Presets (SGLT2i, GLP-1, RAAS)
-* ✅ **Gate 8:** Active Subgroup Threshold Calibration ($\tau_g$: 78.4% $\rightarrow$ 86.1% sensitivity)
+* ✅ **Gate 8:** Active Subgroup Threshold Calibration (validation-fitted $\tau_g$; Equal-Opportunity gaps reduced, e.g. T2D sex gap 0.077 → 0.007, CKD age gap 0.44 → 0.13)
 * ✅ **Gate 9:** Drug Contraindication Guardrail (Metformin eGFR < 30 alert)
 * ✅ **Gate 10:** Sub-50ms API SLA & Zero-Friction 5-Persona Clinical UX
 

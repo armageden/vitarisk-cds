@@ -9,9 +9,9 @@
 **VitaRisk CDS — Cardiorenal-Metabolic (CKM) Risk Stratification, Calibrated SHAP Transparency & Guardrailed Decision Support**
 
 ## 2. Project Overview (Elevator Pitch)
-VitaRisk CDS is an end-to-end clinical AI and decision support platform that operationalizes the American Heart Association (AHA) 2026 Cardiorenal-Metabolic (CKM) Syndrome staging consensus. Trained on a 12,000-patient longitudinal EHR cohort with realistic clinical missingness and unobserved latent confounders (preventing toy generator-overfitting), VitaRisk predicts 5-year onset for Type 2 Diabetes (ROC-AUC 0.798), Chronic Kidney Disease (ROC-AUC 0.831), Cardiovascular Disease (ROC-AUC 0.793), and Multimorbidity (ROC-AUC 0.853). 
+VitaRisk CDS is an end-to-end clinical AI and decision support platform that operationalizes the American Heart Association (AHA) 2026 Cardiorenal-Metabolic (CKM) Syndrome staging consensus. Trained on a 12,000-patient longitudinal EHR cohort with realistic clinical missingness and unobserved latent confounders (preventing toy generator-overfitting), VitaRisk predicts 5-year onset for Type 2 Diabetes (ROC-AUC 0.798), Chronic Kidney Disease (ROC-AUC 0.830), Cardiovascular Disease (ROC-AUC 0.794), and Multimorbidity (ROC-AUC 0.851). 
 
-Featuring **5-fold post-hoc sigmoid probability calibration (ECE < 0.035)**, **probability-space SHAP TreeExplainer decompositions (% points)**, **Decision Curve Analysis (DCA)** proving net clinical benefit, **active subgroup threshold optimization ($\tau_g$)** for algorithmic justice, **physiologically coupled counterfactual trial presets (SGLT2i, GLP-1 RA, RAAS)**, and **hard drug contraindication safety alerts** (e.g. Metformin in severe renal impairment), VitaRisk empowers primary care clinicians to detect and reverse silent disease trajectories during standard 15-minute consultations.
+Featuring **5-fold post-hoc sigmoid probability calibration (ECE ≤ 0.042)**, **probability-space SHAP TreeExplainer decompositions (% points)**, **Decision Curve Analysis (DCA)** proving net clinical benefit, **active subgroup threshold optimization ($\tau_g$)** for algorithmic justice, **physiologically coupled counterfactual trial presets (SGLT2i, GLP-1 RA, RAAS)**, and **hard drug contraindication safety alerts** (e.g. Metformin in severe renal impairment), VitaRisk empowers primary care clinicians to detect and reverse silent disease trajectories during standard 15-minute consultations.
 
 ---
 
@@ -31,7 +31,7 @@ Current clinical risk assessment models suffer from critical systemic vulnerabil
 VitaRisk CDS solves these challenges through a 6-pillar unified clinical intelligence engine:
 
 1. **Cardiorenal-Metabolic (CKM) Syndrome Joint Modeling:** Implements a 3-stage conditional cascade mirroring AHA 2026 CKM Stages (0: None, 1: Excess Adiposity, 2: Metabolic/Renal Risk, 3: Subclinical CVD, 4: Clinical CVD). The upstream predicted probabilities for T2D and CKD dynamically feed as input features into the downstream CVD and Multimorbidity models (+5.15% risk escalation).
-2. **5-Fold Sigmoid Probability Calibration:** Eliminates probability distortion via `CalibratedClassifierCV(method='sigmoid', cv=5)`, achieving Expected Calibration Error (ECE) < 0.035 and Brier score < 0.12 across all endpoints.
+2. **5-Fold Sigmoid Probability Calibration:** Eliminates probability distortion via `CalibratedClassifierCV(method='sigmoid', cv=5)`, achieving Expected Calibration Error (ECE) ≤ 0.042 and Brier score ≤ 0.140 across all production endpoints.
 3. **Decision Curve Analysis (DCA) Net Clinical Benefit:** Quantifies clinical utility using Vickers & Elkin decision curves, proving VitaRisk delivers superior net benefit over "Treat All" and "Treat None" strategies across the decision threshold spectrum (5%–40%).
 4. **Probability-Space SHAP TreeExplainer:** Decomposes risk into additive percentage points ($\Delta p_i$) rather than unintuitive log-odds margins, enabling clinicians to immediately see which biomarkers elevate or protect the patient.
 5. **Physiologically Coupled Counterfactual Presets:** Replaces unconstrained sliders with validated clinical trial regimens (SGLT2 inhibitors [EMPA-REG/DAPA-CKD], GLP-1 receptor agonists [LEADER/SELECT], RAAS blockade + High-Intensity Statin, Intensive Lifestyle Intervention) that automatically adjust co-dependent biomarkers.
@@ -64,11 +64,11 @@ The system is fully implemented and running live:
 
 ## 7. Results & Clinical Validation
 - **Discrimination:** Holds robust, realistic test ROC-AUCs bounded by latent epidemiological variance:
-  - T2D: **0.7984** | CKD: **0.8309** | CVD: **0.7933** | Multimorbidity: **0.8526**
-- **Calibration:** Sigmoid calibration reduced ECE from 0.082 to **0.024** (CKD) and **0.031** (T2D), ensuring probabilities reflect true empirical incidence.
-- **Fairness Mitigation:** Applying active threshold mitigation ($\tau_g$) increased Black subgroup sensitivity from 78.4% to **86.1%**, closing the disparate impact gap without degrading population-level specificity.
-- **Decision Curve Utility:** At a 15% intervention threshold for CKD, VitaRisk net benefit is **0.089** (equivalent to identifying 9 additional true high-risk progressors per 100 patients without increasing unnecessary biopsies).
-- **Clinical Persona Verification:** In high-risk patient Marcus Vance (CKM Stage 3), applying an SGLT2i trial preset produced a **-18.4% ARR** in CKD progression and **-7.2% ARR** in CVD, safely de-escalating overall risk while triggering a mandatory Metformin dose halving recommendation.
+  - T2D: **0.798** | CKD: **0.830** | CVD: **0.794** | Multimorbidity: **0.851**
+- **Calibration:** 5-fold sigmoid calibration keeps ECE ≤ **0.042** and Brier ≤ **0.140** across all production endpoints, ensuring probabilities reflect true empirical incidence.
+- **Fairness Mitigation:** Validation-fitted subgroup thresholds ($\tau_g$) shrink Equal-Opportunity sensitivity gaps on held-out test data — e.g., T2D sex gap **0.077 → 0.007**, CKD age gap **0.44 → 0.13**, CVD age gap **0.65 → 0.33** — with the full 16-combination before/after audit published (including axes where demographic parity still fails and is structurally unattainable, such as age).
+- **Decision Curve Utility:** At a 15% intervention threshold for CKD, VitaRisk net benefit is **0.177** vs **0.123** for Treat-All (equivalent to finding ~5 additional true high-risk progressors per 100 patients versus screening everyone, without extra follow-up burden).
+- **Clinical Persona Verification:** In high-risk patient Marcus Vance, applying an SGLT2i trial preset produced a **4.3-point ARR** in 5-year CKD progression and a **3.6-point ARR** in T2D onset, safely de-escalating overall composite risk while triggering mandatory Metformin dose guidance at reduced eGFR.
 
 ---
 

@@ -15,6 +15,7 @@ import json
 import joblib
 import numpy as np
 import pandas as pd
+from pathlib import Path
 from sklearn.metrics import roc_auc_score, brier_score_loss
 from ml.train_models import transform_features
 
@@ -26,6 +27,15 @@ def _safe_float(val, default):
         return default if np.isnan(f) else f
     except (ValueError, TypeError):
         return default
+
+def _ensure_non_hdl(patient_dict):
+    """Return a copy with coherent non-HDL: max(30, TC - HDL) when absent/None; explicit values preserved."""
+    d = dict(patient_dict)
+    if d.get("non_hdl_cholesterol") is None:
+        tc = _safe_float(d.get("total_cholesterol"), 200.0)
+        hdl = _safe_float(d.get("hdl_cholesterol"), 50.0)
+        d["non_hdl_cholesterol"] = max(30.0, tc - hdl)
+    return d
 
 IMMUTABLE_FEATURES = {"age", "sex", "ethnicity", "family_history_diabetes", "family_history_cvd"}
 
@@ -144,34 +154,58 @@ def determine_ckm_stage(patient_dict, composite_risk, prob_cvd):
         "description": "Optimal cardiorenal and metabolic health; annual preventive screening recommended."
     }
 
-def audit_and_mitigate_fairness(test_csv_path="ml/artifacts/test_cohort.csv", artifacts_dir="ml/artifacts"):
+AGE_CRITERION_NOTE = (
+    "Disparate impact (demographic parity) across age groups is structurally unattainable and clinically "
+    "wrong to enforce: disease prevalence rises sharply with age, so a correct model must screen more "
+    "older patients. Age-group fairness is judged on equal opportunity (sensitivity/TPR parity), reported above."
+)
+
+def audit_and_mitigate_fairness(test_csv_path="ml/artifacts/test_cohort.csv",
+                                val_csv_path="ml/artifacts/val_cohort.csv",
+                                artifacts_dir="ml/artifacts"):
+    artifacts_dir = os.path.realpath(artifacts_dir)
     df = pd.read_csv(test_csv_path)
+    df_val = pd.read_csv(val_csv_path)
     imputer = joblib.load(os.path.join(artifacts_dir, "imputer.joblib"))
     scaler = joblib.load(os.path.join(artifacts_dir, "scaler.joblib"))
     encoder = joblib.load(os.path.join(artifacts_dir, "encoder.joblib"))
-    
+
     X_test = transform_features(df, imputer, scaler, encoder)
-    
+    X_val = transform_features(df_val, imputer, scaler, encoder)
+
     # Load calibrated production models
     model_t2d = joblib.load(os.path.join(artifacts_dir, "best_model_onset_t2d.joblib"))
     model_ckd = joblib.load(os.path.join(artifacts_dir, "best_model_onset_ckd.joblib"))
-    
+
     p_t2d = model_t2d.predict_proba(X_test)[:, 1]
     p_ckd = model_ckd.predict_proba(X_test)[:, 1]
     X_test_ckm = np.hstack([X_test, p_t2d.reshape(-1, 1), p_ckd.reshape(-1, 1)])
-    
+
     model_cvd = joblib.load(os.path.join(artifacts_dir, "best_model_onset_cvd.joblib"))
     model_mm = joblib.load(os.path.join(artifacts_dir, "best_model_onset_multimorbidity.joblib"))
     p_cvd = model_cvd.predict_proba(X_test_ckm)[:, 1]
     p_mm = model_mm.predict_proba(X_test_ckm)[:, 1]
-    
+
+    p_t2d_v = model_t2d.predict_proba(X_val)[:, 1]
+    p_ckd_v = model_ckd.predict_proba(X_val)[:, 1]
+    X_val_ckm = np.hstack([X_val, p_t2d_v.reshape(-1, 1), p_ckd_v.reshape(-1, 1)])
+    p_cvd_v = model_cvd.predict_proba(X_val_ckm)[:, 1]
+    p_mm_v = model_mm.predict_proba(X_val_ckm)[:, 1]
+
     df["pred_prob_t2d"] = p_t2d
     df["pred_prob_ckd"] = p_ckd
     df["pred_prob_cvd"] = p_cvd
     df["pred_prob_multimorbidity"] = p_mm
-    
+
+    df_val["pred_prob_t2d"] = p_t2d_v
+    df_val["pred_prob_ckd"] = p_ckd_v
+    df_val["pred_prob_cvd"] = p_cvd_v
+    df_val["pred_prob_multimorbidity"] = p_mm_v
+
     df["age_group"] = pd.cut(df["age"], bins=[0, 45, 64, 120], labels=["<45", "45-64", "65+"])
     df["ses_group"] = pd.cut(df["ses_decile"], bins=[0, 3, 7, 10], labels=["High SES", "Medium SES", "Low SES (Deprived)"])
+    df_val["age_group"] = pd.cut(df_val["age"], bins=[0, 45, 64, 120], labels=["<45", "45-64", "65+"])
+    df_val["ses_group"] = pd.cut(df_val["ses_decile"], bins=[0, 3, 7, 10], labels=["High SES", "Medium SES", "Low SES (Deprived)"])
     
     protected_attrs = ["sex", "ethnicity", "ses_group", "age_group"]
     target_endpoints = ["onset_t2d", "onset_ckd", "onset_cvd", "onset_multimorbidity"]
@@ -182,6 +216,8 @@ def audit_and_mitigate_fairness(test_csv_path="ml/artifacts/test_cohort.csv", ar
         prob_col = f"pred_prob_{target.replace('onset_', '')}"
         y_true = df[target].values
         y_prob = df[prob_col].values
+        y_true_val = df_val[target].values
+        y_prob_val = df_val[prob_col].values
         
         target_eval = {}
         for attr in protected_attrs:
@@ -224,34 +260,40 @@ def audit_and_mitigate_fairness(test_csv_path="ml/artifacts/test_cohort.csv", ar
             unmit_eod = max(unmit_tpr) - min(unmit_tpr) if unmit_tpr else 0.0
             
             # --- 2. ACTIVELY MITIGATED (FM-08: Subgroup Threshold Calibration tau_g) ---
-            # Adjust threshold per group to equalize Sensitivity (Equal Opportunity) within +- 0.02
+            # Thresholds are fitted on the VALIDATION cohort and evaluated on the held-out
+            # TEST cohort, so reported "after" metrics are not tuned on the evaluation data.
             target_sensitivity = 0.75
             mit_selection = []
             mit_tpr = []
             mit_metrics = {}
             subgroup_thresholds = {}
-            
+
             for grp in subgroups:
-                idx = (df[attr] == grp).values
-                grp_y = y_true[idx]
-                grp_p = y_prob[idx]
-                
-                # Find group-specific threshold that achieves target sensitivity
-                pos_idx = (grp_y == 1)
-                if np.sum(pos_idx) > 0:
-                    sorted_pos_probs = np.sort(grp_p[pos_idx])
+                idx_v = (df_val[attr] == grp).values
+                grp_y_v = y_true_val[idx_v]
+                grp_p_v = y_prob_val[idx_v]
+
+                # Find group-specific threshold on validation positives
+                pos_idx_v = (grp_y_v == 1)
+                if np.sum(pos_idx_v) > 0:
+                    sorted_pos_probs = np.sort(grp_p_v[pos_idx_v])
                     tau_index = int(np.floor((1.0 - target_sensitivity) * len(sorted_pos_probs)))
                     tau_g = float(sorted_pos_probs[max(0, min(tau_index, len(sorted_pos_probs) - 1))])
                 else:
                     tau_g = global_tau
-                    
+
                 tau_g = float(np.clip(tau_g, 0.15, 0.45))
                 subgroup_thresholds[str(grp)] = round(tau_g, 3)
-                
+
+                # Apply validation-fitted tau_g to the held-out test cohort
+                idx = (df[attr] == grp).values
+                grp_y = y_true[idx]
+                grp_p = y_prob[idx]
+                pos_idx = (grp_y == 1)
                 grp_pred_mit = (grp_p >= tau_g).astype(int)
                 sr_mit = float(np.mean(grp_pred_mit))
                 tpr_mit = float(np.mean(grp_pred_mit[pos_idx])) if np.sum(pos_idx) > 0 else 0.0
-                
+
                 mit_selection.append(sr_mit)
                 mit_tpr.append(tpr_mit)
                 mit_metrics[str(grp)] = {
@@ -260,11 +302,11 @@ def audit_and_mitigate_fairness(test_csv_path="ml/artifacts/test_cohort.csv", ar
                     "selection_rate": round(sr_mit, 4),
                     "tpr_sensitivity": round(tpr_mit, 4)
                 }
-                
+
             mit_di = min(mit_selection) / max(mit_selection) if max(mit_selection) > 0 else 1.0
             mit_dpd = max(mit_selection) - min(mit_selection) if mit_selection else 0.0
             mit_eod = max(mit_tpr) - min(mit_tpr) if mit_tpr else 0.0
-            
+
             target_eval[attr] = {
                 "unmitigated": {
                     "subgroups": unmit_metrics,
@@ -274,6 +316,8 @@ def audit_and_mitigate_fairness(test_csv_path="ml/artifacts/test_cohort.csv", ar
                     "passes_four_fifths_rule": bool(unmit_di >= 0.80)
                 },
                 "mitigated": {
+                    "threshold_source": "validation_cohort",
+                    "policy_note": "Proposed deployment policy (tau_g fitted on validation cohort, evaluated on held-out test); production tiering still uses global composite cutoffs.",
                     "calibrated_subgroup_thresholds": subgroup_thresholds,
                     "subgroups": mit_metrics,
                     "disparate_impact_ratio": round(float(mit_di), 4),
@@ -282,11 +326,12 @@ def audit_and_mitigate_fairness(test_csv_path="ml/artifacts/test_cohort.csv", ar
                     "passes_four_fifths_rule": bool(mit_di >= 0.80)
                 }
             }
+            if attr == "age_group":
+                target_eval[attr]["criterion_note"] = AGE_CRITERION_NOTE
             
         fairness_audit[target] = target_eval
         
-    with open(os.path.join(artifacts_dir, "fairness_audit.json"), "w") as f:
-        json.dump(fairness_audit, f, indent=2)
+    Path(artifacts_dir, "fairness_audit.json").write_text(json.dumps(fairness_audit, indent=2))
     print("✅ Active Fairness Audit (Before vs After Mitigation) saved to 'ml/artifacts/fairness_audit.json'.")
     return fairness_audit
 
@@ -299,12 +344,13 @@ class ClinicalDecisionSupportEngine:
     - Physiologically coupled counterfactual interventions
     """
     def __init__(self, artifacts_dir="ml/artifacts"):
-        self.artifacts_dir = artifacts_dir
+        self.artifacts_dir = os.path.realpath(artifacts_dir)
+        artifacts_dir = self.artifacts_dir
         self.imputer = joblib.load(os.path.join(artifacts_dir, "imputer.joblib"))
         self.scaler = joblib.load(os.path.join(artifacts_dir, "scaler.joblib"))
         self.encoder = joblib.load(os.path.join(artifacts_dir, "encoder.joblib"))
         
-        with open(os.path.join(artifacts_dir, "feature_names.json")) as f:
+        with open(f"{artifacts_dir}/feature_names.json") as f:
             self.feature_names = json.load(f)
             
         self.model_t2d = joblib.load(os.path.join(artifacts_dir, "best_model_onset_t2d.joblib"))
@@ -317,12 +363,7 @@ class ClinicalDecisionSupportEngine:
         self.explainer_cvd = joblib.load(os.path.join(artifacts_dir, "shap_explainer_onset_cvd.joblib"))
 
     def predict_patient(self, patient_dict):
-        patient_dict = dict(patient_dict)
-        # Ensure non_hdl_cholesterol is computed if missing (Finding 1)
-        if patient_dict.get("non_hdl_cholesterol") is None:
-            tc = _safe_float(patient_dict.get("total_cholesterol"), 200.0)
-            hdl = _safe_float(patient_dict.get("hdl_cholesterol"), 50.0)
-            patient_dict["non_hdl_cholesterol"] = max(30.0, tc - hdl)
+        patient_dict = _ensure_non_hdl(patient_dict)
             
         df_patient = pd.DataFrame([patient_dict])
         X = transform_features(df_patient, self.imputer, self.scaler, self.encoder)
@@ -461,11 +502,7 @@ class ClinicalDecisionSupportEngine:
         }
 
     def explain_patient(self, patient_dict, target="onset_t2d"):
-        patient_dict = dict(patient_dict)
-        if patient_dict.get("non_hdl_cholesterol") is None:
-            tc = _safe_float(patient_dict.get("total_cholesterol"), 200.0)
-            hdl = _safe_float(patient_dict.get("hdl_cholesterol"), 50.0)
-            patient_dict["non_hdl_cholesterol"] = max(30.0, tc - hdl)
+        patient_dict = _ensure_non_hdl(patient_dict)
             
         df_patient = pd.DataFrame([patient_dict])
         X = transform_features(df_patient, self.imputer, self.scaler, self.encoder)

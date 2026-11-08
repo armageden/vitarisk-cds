@@ -4,6 +4,10 @@ __pycache__/
 node_modules/
 .DS_Store
 *.log
+.mimosa/
+.v2c/
+.video_agent/
+frontend/.mimosa/
 presentation/video/raw/
 presentation/video/*.webm
 presentation/video/seg*.mp3

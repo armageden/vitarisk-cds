@@ -141,10 +141,10 @@ def run_pre_submission_verification():
         cohort_lat_ms = (time.time() - t_c0) * 1000
         print(f"✅ Finding 8: Precomputed cohort analytics served in {cohort_lat_ms:.2f} ms")
 
-        # 7. Finding 9: Statin lipid recalculation
+        # 7. Finding 9: Statin lipid recalculation (preset name fixed — was transposed)
         res_sim_statin = client.post("/api/simulate", json={
             "patient": CANONICAL_PERSONAS[1]["data"],
-            "preset_name": "preset_statin_raas",
+            "preset_name": "preset_raas_statin",
             "interventions": {}
         })
         sim_statin = res_sim_statin.json()
@@ -183,5 +183,134 @@ def run_pre_submission_verification():
 
         print("\n🎉 ALL 10 GATES + 16 AUDIT REMEDIATIONS FULLY VALIDATED!")
 
+
+def run_audit_remediation_tests():
+    """Test-based development for ponytail audit findings 1-11."""
+    import json as _json
+    import re as _re
+    import numpy as _np
+
+    print("\n" + "=" * 55)
+    print("RUNNING AUDIT REMEDIATION TESTS (Findings 1-11)")
+    print("=" * 55)
+
+    # ---------- Finding 3: unknown preset_name rejected with 400 ----------
+    from ml.fairness_and_cds import CLINICAL_TRIAL_PRESETS, _ensure_non_hdl
+    with TestClient(app) as client:
+        persona1 = CANONICAL_PERSONAS[0]["data"]
+        persona3 = CANONICAL_PERSONAS[2]["data"]
+
+        res_bad_preset = client.post("/api/simulate", json={
+            "patient": persona1, "preset_name": "preset_bogus", "interventions": {}
+        })
+        assert res_bad_preset.status_code == 400, f"expected 400 for unknown preset, got {res_bad_preset.status_code}"
+        assert "Unknown preset" in res_bad_preset.json()["detail"]
+        print("✅ Finding 3a: unknown preset_name rejected with 400 + helpful detail")
+
+        # ---------- Finding 3: statin preset actually applies (name was transposed) ----------
+        base_ldl = float(persona1["ldl_cholesterol"])
+        res_statin = client.post("/api/simulate", json={
+            "patient": persona1, "preset_name": "preset_raas_statin", "interventions": {}
+        })
+        assert res_statin.status_code == 200
+        cf = res_statin.json()["intervened_patient_data"]
+        assert abs(cf["ldl_cholesterol"] - round(base_ldl * 0.55, 1)) < 0.01, \
+            f"statin preset did not reduce LDL by 45%: {base_ldl} -> {cf['ldl_cholesterol']}"
+        assert cf["non_hdl_cholesterol"] == max(30.0, cf["total_cholesterol"] - cf["hdl_cholesterol"])
+        print(f"✅ Finding 3b: preset_raas_statin applies real -45% LDL ({base_ldl} -> {cf['ldl_cholesterol']})")
+
+        # ---------- Finding 7: true Metformin contraindication (eGFR < 30) is tested ----------
+        contra_pt = dict(persona3)
+        contra_pt["egfr"] = 25.0
+        res_contra = client.post("/api/predict", json=contra_pt)
+        alerts = res_contra.json()["contraindication_alerts"]
+        assert any(
+            a["type"] == "CONTRAINDICATION" and a["severity"] == "CRITICAL" and a["medication"] == "Metformin"
+            for a in alerts
+        ), f"expected CRITICAL CONTRAINDICATION for eGFR<30, got: {alerts}"
+        print("✅ Finding 7: eGFR<30 triggers CRITICAL CONTRAINDICATION alert (not just dose warning)")
+
+        # ---------- Finding 5: fairness thresholds derived from validation cohort ----------
+        res_fair = client.get("/api/fairness").json()
+        assert res_fair, "fairness audit empty"
+        for tgt in res_fair:
+            for attr in res_fair[tgt]:
+                mit = res_fair[tgt][attr]["mitigated"]
+                assert mit.get("threshold_source") == "validation_cohort", \
+                    f"{tgt}/{attr}: tau_g not sourced from validation cohort"
+        print("✅ Finding 5: tau_g thresholds sourced from validation cohort (not test set)")
+
+        # ---------- Finding 6: age-group framing note present ----------
+        for tgt in res_fair:
+            assert "criterion_note" in res_fair[tgt]["age_group"], f"{tgt}: age criterion note missing"
+        print("✅ Finding 6: age groups carry honest equal-opportunity criterion note")
+
+        # ---------- Finding 8: single non-HDL helper ----------
+        d1 = {"total_cholesterol": 300.0, "hdl_cholesterol": 60.0}
+        assert _ensure_non_hdl(d1)["non_hdl_cholesterol"] == 240.0
+        d2 = {"total_cholesterol": 300.0, "hdl_cholesterol": 60.0, "non_hdl_cholesterol": None}
+        assert _ensure_non_hdl(d2)["non_hdl_cholesterol"] == 240.0
+        d3 = {"total_cholesterol": 300.0, "hdl_cholesterol": 60.0, "non_hdl_cholesterol": 250.0}
+        assert _ensure_non_hdl(d3)["non_hdl_cholesterol"] == 250.0
+        print("✅ Finding 8: _ensure_non_hdl computes/preserves non-HDL coherently")
+
+    # ---------- Finding 11: ECE includes probability exactly 1.0 ----------
+    from ml.train_models import compute_ece, compute_decision_curve_net_benefit, oof_calibrated_proba
+    y = _np.array([0, 1])
+    p = _np.array([1.0, 1.0])
+    assert compute_ece(y, p) == 0.5, f"ECE dropped p=1.0 sample: {compute_ece(y, p)}"
+    print("✅ Finding 11: compute_ece counts probability-1.0 samples in the last bin")
+
+    # ---------- Finding 10: DCA treat-all curve not clipped ----------
+    y_true = _np.array([0] * 9 + [1])
+    y_prob = _np.array([0.0] * 9 + [0.6])
+    rows = compute_decision_curve_net_benefit(y_true, y_prob, thresholds=[0.45])
+    expected = 0.1 - 0.9 * (0.45 / 0.55)
+    assert abs(rows[0]["net_benefit_treat_all"] - expected) < 1e-3, \
+        f"treat-all still clipped: {rows[0]['net_benefit_treat_all']} vs {expected:.4f}"
+    print("✅ Finding 10: DCA treat-all net benefit no longer clipped at -0.05")
+
+    # ---------- Finding 4: OOF stacked probabilities come from models that never saw the sample ----------
+    rng = _np.random.default_rng(0)
+    X_syn = _np.vstack([rng.normal(0.0, 1.0, (300, 4)), rng.normal(0.9, 1.0, (300, 4))])
+    y_syn = _np.array([0] * 300 + [1] * 300)
+    from xgboost import XGBClassifier
+    model_fn = lambda: XGBClassifier(n_estimators=40, max_depth=3, learning_rate=0.1, random_state=42, eval_metric="logloss")
+    oof = oof_calibrated_proba(model_fn, X_syn, y_syn)
+    in_sample = model_fn().fit(X_syn, y_syn)
+    from sklearn.calibration import CalibratedClassifierCV
+    in_sample = CalibratedClassifierCV(estimator=model_fn(), method="sigmoid", cv=5).fit(X_syn, y_syn).predict_proba(X_syn)[:, 1]
+    # in-sample probabilities are more extreme than out-of-fold ones
+    assert _np.mean(_np.abs(in_sample - 0.5)) > _np.mean(_np.abs(oof - 0.5)), "OOF not less extreme than in-sample"
+    assert 0.0 < oof.min() and oof.max() < 1.0
+    print("✅ Finding 4: oof_calibrated_proba returns genuinely out-of-fold probabilities")
+
+    # ---------- Findings 1-2: shipped claims must match shipped artifacts ----------
+    readme = open(os.path.join(BASE_DIR, "README.md"), encoding="utf-8").read()
+    for forbidden in ("EEOC 80% Rule Passed", "EEOC%2080%25%20Rule%20Passed",
+                      "ECE < 0.035", "Brier < 0.12"):
+        assert forbidden not in readme, f"README still contains false claim: {forbidden}"
+    benchmarks = _json.load(open(os.path.join(BASE_DIR, "ml/artifacts/benchmark_metrics.json")))
+    max_ece = max(v["metrics"]["XGBoost"]["ECE"] for v in benchmarks.values() if "XGBoost" in v["metrics"])
+    max_brier = max(v["metrics"]["XGBoost"]["Brier_Score"] for v in benchmarks.values() if "XGBoost" in v["metrics"])
+    for claim, claimed_limit in _re.findall(r"(ECE|Brier)\s*[<≤]\s*([\d.]+)", readme):
+        limit = float(claimed_limit)
+        actual_max = max_ece if claim == "ECE" else max_brier
+        assert limit >= actual_max, f"README claims {claim} < {limit} but artifact max is {actual_max}"
+    fairness_doc = open(os.path.join(BASE_DIR, "docs/VALIDATION_REPORT.md"), encoding="utf-8").read()
+    for forbidden in ("Disparate Impact > 0.85", "PASSED ($\\ge 0.80$)"):
+        assert forbidden not in fairness_doc, f"VALIDATION_REPORT still contains false claim: {forbidden}"
+    print("✅ Findings 1-2: shipped claims consistent with shipped artifacts")
+
+    # ---------- Finding 9: deliverable links are root-absolute ----------
+    app_src = open(os.path.join(BASE_DIR, "frontend/src/App.jsx"), encoding="utf-8").read()
+    assert 'href="video/' not in app_src and 'href="presentation/' not in app_src
+    assert 'href="/video/' in app_src and 'href="/presentation/' in app_src
+    print("✅ Finding 9: frontend deliverable links are root-absolute")
+
+    print("\n🎉 ALL AUDIT REMEDIATION TESTS PASSED!")
+
+
 if __name__ == "__main__":
     run_pre_submission_verification()
+    run_audit_remediation_tests()

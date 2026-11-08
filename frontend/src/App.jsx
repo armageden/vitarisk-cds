@@ -183,7 +183,7 @@ export default function App() {
           </div>
 
           <a
-            href="video/VitaRisk_CDS_Walkthrough.mp4"
+            href="/video/VitaRisk_CDS_Walkthrough.mp4"
             target="_blank"
             rel="noreferrer"
             className="bg-indigo-600/90 hover:bg-indigo-600 text-white font-medium px-3.5 py-1.5 rounded-xl text-xs flex items-center space-x-1.5 transition-all shadow-sm hover:shadow"
@@ -193,7 +193,7 @@ export default function App() {
           </a>
 
           <a
-            href="presentation/VitaRisk_CDS_DataNova2026_Presentation.pptx"
+            href="/presentation/VitaRisk_CDS_DataNova2026_Presentation.pptx"
             download
             className="bg-teal-500 hover:bg-teal-600 text-white font-medium px-3.5 py-1.5 rounded-xl text-xs flex items-center space-x-1.5 transition-all shadow-sm hover:shadow"
           >
@@ -1283,7 +1283,7 @@ export default function App() {
                   </p>
                 </div>
                 <a
-                  href="presentation/VitaRisk_CDS_DataNova2026_Presentation.pptx"
+                  href="/presentation/VitaRisk_CDS_DataNova2026_Presentation.pptx"
                   download
                   className="bg-teal-500 hover:bg-teal-600 text-white font-medium px-4 py-2 rounded-xl text-xs flex items-center space-x-1.5 transition-all shadow-sm"
                 >

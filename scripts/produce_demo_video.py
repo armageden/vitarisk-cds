@@ -1,6 +1,7 @@
 import os
 import sys
 import time
+import shutil
 import subprocess
 import asyncio
 import edge_tts
@@ -18,15 +19,15 @@ NARRATION = [
     },
     {
         "id": "seg2",
-        "text": "Here is our live full-stack system. To eliminate form fatigue for judges, we engineered five canonical clinical personas representing diverse real-world disease trajectories. When we select Persona 3—an elderly patient with Stage 3b CKD and diabetes—VitaRisk stratifies risk in under 15 milliseconds. Notice our 3-stage CKM cascade: because the patient has elevated kidney and metabolic damage, VitaRisk automatically models the biological cross-coupling, elevating downstream cardiovascular risk by plus 5.15 percentage points. In our Explainability tab, we replace unintuitive log-odds with additive percentage-point SHAP waterfalls. A clinician sees in five seconds that elevated HbA1c is adding plus 24.37% risk, while normal HDL offers a protective buffer."
+        "text": "Here is our live full-stack system. To eliminate form fatigue for judges, we engineered five canonical clinical personas representing diverse real-world disease trajectories. When we select Persona 3—an elderly patient with Stage 3b CKD and diabetes—VitaRisk stratifies risk in under 15 milliseconds. Notice our 3-stage CKM cascade: because the patient has elevated kidney and metabolic damage, VitaRisk automatically models the biological cross-coupling, elevating downstream cardiovascular risk. In our Explainability tab, we replace unintuitive log-odds with additive percentage-point SHAP waterfalls. A clinician sees in five seconds that elevated HbA1c dominates the risk, while normal HDL offers a protective buffer."
     },
     {
         "id": "seg3",
-        "text": "Most hackathon tools allow free sliders that generate biologically impossible counterfactuals. VitaRisk implements physiologically coupled presets calibrated against landmark clinical trials like EMPA-REG and DAPA-CKD. Clicking the SGLT2 inhibitor trial preset dynamically models coupled weight, glucose, and renal improvements, producing an 18.4% Absolute Risk Reduction in kidney progression and de-escalating overall risk. But critically, VitaRisk enforces clinical safety guardrails. When eGFR drops below 45, the engine flags a mandatory Metformin dose halving, and at eGFR under 30, it issues a hard stop contraindication alert to prevent fatal lactic acidosis. We protect patients first."
+        "text": "Most hackathon tools allow free sliders that generate biologically impossible counterfactuals. VitaRisk implements physiologically coupled presets calibrated against landmark clinical trials like EMPA-REG and DAPA-CKD. Clicking the SGLT2 inhibitor trial preset dynamically models coupled weight, glucose, and renal improvements, producing a measurable Absolute Risk Reduction in kidney progression and de-escalating overall risk. But critically, VitaRisk enforces clinical safety guardrails. When eGFR drops below 45, the engine flags a mandatory Metformin dose halving, and at eGFR under 30, it issues a hard stop contraindication alert to prevent fatal lactic acidosis. We protect patients first."
     },
     {
         "id": "seg4",
-        "text": "Behind the interface is rigorous epidemiology: We incorporated latent unobserved confounders to eliminate synthetic circularity, bounding ROC-AUCs to a realistic 0.80 to 0.85. 5-fold sigmoid calibration slashed Expected Calibration Error to under 0.035. Decision Curve Analysis confirms positive net clinical benefit across all treatment thresholds from 5% to 40%. And in our Fairness tab, we don't just passively report disparities—our active threshold calibration raises sensitivity in historically underserved Black patients from 78.4% to 86.1%, passing EEOC standards. All 10 pre-submission gates pass automated testing. VitaRisk CDS delivers the precision, safety, and transparency modern medicine demands. Thank you."
+        "text": "Behind the interface is rigorous epidemiology: We incorporated latent unobserved confounders to eliminate synthetic circularity, bounding ROC-AUCs to a realistic 0.80 to 0.85. 5-fold sigmoid calibration keeps Expected Calibration Error at or below 0.042. Decision Curve Analysis confirms positive net clinical benefit across all treatment thresholds from 5% to 40%. And in our Fairness tab, we don't just passively report disparities—our validation-fitted threshold calibration shrinks sensitivity gaps across subgroups, and we publish every combination honestly, including where demographic parity remains structurally out of reach. All 10 pre-submission gates pass automated testing. VitaRisk CDS delivers the precision, safety, and transparency modern medicine demands. Thank you."
     }
 ]
 
@@ -48,17 +49,18 @@ async def generate_audio():
         await communicate.save(out_file)
         seg_files.append(out_file)
         
-        cmd = f"ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 {out_file}"
-        dur = float(subprocess.check_output(cmd, shell=True).decode().strip())
+        dur = float(subprocess.check_output([
+            "ffprobe", "-v", "error", "-show_entries", "format=duration",
+            "-of", "default=noprint_wrappers=1:nokey=1", out_file,
+        ]).decode().strip())
         durations.append(dur)
         print(f"  • {seg['id']}: {dur:.2f} seconds")
         
-    concat_list = os.path.join(OUTPUT_DIR, "concat.txt")
-    with open(concat_list, "w") as f:
-        for sf in seg_files:
-            f.write(f"file '{os.path.abspath(sf)}'\n")
+    concat_list = Path(OUTPUT_DIR) / "concat.txt"
+    concat_list.write_text("\n".join(f"file '{os.path.abspath(sf)}'" for sf in seg_files))
             
-    subprocess.run(f"ffmpeg -y -f concat -safe 0 -i {concat_list} -c copy {full_audio}", shell=True, check=True)
+    subprocess.run(["ffmpeg", "-y", "-f", "concat", "-safe", "0", "-i", concat_list,
+                    "-c", "copy", full_audio], check=True)
     full_dur = sum(durations)
     print(f"✅ Full voiceover created: {full_audio} ({full_dur:.2f}s total)")
     return durations
@@ -179,17 +181,16 @@ def merge_video_audio():
     full_audio = os.path.join(OUTPUT_DIR, "full_voiceover.mp3")
     final_output = os.path.join(OUTPUT_DIR, "VitaRisk_CDS_Walkthrough.mp4")
     
-    cmd = (
-        f"ffmpeg -y -i {raw_video} -i {full_audio} "
-        f"-c:v libx264 -preset fast -crf 22 -pix_fmt yuv420p "
-        f"-c:a aac -b:a 192k -shortest {final_output}"
-    )
-    subprocess.run(cmd, shell=True, check=True)
+    subprocess.run([
+        "ffmpeg", "-y", "-i", raw_video, "-i", full_audio,
+        "-c:v", "libx264", "-preset", "fast", "-crf", "22", "-pix_fmt", "yuv420p",
+        "-c:a", "aac", "-b:a", "192k", "-shortest", final_output,
+    ], check=True)
     print(f"🎉 Final MP4 Walkthrough Video Ready: {final_output}")
-    
+
     dist_video = "frontend/dist/video"
     os.makedirs(dist_video, exist_ok=True)
-    subprocess.run(f"cp {final_output} {dist_video}/", shell=True, check=True)
+    shutil.copy(final_output, os.path.join(dist_video, os.path.basename(final_output)))
     print(f"✅ Video copied to {dist_video}/VitaRisk_CDS_Walkthrough.mp4 for public web streaming!")
 
 if __name__ == "__main__":
