@@ -1027,7 +1027,7 @@ export default function App() {
                     <span>Algorithmic Fairness & Active Mitigation (FM-08)</span>
                   </h2>
                   <p className="text-xs text-slate-400 mt-1">
-                    Toggle between standard global threshold and subgroup-calibrated threshold mitigation to witness EEOC 80% rule compliance.
+                    Toggle between the standard global threshold and subgroup-calibrated thresholds to inspect EEOC 80% rule outcomes across subgroups — reported honestly, including where the rule fails.
                   </p>
                 </div>
 
