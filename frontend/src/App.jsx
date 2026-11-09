@@ -3,7 +3,7 @@ import {
   Activity, HeartPulse, Stethoscope, Dna,
   Sliders, Users, Scale, FileText, CheckCircle2, AlertTriangle,
   ArrowRight, Download, RefreshCw, ChevronLeft, ChevronRight,
-  TrendingDown, Info, Award, Sparkles, Pill, Video
+  TrendingDown, Info, Award, Sparkles, Pill, Video, Server
 } from 'lucide-react';
 import {
   ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip,
@@ -18,6 +18,7 @@ import GdmtPrescriptions from './components/GdmtPrescriptions';
 import ContraindicationShield from './components/ContraindicationShield';
 import CkmStageCard from './components/CkmStageCard';
 import SlideDeckViewer from './components/SlideDeckViewer';
+import CdsHooksViewer from './components/CdsHooksViewer';
 
 // Universal API origin resolution (Vite dev server runs on port 3000; production is same-origin)
 const API_BASE = (typeof window !== 'undefined' && window.location.port === '3000') ? 'http://localhost:8000' : '';
@@ -232,6 +233,7 @@ export default function App() {
       <nav className="bg-slate-950/70 border-b border-slate-800/80 px-6 flex space-x-1 overflow-x-auto text-xs font-medium">
         {[
           { id: 'calculator', label: 'Clinical Risk Calculator & CDS', icon: Stethoscope },
+          { id: 'cdshooks', label: 'EHR & CDS Hooks (FHIR R4)', icon: Server },
           { id: 'shap', label: 'Explainable AI (SHAP Waterfall)', icon: Dna },
           { id: 'simulator', label: 'What-If Intervention Simulator', icon: Sliders },
           { id: 'dca', label: 'Decision Curve Net Benefit', icon: TrendingDown },
@@ -651,9 +653,57 @@ export default function App() {
                     <GdmtPrescriptions recommendations={prediction.recommendations} />
                   </div>
                 )}
+
+                {/* Comparative Clinical Baselines Summary Card */}
+                {prediction && prediction.clinical_baselines && (
+                  <div className="bg-slate-900/60 border border-slate-800/90 rounded-2xl p-5 shadow-xl space-y-3">
+                    <div className="flex items-center justify-between pb-2 border-b border-slate-800/80">
+                      <div className="flex items-center space-x-2">
+                        <Activity className="w-4 h-4 text-indigo-400" />
+                        <h3 className="text-xs font-bold text-white tracking-tight">Siloed Baselines vs. VitaRisk CKM</h3>
+                      </div>
+                      <button
+                        onClick={() => setActiveTab('cdshooks')}
+                        className="text-[11px] text-indigo-400 hover:text-indigo-300 font-semibold flex items-center space-x-1"
+                      >
+                        <span>EHR & CDS Hooks</span>
+                        <ArrowRight className="w-3 h-3" />
+                      </button>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-2 text-xs">
+                      <div className="bg-slate-950/70 p-2.5 rounded-xl border border-slate-800">
+                        <span className="text-[10px] text-slate-400 block">Tangri KFRE (5-Yr Kidney)</span>
+                        <span className="text-base font-bold text-slate-200">{prediction.clinical_baselines.kfre_5yr_kidney_failure_pct}%</span>
+                      </div>
+                      <div className="bg-slate-950/70 p-2.5 rounded-xl border border-slate-800">
+                        <span className="text-[10px] text-slate-400 block">AHA PREVENT (5-Yr CVD)</span>
+                        <span className="text-base font-bold text-slate-200">{prediction.clinical_baselines.aha_prevent_5yr_cvd_pct}%</span>
+                      </div>
+                    </div>
+
+                    {prediction.clinical_baselines.clinical_blindspots_eliminated?.[0] && (
+                      <p className="text-[11px] text-slate-400 bg-slate-950/40 p-2.5 rounded-xl border border-slate-800/60 leading-relaxed">
+                        💡 <strong className="text-slate-300">Eliminated Blindspot:</strong> {prediction.clinical_baselines.clinical_blindspots_eliminated[0]}
+                      </p>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
           </div>
+        )}
+
+        {/* ======================================================== */}
+        {/* TAB: EHR & CDS HOOKS 1.0 (HL7 FHIR R4 INTEROPERABILITY) */}
+        {/* ======================================================== */}
+        {activeTab === 'cdshooks' && (
+          <CdsHooksViewer
+            patient={patient}
+            selectedPersonaId={selectedPersonaId}
+            apiBase={API_BASE}
+            prediction={prediction}
+          />
         )}
 
         {/* ======================================================== */}

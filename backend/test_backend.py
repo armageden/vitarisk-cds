@@ -120,6 +120,31 @@ def run_pre_submission_verification():
         assert coupling_pp > 1.0, f"CKM coupling feature not influential: {coupling_pp} pp"
         print(f"✅ Gate 4 (CKM Cross-Coupling): predicted_risk_ckd = +{coupling_pp} pp mean |SHAP| in CVD model")
 
+        # Gate 11: HL7 FHIR R4 Bundle Parsing & CDS Hooks 1.0 Interoperability
+        res_disc = client.get("/cds-services")
+        assert res_disc.status_code == 200
+        assert any(s["id"] == "vitarisk-ckm-advisor" for s in res_disc.json()["services"])
+        
+        sample_bundle = client.get("/api/fhir/sample-bundle/PERSONA-3").json()
+        assert sample_bundle["resourceType"] == "Bundle"
+        assert len(sample_bundle["entry"]) >= 5
+        
+        fhir_res = client.post("/api/fhir/patient-bundle", json=sample_bundle)
+        assert fhir_res.status_code == 200
+        fhir_out = fhir_res.json()
+        assert "prediction" in fhir_out and len(fhir_out["cds_hooks_cards"]) >= 2
+        print(f"✅ Gate 11 (HL7 FHIR & CDS Hooks 1.0): Validated {len(fhir_out['cds_hooks_cards'])} standard CDS cards generated from FHIR R4 Bundle")
+
+        # Gate 12b: Operationalized Fairness Mitigation & Clinical Baselines (KFRE & PREVENT)
+        p3_pred = client.post("/api/predict", json=persona3).json()
+        assert "clinical_baselines" in p3_pred
+        assert "kfre_5yr_kidney_failure_pct" in p3_pred["clinical_baselines"]
+        assert "aha_prevent_5yr_cvd_pct" in p3_pred["clinical_baselines"]
+        assert len(p3_pred["clinical_baselines"]["clinical_blindspots_eliminated"]) > 0
+        assert "fairness_calibrated_decision" in p3_pred
+        assert "decisions" in p3_pred["fairness_calibrated_decision"]
+        print("✅ Gate 12b (Operational Fairness & Baselines): KFRE/PREVENT comparators & active fairness decisions verified")
+
         # Ponytail Audit Regression Checks (Findings 1-16)
         print("\n=======================================================")
         print("RUNNING PONYTAIL AUDIT REGRESSION CHECKS (Findings 1-16)")

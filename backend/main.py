@@ -27,6 +27,12 @@ if BASE_DIR not in sys.path:
     sys.path.insert(0, BASE_DIR)
 
 from ml.fairness_and_cds import ClinicalDecisionSupportEngine, CLINICAL_TRIAL_PRESETS
+from backend.cds_hooks import (
+    CDS_SERVICES_DISCOVERY,
+    parse_fhir_bundle_to_vitarisk,
+    create_cds_cards,
+    generate_sample_fhir_bundle
+)
 
 # Global cached singletons (FM-10)
 cds_engine: Optional[ClinicalDecisionSupportEngine] = None
@@ -207,6 +213,12 @@ class ExplainRequest(BaseModel):
     patient: PatientInput
     target: str = Field("onset_t2d")
 
+class CDSHookRequest(BaseModel):
+    hook: str
+    hookInstance: str
+    context: Dict[str, Any] = Field(default_factory=dict)
+    prefetch: Optional[Dict[str, Any]] = Field(default_factory=dict)
+
 @app.get("/api/health")
 def healthcheck():
     return {
@@ -279,6 +291,69 @@ def get_benchmarks():
 @app.get("/api/global-importance")
 def get_global_importance():
     return GLOBAL_SHAP
+
+# ==============================================================================
+# HL7 FHIR R4 & CDS Hooks 1.0 Interoperability Endpoints
+# ==============================================================================
+@app.get("/cds-services")
+def cds_services_discovery():
+    """HL7 CDS Hooks 1.0 Discovery Endpoint."""
+    return CDS_SERVICES_DISCOVERY
+
+@app.post("/cds-services/vitarisk-ckm-advisor")
+def cds_hook_patient_view(req: CDSHookRequest):
+    """
+    HL7 CDS Hooks 1.0 Execution Endpoint (patient-view & order-select).
+    Accepts EHR context & prefetch observations, runs VitaRisk CDS, and returns decision cards.
+    """
+    patient_id = req.context.get("patientId", "PAT-00001")
+    prefetch_obs = req.prefetch.get("observations") if req.prefetch else None
+    prefetch_patient = req.prefetch.get("patient") if req.prefetch else None
+
+    patient_data = None
+    for p in CANONICAL_PERSONAS:
+        if p["id"] == patient_id or patient_id in p["name"]:
+            patient_data = dict(p["data"])
+            break
+
+    if prefetch_obs and isinstance(prefetch_obs, dict):
+        patient_data = parse_fhir_bundle_to_vitarisk(prefetch_obs, default_fallback=patient_data)
+    elif prefetch_patient and isinstance(prefetch_patient, dict):
+        patient_data = parse_fhir_bundle_to_vitarisk({"entry": [{"resource": prefetch_patient}]}, default_fallback=patient_data)
+
+    if not patient_data:
+        patient_data = CANONICAL_PERSONAS[0]["data"]
+
+    pred = cds_engine.predict_patient(patient_data)
+    cards = create_cds_cards(pred, patient_data, context_id=patient_id)
+    return {"cards": cards}
+
+@app.post("/api/fhir/patient-bundle")
+def process_fhir_bundle(bundle: Dict[str, Any]):
+    """
+    Direct HL7 FHIR R4 Patient Bundle Processor.
+    Accepts a full FHIR collection bundle with Patient and LOINC Observation resources.
+    """
+    if bundle.get("resourceType") != "Bundle":
+        raise HTTPException(status_code=400, detail="Resource must be of type 'Bundle'.")
+    patient_data = parse_fhir_bundle_to_vitarisk(bundle)
+    pred = cds_engine.predict_patient(patient_data)
+    cards = create_cds_cards(pred, patient_data)
+    return {
+        "status": "success",
+        "extracted_patient_features": patient_data,
+        "prediction": pred,
+        "cds_hooks_cards": cards
+    }
+
+@app.get("/api/fhir/sample-bundle/{persona_id}")
+def get_sample_fhir_bundle(persona_id: str):
+    """Generates an authentic HL7 FHIR R4 Bundle for any canonical persona."""
+    matching = next((p for p in CANONICAL_PERSONAS if p["id"] == persona_id), None)
+    if not matching:
+        raise HTTPException(status_code=404, detail=f"Persona {persona_id} not found.")
+    bundle = generate_sample_fhir_bundle(matching["data"], patient_id=matching["id"])
+    return bundle
 
 @app.get("/presentation/VitaRisk_CDS_DataNova2026_Presentation.pptx")
 @app.head("/presentation/VitaRisk_CDS_DataNova2026_Presentation.pptx")

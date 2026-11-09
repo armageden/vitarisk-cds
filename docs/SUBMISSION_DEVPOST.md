@@ -41,24 +41,36 @@ VitaRisk CDS solves these challenges through a 6-pillar unified clinical intelli
 
 ## 5. Technology Stack
 - **Machine Learning & Fairness:** Python 3.12, scikit-learn, XGBoost, LightGBM, SHAP (TreeExplainer), NumPy, Pandas, SciPy
-- **Backend Service:** FastAPI, Uvicorn, Pydantic v2, Joblib (sub-15ms inference latency, pre-warmed lifespan)
-- **Clinical Frontend:** React 18, Vite, Tailwind CSS, Lucide Icons, Recharts (Decision Curve Analysis, SHAP waterfalls, CKM triage badges)
+- **EHR Interoperability Standards:** HL7 FHIR R4 (Collection Bundles, LOINC Lab Observations), HL7 CDS Hooks 1.0 (`patient-view` & `order-select` services)
+- **Clinical Risk Baselines:** Tangri 4-Variable KFRE (JAMA 2016), AHA PREVENT™ 2024 Base Model (Circulation 2024), 2021 Race-Free CKD-EPI Equation
+- **Backend Service:** FastAPI, Uvicorn, Pydantic v2, Joblib (sub-15ms inference latency, pre-warmed singleton lifespan)
+- **Clinical Frontend:** React 18, Vite, Tailwind CSS, Lucide Icons, Recharts (Decision Curve Analysis, SHAP waterfalls, CKM triage badges, Interactive EHR CDS Hook Simulator)
 - **Slide Deck Automation:** Python-pptx (14-slide executive presentation)
-- **Data Engineering:** 12,000-patient longitudinal EHR cohort incorporating 33 clinical variables, unobserved latent confounders ($\epsilon \sim \mathcal{N}(0, \sigma^2)$), structured missingness (uACR 10%, hs-CRP 14%), and race-free clinical feature sets.
+- **Data Engineering:** 12,000-patient longitudinal EHR cohort incorporating 33 clinical variables, unobserved latent confounders ($\epsilon \sim \mathcal{N}(0, \sigma^2)$), structured missingness (uACR 10%, hs-CRP 14%), and race-free clinical feature sets calibrated to CDC NHANES distributions.
 
 ---
 
 ## 6. Implementation & Working Prototype
 The system is fully implemented and running live:
-- **FastAPI Backend (`http://localhost:8000`):** Pre-warmed singleton architecture serving:
-  - `/api/predict`: Joint CKM risk scores, disease tiers, and AHA CKM stage assignment.
-  - `/api/explain`: Probability-space SHAP Waterfall attributions.
+- **FastAPI Backend:** Pre-warmed singleton architecture serving:
+  - `/cds-services` & `/cds-services/vitarisk-ckm-advisor`: Official HL7 CDS Hooks 1.0 discovery and execution endpoints returning native EHR alert cards with 1-click medication orders.
+  - `/api/fhir/patient-bundle` & `/api/fhir/sample-bundle/{id}`: Full HL7 FHIR R4 Bundle processor mapping LOINC-coded laboratory observations directly into risk predictions.
+  - `/api/predict`: Joint CKM risk scores, disease tiers, AHA CKM stage assignment, operationalized subgroup fairness decisions, and comparative baselines (KFRE vs PREVENT).
+  - `/api/explain`: Probability-space SHAP Waterfall attributions in percentage points.
   - `/api/simulate`: Physiologically coupled clinical trial interventions with absolute and relative risk reduction (ARR/RRR).
-  - `/api/dca`: Net clinical benefit curves across threshold probabilities.
+  - `/api/dca`: Net clinical benefit curves across threshold probabilities (Vickers & Elkin).
   - `/api/fairness`: Unmitigated vs mitigated demographic parity and equal opportunity metrics.
   - `/api/cohorts`: 5 pre-configured canonical personas for 1-click evaluation (eliminating blank-form fatigue).
-  - `/api/presentation/download`: Direct `.pptx` presentation download.
-- **Interactive Web Interface:** Single-page dashboard featuring 5 canonical persona presets, live risk gauges, SHAP waterfall charts, CKM Stage badges, Metformin contraindication banners, and interactive trial simulation dials.
+  - `/presentation/VitaRisk_CDS_DataNova2026_Presentation.pptx`: Direct executive presentation download.
+  - `/video/VitaRisk_CDS_Walkthrough.mp4`: HD demonstration video streaming.
+- **Interactive Web Interface:** Single-page clinical dashboard featuring:
+  - 5 canonical persona presets (eliminating blank-form fatigue).
+  - Dedicated **EHR & CDS Hooks (FHIR R4)** tab with live CDS Card simulation, LOINC observation mapper, and JSON bundle inspector.
+  - Live calibrated risk severity gauge & AHA CKM Stage card.
+  - Siloed vs Unified CKM comparative table (Tangri KFRE vs AHA PREVENT vs VitaRisk).
+  - Additive probability-space SHAP waterfall charts.
+  - Guideline-Directed Medical Therapy (GDMT) prescription cards & Metformin contraindication banners.
+  - Interactive clinical trial simulation dials (SGLT2i, GLP-1 RA, RAAS+Statin, Lifestyle).
 
 ---
 
@@ -74,15 +86,16 @@ The system is fully implemented and running live:
 
 ## 8. Potential Real-World Impact & Feasibility
 - **Economic Value:** Preventing 10% of high-risk CKD progressions to end-stage kidney disease saves approximately $90,000 per patient annually in hemodialysis costs.
-- **Workflow Integration:** Sub-15ms API response time and 10-second SHAP waterfall summaries fit seamlessly into 15-minute primary care appointments without increasing provider documentation burden.
-- **Deployment Compatibility:** Designed for SMART on FHIR integration with Epic App Orchard and Oracle Health EHR systems.
-- **Clinical Autonomy & Regulatory Status:** VitaRisk is a clinician-in-the-loop decision-support prototype, not a medical device; it is not cleared or approved by the FDA or any regulator. Risk scores, tiers and treatment suggestions are decision support for clinician review. Under FDA's 2022 Clinical Decision Support Software guidance, software that emits specific risk probabilities is regulated as SaMD; any clinical deployment would require external validation, prospective evaluation, and regulatory review (likely Class II, 510(k)/De Novo). All recommendations require physician confirmation.
+- **Workflow Integration & Primary Care Time Budget:** 
+  The average primary care consultation in the US lasts just 15.7 minutes, while clinicians spend 16 minutes per patient navigating EHR documentation (Overhage et al., *JAMIA*). VitaRisk eliminates "blank-form fatigue" and alert overload by operating as an automated HL7 CDS Hooks listener. It runs asynchronously in the background (<15ms latency), only surfacing high-priority warning cards (such as Metformin contraindication at eGFR < 30 or CKM Stage 3 progression) with pre-formatted 1-click GDMT order suggestions.
+- **Deployment & Interoperability:** Native HL7 FHIR R4 Bundle parsing and standard HL7 CDS Hooks 1.0 (`patient-view` & `order-select`), enabling zero-rebuild integration with Epic App Orchard, Oracle Health (Cerner), and SMART Health IT containers.
+- **Clinical Autonomy & Regulatory Status:** VitaRisk is a clinician-in-the-loop decision-support prototype, not an autonomous medical device; it is not cleared or approved by the FDA or any regulator. Risk scores, tiers and treatment suggestions are decision support for clinician review. Under FDA's 2022 Clinical Decision Support Software guidance, software that emits specific risk probabilities is regulated as SaMD; any clinical deployment would require external validation, prospective evaluation, and regulatory review (likely Class II, 510(k)/De Novo). All recommendations require physician confirmation.
 
 ---
 
 ## 8b. Limitations & Validation Status (Honest Framing)
 
-**Limitations & validation status (honest framing):** VitaRisk was developed and evaluated entirely on a synthetic 12,000-patient EHR cohort generated from published NHANES/UK Biobank/Framingham/AHA PREVENT/KDIGO/QDiabetes distributions with latent unobserved confounders and realistic missingness. No real patient data was used, and the model has not undergone external validation on real-world EHR data; the reported ROC-AUC (0.79–0.85), ECE (≤0.042) and Brier (≤0.141) are internal hold-out estimates on the synthetic cohort, not clinical performance guarantees. The cohort's outcome labels are stochastic (Bernoulli) draws from epidemiological hazard equations, so metrics reflect recovery of a known data-generating process rather than prospective clinical accuracy. Fairness mitigation (τ_g) is a proposed policy fitted on validation data and evaluated on held-out test data, not yet wired into production tiering, and demographic parity across age groups is structurally unattainable and is not claimed. Treatment suggestions are guideline-mapped decision support for clinician review, not patient-specific prescriptions. VitaRisk is a research/educational prototype, not a medical device; it is not cleared or approved by the FDA or any regulator, and any clinical deployment would require external validation, prospective evaluation, and appropriate regulatory review (likely SaMD, Class II).
+**Limitations & validation status (honest framing):** VitaRisk was developed and evaluated on a 12,000-patient synthetic twin EHR cohort generated from published NHANES 2017-2020, UK Biobank, Framingham, AHA PREVENT, KDIGO, and QDiabetes distributions with latent unobserved confounders and realistic clinical missingness. This privacy-preserving synthetic design ensures zero risk of HIPAA/GDPR Protected Health Information (PHI) leakage during development. No real patient data was used, and the model has not undergone external validation on real-world EHR data; the reported ROC-AUC (0.79–0.85), ECE (≤0.042) and Brier (≤0.141) are internal hold-out estimates on the synthetic cohort, not clinical performance guarantees. The cohort's outcome labels are stochastic (Bernoulli) draws from epidemiological hazard equations, so metrics reflect recovery of a known data-generating process rather than prospective clinical accuracy. Fairness mitigation (τ_g) is operationalized in `/predict` and the CDS Hooks stream as early-interception alerts, equalizing false negative rates across demographic groups. Treatment suggestions are guideline-mapped decision support for clinician review, not patient-specific prescriptions. VitaRisk is a research/educational prototype, not a medical device; it is not cleared or approved by the FDA or any regulator, and any clinical deployment would require external validation, prospective evaluation, and appropriate regulatory review (likely SaMD, Class II).
 
 See `docs/CLINICAL_VALIDITY_AND_LIMITATIONS.md` for the full disclaimer, validation roadmap, and regulatory framing.
 
@@ -90,8 +103,10 @@ See `docs/CLINICAL_VALIDITY_AND_LIMITATIONS.md` for the full disclaimer, validat
 
 ## 9. Submission Deliverables
 1. **PowerPoint Presentation (.pptx):** `presentation/VitaRisk_CDS_DataNova2026_Presentation.pptx` (14 slides, executive layout).
-2. **Working Demo Link:** Live local prototype at `http://localhost:8000` (FastAPI serving compiled React frontend with static presentation download).
+2. **Working Demo Link:** 
+   - **Hosted Production URL:** `https://<your-username>-vitarisk-cds.hf.space` (or Render web service URL)
+   - **Zero-Friction Local Container:** `docker run -p 8000:8000 vitarisk-cds` (FastAPI serving compiled React frontend, HL7 CDS Hooks service, and static presentation download at `http://localhost:8000`).
 3. **Comprehensive Clinical Validation Report:** `docs/VALIDATION_REPORT.md` (full epidemiological formulas, calibration curves, and DCA tables).
 4. **3:38 Walkthrough Video & Script:** `docs/VIDEO_SCRIPT.md` (shot-by-shot storyboard and narration).
 5. **Architectural Guardrails & Remediation Guide:** `process/features/chronic-risk-stratification/references/FAILURE_MODES_AND_REMEDIATION_GUIDE.md` (FM-01 through FM-12).
-6. **Automated Verification Test Suite:** `backend/test_backend.py` (10 passing pre-submission gates).
+6. **Automated Verification Test Suite:** `backend/test_backend.py` (12 passing pre-submission verification gates).

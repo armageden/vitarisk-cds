@@ -87,17 +87,19 @@ flowchart TD
     C --> D["5-Fold Sigmoid Probability Calibration<br/>(CalibratedClassifierCV • ECE ≤ 0.042 • Brier ≤ 0.141)"]
     D --> E["Probability-Space TreeSHAP<br/>(Additive % Point Decompositions)"]
     D --> F["Decision Curve Analysis (DCA)<br/>(Net Clinical Benefit across 17 Thresholds)"]
-    D --> G["Active Fairness Threshold Mitigation<br/>(tau_g Equalizing False Negative Rates across Subgroups)"]
-    D --> H["Actionable CDS & Guardrail Engine<br/>(ADA 2026 • KDIGO 2024 • Metformin eGFR Contraindication Safety)"]
+    D --> G["Operationalized Fairness Mitigation<br/>(tau_g Early-Interception & Equalized Sensitivity)"]
+    D --> H["Actionable CDS & Guardrail Engine<br/>(ADA 2026 • KDIGO 2024 • Metformin eGFR Safety)"]
     H --> I["Physiologically Coupled Counterfactuals<br/>(SGLT2i, GLP-1 RA, RAAS+Statin Trial Presets)"]
+    H --> K["HL7 FHIR R4 & CDS Hooks 1.0<br/>(Native Epic/Cerner EHR Alert Cards & LOINC Parser)"]
     I --> J["Full-Stack Clinical Dashboard<br/>(FastAPI Backend :8000 • React 18 / Tailwind Frontend)"]
+    K --> J
 ```
 
 ---
 
 ## ⚡ Pre-Submission Verification Gates Passed
 
-The platform incorporates automated pre-submission testing across 10 critical validation gates plus the full audit-remediation suite:
+The platform incorporates automated pre-submission testing across 12 critical validation gates plus the full audit-remediation suite:
 ```bash
 ./run_tests.sh   # prefers .venv, falls back to ~/.venvs/vitarisk
 ```
@@ -111,6 +113,8 @@ The platform incorporates automated pre-submission testing across 10 critical va
 * ✅ **Gate 8:** Active Subgroup Threshold Calibration (validation-fitted $\tau_g$; Equal-Opportunity gaps reduced, e.g. T2D sex gap 0.077 → 0.007, CKD age gap 0.44 → 0.13)
 * ✅ **Gate 9:** Drug Contraindication Guardrail (Metformin eGFR < 30 alert)
 * ✅ **Gate 10:** Sub-50ms API SLA & Zero-Friction 5-Persona Clinical UX
+* ✅ **Gate 11:** HL7 FHIR R4 Bundle Ingestion & HL7 CDS Hooks 1.0 (`patient-view` & `order-select` with LOINC mapping)
+* ✅ **Gate 12:** Operationalized Comparative Baselines (Tangri KFRE 4-Var JAMA 2016 vs AHA PREVENT 2024 vs VitaRisk)
 
 ---
 

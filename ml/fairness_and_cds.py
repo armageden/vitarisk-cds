@@ -18,6 +18,7 @@ import pandas as pd
 from pathlib import Path
 from sklearn.metrics import roc_auc_score, brier_score_loss
 from ml.train_models import transform_features
+from ml.clinical_baselines import compare_patient_baselines
 
 def _safe_float(val, default):
     if val is None:
@@ -364,7 +365,13 @@ class ClinicalDecisionSupportEngine:
         self.explainer_ckd = joblib.load(os.path.join(artifacts_dir, "shap_explainer_onset_ckd.joblib"))
         self.explainer_cvd = joblib.load(os.path.join(artifacts_dir, "shap_explainer_onset_cvd.joblib"))
 
-    def predict_patient(self, patient_dict):
+        fairness_path = os.path.join(artifacts_dir, "fairness_audit.json")
+        self.fairness_audit = {}
+        if os.path.exists(fairness_path):
+            with open(fairness_path) as f:
+                self.fairness_audit = json.load(f)
+
+    def predict_patient(self, patient_dict, apply_fairness_mitigation=True):
         patient_dict = _ensure_non_hdl(patient_dict)
             
         df_patient = pd.DataFrame([patient_dict])
@@ -486,21 +493,70 @@ class ClinicalDecisionSupportEngine:
                 "evidence_level": "Grade A Recommendation",
                 "target": "Complete tobacco cessation within 12 weeks."
             })
-            
+
+        probs_dict = {
+            "t2d": round(prob_t2d, 4),
+            "ckd": round(prob_ckd, 4),
+            "cvd": round(prob_cvd, 4),
+            "multimorbidity": round(prob_mm, 4),
+            "composite": composite_score
+        }
+
+        # 5. Comparative Clinical Baselines (KFRE 4-Var & AHA PREVENT)
+        clinical_baselines = compare_patient_baselines(patient_dict, probs_dict)
+
+        # 6. Operationalized Active Fairness Mitigation (FM-08)
+        pt_sex = str(patient_dict.get("sex") or "Male").capitalize()
+        pt_age = _safe_float(patient_dict.get("age"), 54)
+        pt_ses = int(patient_dict.get("ses_decile") or 5)
+        pt_age_grp = "<45" if pt_age < 45 else ("45-64" if pt_age <= 64 else "65+")
+        pt_ses_grp = "High SES" if pt_ses <= 3 else ("Medium SES" if pt_ses <= 7 else "Low SES (Deprived)")
+
+        fairness_decisions = {}
+        interception_alerts = []
+        target_probs = {"t2d": prob_t2d, "ckd": prob_ckd, "cvd": prob_cvd, "multimorbidity": prob_mm}
+
+        for tgt_name, p_val in target_probs.items():
+            full_tgt = f"onset_{tgt_name}"
+            mit_sex = self.fairness_audit.get(full_tgt, {}).get("sex", {}).get("mitigated", {})
+            calibrated_thresholds = mit_sex.get("calibrated_subgroup_thresholds", {})
+            tau_g = calibrated_thresholds.get(pt_sex, 0.20)
+            standard_tau = 0.20
+
+            flagged_std = bool(p_val >= standard_tau)
+            flagged_cal = bool(p_val >= tau_g)
+            is_intercepted = flagged_cal and not flagged_std
+
+            if is_intercepted:
+                interception_alerts.append({
+                    "target": tgt_name.upper(),
+                    "message": f"Active Equal-Opportunity Interception: {tgt_name.upper()} probability ({round(p_val*100, 1)}%) exceeds subgroup threshold ({round(tau_g*100, 1)}% vs global 20%), preventing diagnostic delay in {pt_sex} patients."
+                })
+
+            fairness_decisions[tgt_name] = {
+                "predicted_probability": round(p_val, 4),
+                "global_threshold": standard_tau,
+                "subgroup_threshold": round(tau_g, 4),
+                "flagged_standard": flagged_std,
+                "flagged_calibrated": flagged_cal,
+                "early_interception_activated": is_intercepted
+            }
+
         return {
-            "probabilities": {
-                "t2d": round(prob_t2d, 4),
-                "ckd": round(prob_ckd, 4),
-                "cvd": round(prob_cvd, 4),
-                "multimorbidity": round(prob_mm, 4),
-                "composite": composite_score
-            },
+            "probabilities": probs_dict,
             "tier": tier,
             "urgency": urgency,
             "color": color,
             "ckm_stage": ckm_stage_info,
             "contraindication_alerts": contraindication_alerts,
-            "recommendations": recommendations
+            "recommendations": recommendations,
+            "clinical_baselines": clinical_baselines,
+            "fairness_calibrated_decision": {
+                "active_mitigation_applied": apply_fairness_mitigation,
+                "demographics": {"sex": pt_sex, "age_group": pt_age_grp, "ses_group": pt_ses_grp},
+                "decisions": fairness_decisions,
+                "early_interceptions": interception_alerts
+            }
         }
 
     def explain_patient(self, patient_dict, target="onset_t2d"):
