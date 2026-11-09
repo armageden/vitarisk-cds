@@ -121,9 +121,10 @@ CANONICAL_PERSONAS = [
     }
 ]
 
-@asynccontextmanager
-async def lifespan(app: FastAPI):
+def init_engine():
     global cds_engine, BENCHMARK_METRICS, FAIRNESS_AUDIT, GLOBAL_SHAP, DCA_DATA, COHORT_ANALYTICS
+    if cds_engine is not None:
+        return
     print("Pre-warming VitaRisk CDS Engine & artifacts (FM-10)...")
     cds_engine = ClinicalDecisionSupportEngine(artifacts_dir=ARTIFACTS_DIR)
     
@@ -154,6 +155,10 @@ async def lifespan(app: FastAPI):
     cds_engine.predict_patient(CANONICAL_PERSONAS[0]["data"])
     cds_engine.explain_patient(CANONICAL_PERSONAS[0]["data"], target="onset_t2d")
     print("✅ Pre-warming complete. Ready for sub-15ms inference!")
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    init_engine()
     yield
 
 app = FastAPI(
@@ -162,6 +167,9 @@ app = FastAPI(
     version="2.0.0",
     lifespan=lifespan
 )
+
+# Eagerly initialize singletons so mounted sub-apps & workers have instant access
+init_engine()
 
 app.add_middleware(
     CORSMiddleware,
