@@ -11,3 +11,4 @@ frontend/.mimosa/
 presentation/video/raw/
 presentation/video/*.webm
 presentation/video/seg*.mp3
+presentation/video/concat.txt

@@ -539,10 +539,11 @@ def create_deck(output_path="presentation/VitaRisk_CDS_DataNova2026_Presentation
     p.font.color.rgb = TEAL
 
     s10_bullets = [
-        "• 5 Canonical Clinical Personas (FM-11): 1-click loading eliminates blank-form judge fatigue, instantly showcasing silent vs severe clinical presentations.",
+        "• 5 Canonical Clinical Personas: 1-click loading eliminates blank-form judge fatigue, instantly showcasing silent vs severe clinical presentations.",
+        "• Comparative Clinical Baselines: Benchmarks VitaRisk against Tangri Kidney Failure Risk Equation (KFRE 4-variable) and AHA PREVENT (10-yr CVD risk).",
         "• CKM Staging Badge: Real-time AHA 2026 Stage assignment (Stages 0-4) with composite multi-organ triage dial.",
-        "• Metformin Safety Guardrail (FM-09): Hard contraindication banner triggers automatically when eGFR < 30 mL/min/1.73m2, preventing fatal lactic acidosis.",
-        "• Pre-Warmed FastAPI Singleton (FM-10): Sub-15ms prediction and SHAP latency (<50ms SLA) enabling zero perceived lag."
+        "• Metformin Safety Guardrail: Hard contraindication banner triggers automatically when eGFR < 30 mL/min/1.73m2, preventing fatal lactic acidosis.",
+        "• Pre-Warmed FastAPI Singleton: Sub-15ms prediction and SHAP latency (<50ms SLA) enabling zero perceived lag."
     ]
     for b in s10_bullets:
         pb = tf_s10.add_paragraph()
@@ -555,7 +556,7 @@ def create_deck(output_path="presentation/VitaRisk_CDS_DataNova2026_Presentation
     add_image_card(
         s10, Inches(5.8), Inches(1.8), Inches(6.733), Inches(5.0),
         "presentation/screenshots/screenshot_marcus_vance_contraindication.png",
-        "Live Clinical Dashboard: Persona 3 Loaded with CKM Stage 3 & Metformin eGFR Contraindication Alert"
+        "Live Clinical Dashboard: Persona 3 Loaded with CKM Stage 4 & Metformin eGFR Contraindication Alert"
     )
 
     # ==========================================
@@ -599,32 +600,38 @@ def create_deck(output_path="presentation/VitaRisk_CDS_DataNova2026_Presentation
     add_bg(s12)
     add_header(s12, "Responsible AI, Governance & FHIR Integration")
 
-    govs = [
-        ("HL7 FHIR / SMART on FHIR", "Architecture engineered for plug-and-play SMART on FHIR EHR integration with Epic, Cerner, and Meditech electronic record systems.", TEAL),
-        ("HIPAA Privacy Preserving", "De-identified patient feature arrays with zero PHI transmission requirements, supporting local edge deployment within hospital firewalls.", BLUE),
-        ("Human-in-the-Loop Autonomy", "Preserves clinician primacy: VitaRisk acts as an assistive second reader, never issuing automated medication orders without provider sign-off.", GREEN_ACCENT),
-        ("Model Lifecycle Monitoring", "Continuous drift monitoring on clinical lab distributions and post-market subgroup fairness surveillance.", NAVY)
+    # Left Column: Governance & Interoperability
+    add_card(s12, Inches(0.8), Inches(1.8), Inches(4.8), Inches(5.0), WHITE)
+    tb_s12 = s12.shapes.add_textbox(Inches(1.0), Inches(2.0), Inches(4.4), Inches(4.6))
+    tf_s12 = tb_s12.text_frame
+    tf_s12.word_wrap = True
+
+    p = tf_s12.paragraphs[0]
+    p.text = "Production Interoperability & Safeguards"
+    p.font.bold = True
+    p.font.size = Pt(15)
+    p.font.color.rgb = TEAL
+
+    s12_bullets = [
+        "• HL7 FHIR R4 Bundle Ingestion: Native parser parses Patient, Observation (eGFR, HbA1c, BP, lipids), and Condition resources into normalized clinical vectors.",
+        "• CDS Hooks 1.0 Services: Live patient-view hook at /cds-services/vitarisk-ckm-advisor delivers real-time advisory cards, severity indicators, and SMART links.",
+        "• HIPAA Privacy-Preserving: De-identified patient feature arrays with zero PHI transmission requirements, supporting on-premise hospital deployment.",
+        "• Human-in-the-Loop Primacy: VitaRisk acts as an assistive second reader, never issuing automated medication orders without provider sign-off.",
+        "• Drift & Fairness Surveillance: Continuous monitoring of clinical feature distributions and post-market subgroup calibration."
     ]
+    for b in s12_bullets:
+        pb = tf_s12.add_paragraph()
+        pb.text = b
+        pb.font.size = Pt(11)
+        pb.font.color.rgb = DARK_TEXT
+        pb.space_before = Pt(6)
 
-    for i, (g_title, g_desc, col) in enumerate(govs):
-        cx = Inches(0.8 + (i % 2) * 5.95)
-        cy = Inches(1.8 + (i // 2) * 2.55)
-        add_card(s12, cx, cy, Inches(5.75), Inches(2.35), WHITE)
-
-        tb = s12.shapes.add_textbox(cx + Inches(0.3), cy + Inches(0.2), Inches(5.15), Inches(2.0))
-        tf = tb.text_frame
-        tf.word_wrap = True
-        pt = tf.paragraphs[0]
-        pt.text = g_title
-        pt.font.size = Pt(16)
-        pt.font.bold = True
-        pt.font.color.rgb = col
-
-        p = tf.add_paragraph()
-        p.text = g_desc
-        p.font.size = Pt(12)
-        p.font.color.rgb = DARK_TEXT
-        p.space_before = Pt(8)
+    # Right Column: High-Res UI Screenshot of EHR & CDS Hooks
+    add_image_card(
+        s12, Inches(5.8), Inches(1.8), Inches(6.733), Inches(5.0),
+        "presentation/screenshots/screenshot_ehr_cds_hooks.png",
+        "Live VitaRisk UI: Standard HL7 FHIR R4 Ingestion & CDS Hooks 1.0 Real-Time Patient-View Advisory Cards"
+    )
 
     # ==========================================
     # SLIDE 13: Project Roadmap & Implementation Milestones
@@ -634,7 +641,7 @@ def create_deck(output_path="presentation/VitaRisk_CDS_DataNova2026_Presentation
     add_header(s13, "Implementation Roadmap & Future Milestones")
 
     milestones = [
-        ("Phase 1: Hackathon MVP (Current)", "• 12,000-patient EHR cohort\n• Multi-disease XGBoost + SHAP pipeline\n• Full-stack interactive prototype & API\n• Comprehensive fairness audit", TEAL),
+        ("Phase 1: Production MVP (Current)", "• 12,000-patient EHR cohort\n• Multi-disease XGBoost + SHAP pipeline\n• HL7 FHIR R4 & CDS Hooks 1.0 services\n• Tangri KFRE & AHA PREVENT baselines\n• Active fairness mitigation (tau_g)\n• Live deployed on Hugging Face Spaces", TEAL),
         ("Phase 2: Retrospective EHR Validation", "• Multi-center validation on MIMIC-IV & All of Us cohorts\n• External calibration across diverse geographic regions\n• SMART on FHIR app packaging", BLUE),
         ("Phase 3: Prospective Primary Care Pilot", "• 6-month primary care randomized clinical trial\n• Assessment of clinician decision adoption\n• Measurable HbA1c, BP, and UACR improvement endpoints", GREEN_ACCENT),
         ("Phase 4: Regulatory & Commercial Scale", "• FDA SaMD regulatory review (likely Class II 510(k)/De Novo) after external + prospective validation\n• Epic App Orchard & Oracle Health marketplace listing\n• Value-based ACO enterprise licensing", NAVY)
@@ -695,9 +702,9 @@ def create_deck(output_path="presentation/VitaRisk_CDS_DataNova2026_Presentation
     p2.space_before = Pt(8)
 
     box_items = [
-        ("Working Interactive Demo", "FastAPI + React Production Service running with sub-15ms inference latency, pre-warmed singleton models, and zero-friction 1-click clinical personas."),
-        ("Complete Code Repository", "Self-contained modular Python & React code with automated integration tests (all 10 pre-submission gates passing), trained model artifacts, and data generator."),
-        ("Validation & Fairness Report", "Comprehensive clinical evidence document covering ROC-AUC (0.794-0.851), 5-fold sigmoid calibration (ECE <= 0.042), Decision Curve Net Benefit, and the full before/after subgroup equity audit.")
+        ("Live Web Application & Gradio Service", "Production FastAPI + React SPA & Gradio interface deployed live on Hugging Face Spaces at https://farhan277-vitarisk-cds.hf.space/app/ with sub-15ms inference latency, 1-click clinical personas, and KFRE/PREVENT baselines."),
+        ("Standard HL7 FHIR R4 & CDS Hooks 1.0", "Interoperable clinical decision support with live discovery (/cds-services) and real-time patient-view hook evaluation for hospital EHRs (Epic, Cerner, Meditech) at https://farhan277-vitarisk-cds.hf.space/cds-services."),
+        ("Complete Code Repository & Reproducibility", "Self-contained repository at https://github.com/armageden/vitarisk-cds with automated integration tests (all 10 pre-submission gates passing), model artifacts, and full clinical validation & fairness report.")
     ]
 
     for i, (b_title, b_desc) in enumerate(box_items):
