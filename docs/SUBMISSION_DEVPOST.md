@@ -104,7 +104,12 @@ See `docs/CLINICAL_VALIDITY_AND_LIMITATIONS.md` for the full disclaimer, validat
 ## 9. Submission Deliverables
 1. **PowerPoint Presentation (.pptx):** `presentation/VitaRisk_CDS_DataNova2026_Presentation.pptx` (14 slides, executive layout).
 2. **Working Demo Link:** 
-   - **Hosted Production URL:** `https://<your-username>-vitarisk-cds.hf.space` (or Render web service URL)
+   - **Hosted Production URL:** `https://farhan277-vitarisk-cds.hf.space` (Hugging Face Spaces)
+   - **Direct Clinical Web Dashboard:** `https://farhan277-vitarisk-cds.hf.space/app/`
+   - **HL7 CDS Hooks 1.0 Services:** `https://farhan277-vitarisk-cds.hf.space/cds-services`
+   - **Interactive API Documentation:** `https://farhan277-vitarisk-cds.hf.space/docs`
+   - **Hugging Face Space Repository:** `https://huggingface.co/spaces/farhan277/vitarisk-cds`
+   - **GitHub Repository:** `https://github.com/armageden/vitarisk-cds`
    - **Zero-Friction Local Container:** `docker run -p 8000:8000 vitarisk-cds` (FastAPI serving compiled React frontend, HL7 CDS Hooks service, and static presentation download at `http://localhost:8000`).
 3. **Comprehensive Clinical Validation Report:** `docs/VALIDATION_REPORT.md` (full epidemiological formulas, calibration curves, and DCA tables).
 4. **3:38 Walkthrough Video & Script:** `docs/VIDEO_SCRIPT.md` (shot-by-shot storyboard and narration).

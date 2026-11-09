@@ -18,6 +18,8 @@ pinned: false
 [![React](https://img.shields.io/badge/React-18-61dafb.svg)](https://react.dev)
 [![HL7 FHIR](https://img.shields.io/badge/HL7%20FHIR-R4-orange.svg)](https://hl7.org/fhir/)
 [![CDS Hooks](https://img.shields.io/badge/CDS%20Hooks-1.0-red.svg)](https://cds-hooks.hl7.org/)
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-HuggingFace%20Spaces-yellow.svg)](https://farhan277-vitarisk-cds.hf.space)
+[![Clinical Dashboard](https://img.shields.io/badge/Clinical%20Dashboard-Active-blue.svg)](https://farhan277-vitarisk-cds.hf.space/app/)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
 **VitaRisk CDS** is an open clinical artificial intelligence and decision-support platform designed to detect and reverse early cardiorenal-metabolic decline during routine clinical care. It operationalizes the **American Heart Association (AHA) 2026 Cardiovascular-Kidney-Metabolic (CKM) Syndrome staging consensus**, transforming routine longitudinal laboratory biomarkers and vitals into calibrated, multi-organ risk forecasts for **Type 2 Diabetes (T2D)**, **Chronic Kidney Disease (CKD)**, and **Cardiovascular Disease (CVD)**.
