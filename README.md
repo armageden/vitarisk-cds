@@ -9,159 +9,170 @@ suggested_hardware: cpu-upgrade
 pinned: false
 ---
 
-# VitaRisk CDS: Explainable Multi-Disease Risk Stratification & Clinical Decision Support System
+# VitaRisk CDS
 
-[![DataNova 2026 Global Data-thon](https://img.shields.io/badge/DataNova%202026-Track%3A%20Healthcare%20%26%20AI-0d9488.svg)](https://datanovathon.com)
-[![Problem Statement](https://img.shields.io/badge/Problem%20Statement-DN--HC--01-0284c7.svg)](https://datanovathon.com)
+### Explainable Cardiorenal-Metabolic (CKM) Risk Intelligence & Clinical Decision Support
+
 [![Python](https://img.shields.io/badge/Python-3.12-blue.svg)](https://python.org)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.115+-009688.svg)](https://fastapi.tiangolo.com)
 [![React](https://img.shields.io/badge/React-18-61dafb.svg)](https://react.dev)
-[![XGBoost](https://img.shields.io/badge/ML-XGBoost%20%2B%20SHAP-orange.svg)](https://xgboost.readthedocs.io)
-[![Fairness](https://img.shields.io/badge/Fairness-Equal%20Opportunity%20Gaps%20Reduced-10b981.svg)](docs/VALIDATION_REPORT.md)
+[![HL7 FHIR](https://img.shields.io/badge/HL7%20FHIR-R4-orange.svg)](https://hl7.org/fhir/)
+[![CDS Hooks](https://img.shields.io/badge/CDS%20Hooks-1.0-red.svg)](https://cds-hooks.hl7.org/)
+[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
-VitaRisk CDS is an end-to-end clinical AI and decision support platform engineered for the **DataNova 2026 Global Data-thon (Problem Statement DN-HC-01: Early Risk Stratification for Chronic Disease)**. It operationalizes the **American Heart Association (AHA) 2026 Cardiorenal-Metabolic (CKM) Syndrome staging consensus**, transforming routine longitudinal Electronic Health Record (EHR) data into actionable, calibrated, and equitable early intervention decisions for **Type 2 Diabetes (T2D)**, **Chronic Kidney Disease (CKD)**, and **Cardiovascular Disease (CVD)**.
+**VitaRisk CDS** is an open clinical artificial intelligence and decision-support platform designed to detect and reverse early cardiorenal-metabolic decline during routine clinical care. It operationalizes the **American Heart Association (AHA) 2026 Cardiovascular-Kidney-Metabolic (CKM) Syndrome staging consensus**, transforming routine longitudinal laboratory biomarkers and vitals into calibrated, multi-organ risk forecasts for **Type 2 Diabetes (T2D)**, **Chronic Kidney Disease (CKD)**, and **Cardiovascular Disease (CVD)**.
 
----
-
-## 🏆 Hackathon Submission Deliverables
-
-| Deliverable | Location / Access | Description |
-|---|---|---|
-| **1. PowerPoint Deck (.pptx)** | [`presentation/VitaRisk_CDS_DataNova2026_Presentation.pptx`](presentation/VitaRisk_CDS_DataNova2026_Presentation.pptx) | Upgraded 14-slide executive presentation embedded with real live UI screenshots, clinical metrics, and ROI. |
-| **2. Interactive Working Demo** | `http://localhost:8000` (or deployed URL) | Full-stack clinical web application (FastAPI backend + embedded React frontend with live calculator, SHAP waterfall, what-if simulator, and 5 canonical personas). |
-| **3. Clinical Validation Report** | [`docs/VALIDATION_REPORT.md`](docs/VALIDATION_REPORT.md) | In-depth methodology report with clinical equations, validation metrics (ROC-AUC 0.793–0.851), 5-fold calibration curves, and Decision Curve Net Benefit. |
-| **4. 3:38 Walkthrough Video & Script** | [`docs/VIDEO_SCRIPT.md`](docs/VIDEO_SCRIPT.md) | Timed video demonstration script with narration notes, visual cues, and gate checkpoints. |
-| **5. Devpost Submission Copy** | [`docs/SUBMISSION_DEVPOST.md`](docs/SUBMISSION_DEVPOST.md) | Structured copy-paste submission addressing all 6 hackathon judging criteria. |
-| **6. Failure Mode Analysis** | [`process/features/.../FAILURE_MODES_AND_REMEDIATION_GUIDE.md`](process/features/chronic-risk-stratification/references/FAILURE_MODES_AND_REMEDIATION_GUIDE.md) | Comprehensive 12-failure-mode engineering remediation and pre-submission audit guide. |
+Built on native **HL7 FHIR R4** and **HL7 CDS Hooks 1.0** standards, VitaRisk embeds seamlessly into Electronic Health Record (EHR) workflows (such as Epic Hyperspace and Oracle Cerner), surfacing actionable guideline-directed medical therapy (GDMT) alerts and drug safety guardrails without requiring manual data re-entry.
 
 ---
 
-## 🚀 1-Click Deployment Guide (Live Demo for Judges)
+## Key Clinical & Architectural Capabilities
 
-External judges must be able to open your live application in their browser. VitaRisk CDS is pre-configured for zero-friction containerized cloud deployment:
-
-### Option A: Hugging Face Spaces (Recommended — Free 16GB RAM)
-1. Go to [huggingface.co/new-space](https://huggingface.co/new-space).
-2. Set **Space Name** to `vitarisk-cds` (or your choice).
-3. Select **Docker** (Blank template) and choose **Public**.
-4. In your local terminal, add the Hugging Face git remote and push:
-   ```bash
-   git remote add space https://huggingface.co/spaces/<your-username>/vitarisk-cds
-   git push space main
-   ```
-5. Hugging Face reads `Dockerfile` and `app_port: 8000` from this `README.md` and spins up the live container with a permanent HTTPS link (e.g. `https://<your-username>-vitarisk-cds.hf.space`)!
-
-### Option B: Render or Railway (Web Service)
-1. Push this repository to your GitHub account:
-   ```bash
-   git remote add origin https://github.com/<your-username>/datanova-vitarisk-cds.git
-   git push -u origin main
-   ```
-2. **Render (recommended free tier):** Log into [Render.com](https://render.com) → **New Blueprint Instance** → select your repo. Render auto-detects `render.yaml` and deploys the Docker service with health check on `/api/health`.
-   - Free tier: 512MB RAM (model uses ~247MB), 750 h/month, sleeps after 15 min inactivity.
-   - **Required:** Set up a keep-warm ping (see tip below) to prevent cold starts during judging.
-3. **Railway (alternative, $5/mo after 30-day trial):** No sleep, better for sustained judging traffic.
-4. Copy the resulting public URL (e.g. `https://vitarisk-cds.onrender.com`) into your Devpost submission!
-
-### Option C: Local Docker Container
-```bash
-# Build the production image
-docker build -t vitarisk-cds .
-
-# Run container on port 8000
-docker run -p 8000:8000 vitarisk-cds
-```
-
-> [!TIP]
-> **Keep-Warm Setup for Judges (Nov 10 – Nov 25):**  
-> To guarantee judges never experience a cold-start latency delay, create a free ping on [cron-job.org](https://cron-job.org) hitting `https://<your-deployed-url>/api/health` every 10 minutes.
+1. **AHA 2026 CKM Syndrome Cascade:**  
+   Models multi-organ cross-coupling through a stacked conditioning pipeline: upstream metabolic (T2D) and renal (CKD) risk states dynamically condition downstream cardiovascular disease (CVD) and multimorbidity progression.
+2. **HL7 FHIR R4 & CDS Hooks 1.0 EHR Integration:**  
+   Exposes standard `GET /cds-services` discovery and `POST /cds-services/vitarisk-ckm-advisor` endpoints (`patient-view` and `order-select` hooks) that map LOINC laboratory codes directly into EHR-embedded decision cards and 1-click order suggestions.
+3. **5-Fold Probability Calibration:**  
+   Post-hoc sigmoid calibration ensures predicted probabilities reflect true empirical incidence, keeping Expected Calibration Error (ECE ≤ 0.042) and Brier score (Brier ≤ 0.141) bounded across all production endpoints.
+4. **Decision Curve Analysis (DCA):**  
+   Validates net clinical benefit using Vickers & Elkin decision curves across standard treatment thresholds (5%–40%), proving superior clinical utility over "Treat All" and "Treat None" strategies.
+5. **Probability-Space SHAP Explanations:**  
+   Decomposes individual patient risk into additive percentage points ($\Delta p_i$) rather than unintuitive log-odds, allowing clinicians to review biomarker attributions in seconds.
+6. **Hard Medication Safety Guardrails:**  
+   Enforces KDIGO 2024 renal contraindication rules, issuing mandatory dose-halving warnings at eGFR 30–44 mL/min/1.73m² and hard-stop alerts against Metformin at eGFR < 30 mL/min/1.73m² to prevent lactic acidosis.
+7. **Physiologically Coupled Counterfactual Presets:**  
+   Models therapeutic impact using landmark trial regimens (SGLT2 inhibitors [DAPA-CKD / EMPA-KIDNEY], GLP-1 receptor agonists [SELECT / SURMOUNT], and optimized RAAS blockade + statin) with coupled biomarker co-variation.
+8. **Operationalized Algorithmic Fairness Mitigation:**  
+   Applies subgroup-calibrated thresholds ($\tau_g$) to equalize sensitivity and false-negative rates across demographic groups, actively catching at-risk patients who would be missed under unadjusted global cutoffs.
 
 ---
 
-## 🔬 System Architecture
+## System Architecture
 
 ```mermaid
 flowchart TD
-    A["Longitudinal EHR Data<br/>(12,000 Cohort • 33 Clinical Variables • Realistic Missingness)"] --> B["Data Ingestion & Feature Engineering<br/>(2021 Race-Free CKD-EPI eGFR • Latent Variance Confounders)"]
+    A["Longitudinal EHR Ingestion<br/>(HL7 FHIR R4 Bundle • LOINC Coded Labs)"] --> B["Feature Engineering & Imputation<br/>(2021 Race-Free CKD-EPI eGFR • SDoH Deprivation)"]
     B --> C["3-Stage Cardiorenal-Metabolic (CKM) Modeling<br/>(Stage 1-2: T2D & CKD -> Stage 3: CVD -> Stage 4: Multimorbidity)"]
     C --> D["5-Fold Sigmoid Probability Calibration<br/>(CalibratedClassifierCV • ECE ≤ 0.042 • Brier ≤ 0.141)"]
     D --> E["Probability-Space TreeSHAP<br/>(Additive % Point Decompositions)"]
     D --> F["Decision Curve Analysis (DCA)<br/>(Net Clinical Benefit across 17 Thresholds)"]
-    D --> G["Operationalized Fairness Mitigation<br/>(tau_g Early-Interception & Equalized Sensitivity)"]
-    D --> H["Actionable CDS & Guardrail Engine<br/>(ADA 2026 • KDIGO 2024 • Metformin eGFR Safety)"]
-    H --> I["Physiologically Coupled Counterfactuals<br/>(SGLT2i, GLP-1 RA, RAAS+Statin Trial Presets)"]
-    H --> K["HL7 FHIR R4 & CDS Hooks 1.0<br/>(Native Epic/Cerner EHR Alert Cards & LOINC Parser)"]
-    I --> J["Full-Stack Clinical Dashboard<br/>(FastAPI Backend :8000 • React 18 / Tailwind Frontend)"]
-    K --> J
+    D --> G["Operationalized Fairness Mitigation<br/>(Subgroup Thresholds tau_g Equalizing Sensitivity)"]
+    D --> H["Clinical Guideline & Safety Engine<br/>(KDIGO 2024 • ADA 2026 • Metformin Contraindication)"]
+    H --> I["HL7 CDS Hooks 1.0 Service<br/>(EHR Alert Cards • 1-Click GDMT Orders)"]
+    H --> J["Physiologically Coupled Simulator<br/>(SGLT2i, GLP-1 RA, RAAS+Statin Presets)"]
+    I --> K["Interactive Clinical Interface<br/>(FastAPI :8000 • React 18 / Tailwind Frontend)"]
+    J --> K
 ```
 
 ---
 
-## ⚡ Pre-Submission Verification Gates Passed
+## Quickstart & Local Setup
 
-The platform incorporates automated pre-submission testing across 12 critical validation gates plus the full audit-remediation suite:
+### Prerequisites
+- Python 3.12+
+- Node.js 18+ (for frontend development)
+- Docker (optional)
+
+### 1. Run with Docker (Recommended)
 ```bash
-./run_tests.sh   # prefers .venv, falls back to ~/.venvs/vitarisk
+# Build the production container
+docker build -t vitarisk-cds .
+
+# Run on port 8000
+docker run -p 8000:8000 vitarisk-cds
 ```
-* ✅ **Gate 1:** Zero Synthetic Circularity (Latent Confounding Bounding AUC to 0.79–0.85)
-* ✅ **Gate 2:** Structured Clinical Missingness Handling (10% uACR, 14% hs-CRP)
-* ✅ **Gate 3:** Anachronism-Free Race Equation (2021 CKD-EPI Standard)
-* ✅ **Gate 4:** CKM Cardiorenal-Metabolic Cascade Cross-Coupling (+4.91-pp CVD coupling driver by mean |SHAP|)
-* ✅ **Gate 5:** 5-Fold Sigmoid Probability Calibration (ECE ≤ 0.042, Brier ≤ 0.141)
-* ✅ **Gate 6:** Additive Probability-Space SHAP Explanations in % Points
-* ✅ **Gate 7:** Physiologically Coupled Counterfactual Presets (SGLT2i, GLP-1, RAAS)
-* ✅ **Gate 8:** Active Subgroup Threshold Calibration (validation-fitted $\tau_g$; Equal-Opportunity gaps reduced, e.g. T2D sex gap 0.077 → 0.007, CKD age gap 0.44 → 0.13)
-* ✅ **Gate 9:** Drug Contraindication Guardrail (Metformin eGFR < 30 alert)
-* ✅ **Gate 10:** Sub-50ms API SLA & Zero-Friction 5-Persona Clinical UX
-* ✅ **Gate 11:** HL7 FHIR R4 Bundle Ingestion & HL7 CDS Hooks 1.0 (`patient-view` & `order-select` with LOINC mapping)
-* ✅ **Gate 12:** Operationalized Comparative Baselines (Tangri KFRE 4-Var JAMA 2016 vs AHA PREVENT 2024 vs VitaRisk)
+Open `http://localhost:8000` in your browser.
 
----
+### 2. Run from Source
+```bash
+# Clone the repository
+git clone https://github.com/armageden/vitarisk-cds.git
+cd vitarisk-cds
 
-## 📁 Repository Directory Structure
+# Set up Python virtual environment and dependencies
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
 
-```text
-datanova-hackathon/
-├── Dockerfile                       # Production container (HF Spaces, Render, Railway)
-├── .dockerignore                    # Minimal build context
-├── requirements.txt                 # Lean production Python dependencies
-├── data/
-│   ├── generate_ehr_cohort.py       # Longitudinal synthetic EHR generator (N=12,000)
-│   └── ehr_cohort.csv               # 33-variable clinical dataset
-├── ml/
-│   ├── train_models.py              # ML pipeline, CKM cascade, SHAP explainers, DCA
-│   ├── fairness_and_cds.py          # Active fairness mitigation & guideline rules engine
-│   └── artifacts/                   # Saved XGBoost models, explainers, metrics, DCA data
-├── backend/
-│   ├── main.py                      # Production FastAPI REST API & static file serving
-│   └── test_backend.py              # Automated 10-gate pre-submission verification
-├── frontend/
-│   ├── src/                         # React 18 application with Tailwind CSS & Recharts
-│   │   ├── App.jsx                  # Dashboard, 5 personas, SHAP waterfall, DCA charts
-│   │   └── main.jsx
-│   ├── dist/                        # Pre-compiled high-performance production build
-│   └── package.json
-├── presentation/
-│   ├── generate_deck.py             # Python-pptx generator with embedded UI screenshots
-│   ├── screenshots/                 # High-resolution screenshots of live UI features
-│   └── VitaRisk_CDS_DataNova2026_Presentation.pptx # 14-slide executive deck
-├── docs/
-│   ├── VALIDATION_REPORT.md         # Full clinical validation report
-│   ├── VIDEO_SCRIPT.md              # 3:38 walkthrough video demonstration script
-│   └── SUBMISSION_DEVPOST.md        # Formatted Devpost submission text
-├── scripts/
-│   ├── capture_screenshots.py       # Playwright UI screenshot capture (5 shots)
-│   └── produce_demo_video.py        # Neural-voiceover walkthrough video producer
-├── process/                         # Engineering process docs & failure-mode guide
-├── requirements.txt / requirements-dev.txt
-├── run_tests.sh                     # One-command pre-submission verification suite
-└── README.md
+# Start the FastAPI service (serves pre-built React frontend)
+uvicorn backend.main:app --host 0.0.0.0 --port 8000
 ```
 
 ---
 
-## 👥 Authors & Team Contributions
-Developed for **DataNova 2026 Global Data-thon** by the VitaRisk Team:
-- **Data Engineering & Clinical Modeling:** Synthetic EHR generation, 2021 CKD-EPI formula, CKM cascade pipeline.
-- **Explainable AI & Fairness Auditing:** Probability-space SHAP TreeExplainer integration, active subgroup threshold calibration ($\tau_g$).
-- **Clinical Decision Support & Full-Stack UI:** FastAPI REST services, React/Tailwind frontend, What-If simulator, and PowerPoint slide deck.
+## Cloud Deployment
+
+VitaRisk CDS is containerized for standard cloud platforms:
+
+### Hugging Face Spaces (Docker SDK)
+Deploy with the included helper script:
+```bash
+./scripts/deploy_hf.sh <your-hf-username> vitarisk-cds
+```
+Or manually connect your repository to a new Docker Space with `app_port: 8000`.
+
+### Render or Railway
+- Connect this repository to **Render** as a Web Service. The included [`render.yaml`](render.yaml) automatically configures the Docker build and sets the health check to `/api/health`.
+
+---
+
+## Interoperability & API Specification
+
+| Endpoint | Method | Specification | Description |
+|---|---|---|---|
+| `/cds-services` | `GET` | HL7 CDS Hooks 1.0 | Service discovery endpoint listing supported CDS services (`vitarisk-ckm-advisor`). |
+| `/cds-services/vitarisk-ckm-advisor` | `POST` | HL7 CDS Hooks 1.0 | Evaluates incoming `patient-view` or `order-select` hooks; returns alert cards with 1-click orders. |
+| `/api/fhir/patient-bundle` | `POST` | HL7 FHIR R4 | Ingests a raw FHIR collection bundle containing Patient and Observation resources. |
+| `/api/fhir/sample-bundle/{id}` | `GET` | HL7 FHIR R4 | Returns an authentic FHIR R4 collection bundle for any canonical clinical persona. |
+| `/api/predict` | `POST` | REST / JSON | Joint multi-disease risk prediction, CKM staging, contraindication checks, and baselines. |
+| `/api/explain` | `POST` | REST / JSON | Computes additive probability-space SHAP feature attributions in percentage points. |
+| `/api/simulate` | `POST` | REST / JSON | Simulates evidence-based intervention presets (SGLT2i, GLP-1 RA, RAAS, Lifestyle). |
+| `/api/dca` | `GET` | REST / JSON | Vickers & Elkin Decision Curve Analysis net clinical benefit points. |
+| `/api/fairness` | `GET` | REST / JSON | Subgroup calibration and equal-opportunity auditing across protected attributes. |
+| `/api/health` | `GET` | REST / JSON | Service health status and pre-warmed model verification. |
+
+---
+
+## Verification & Clinical Test Suite
+
+VitaRisk includes an automated pre-deployment test suite validating 12 clinical quality gates and regression checks:
+
+```bash
+./run_tests.sh
+```
+
+- **Gate 1:** Zero Synthetic Circularity (latent unobserved variance bounds test ROC-AUCs to realistic clinical range: 0.79–0.85)
+- **Gate 2:** Structured Clinical Missingness Handling (uACR 10.0%, hs-CRP 13.8% missingness handled via sparsity-aware tree splits)
+- **Gate 3:** Race-Free Clinical Features (2021 NKF-ASN race-free CKD-EPI formula; race strictly restricted to protected audit metadata)
+- **Gate 4:** CKM Cascade Cross-Coupling (renal risk stacking feature verified as a leading CVD driver: +4.91 pp mean |SHAP|)
+- **Gate 5:** 5-Fold Sigmoid Probability Calibration (ECE ≤ 0.042, Brier ≤ 0.141 across all production endpoints)
+- **Gate 6:** Additive Probability-Space SHAP Decomposition (sum of feature percentage points equals calibrated risk delta)
+- **Gate 7:** Physiologically Coupled Counterfactual Presets (SGLT2i, GLP-1 RA, RAAS blockade verified with clinical trial deltas)
+- **Gate 8:** Active Subgroup Threshold Calibration (validation-fitted $\tau_g$ equalizes sensitivity across protected subgroups)
+- **Gate 9:** Clinical Contraindication Guardrails (mandatory dose-halving and hard-stop alerts at eGFR < 30 mL/min/1.73m²)
+- **Gate 10:** Sub-50ms Inference Latency SLA (pre-warmed singleton lifespan achieving <15ms p95 response time)
+- **Gate 11:** HL7 FHIR R4 & CDS Hooks 1.0 (verified discovery, hook execution, and LOINC observation parsing)
+- **Gate 12:** Operationalized Comparative Baselines (benchmarking against Tangri KFRE 4-Var and AHA PREVENT 2024)
+
+---
+
+## Clinical Documentation & References
+
+- [Clinical Validation Report](docs/VALIDATION_REPORT.md): Detailed epidemiological formulas, calibration reliability diagrams, and Decision Curve Net Benefit tables.
+- [Clinical Validity & Limitations](docs/CLINICAL_VALIDITY_AND_LIMITATIONS.md): Transparent documentation of synthetic cohort design, external validation roadmap, and regulatory framing.
+- [Devpost Submission Overview](docs/SUBMISSION_DEVPOST.md): Formal submission documentation and clinical impact analysis.
+- [Walkthrough Video Script](docs/VIDEO_SCRIPT.md): Step-by-step demonstration storyboard.
+
+---
+
+## Clinical Disclaimer & Regulatory Status
+
+VitaRisk CDS is an educational and research prototype. The development cohort ($N = 12,000$) is a privacy-preserving synthetic twin cohort generated from published population distributions (CDC NHANES 2017–2020, UK Biobank, Framingham, AHA PREVENT, KDIGO, and QDiabetes) with latent unobserved confounders and structured clinical missingness; it contains no real patient data and has not undergone prospective external clinical trials. 
+
+VitaRisk CDS is **not an FDA-cleared medical device** and is not intended for primary clinical diagnosis or autonomous patient treatment decisions. All risk scores, CKM stages, and medication suggestions are clinical decision-support outputs intended for licensed clinician review. Any clinical deployment would require prospective multi-site validation and appropriate Software as a Medical Device (SaMD, Class II) regulatory review.
+
+---
+
+## License
+
+This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
