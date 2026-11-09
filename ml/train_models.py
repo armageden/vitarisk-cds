@@ -33,6 +33,37 @@ import shap
 
 SEED = 42
 
+def compute_sample_weights(df, target):
+    """Kamiran-Calders reweighting for demographic parity (in-processing fairness).
+
+    Computes intersectional weights over ethnicity x ses_tertile x label so that
+    the training distribution is rebalanced toward demographic parity without
+    changing the feature space.  Weights are normalized to sum to len(df).
+    """
+    y = df[target].values.astype(int)
+    # Bin ses_decile into tertiles for stable intersectional grouping
+    try:
+        ses_tertile = pd.qcut(df["ses_decile"], 3, labels=False, duplicates="drop")
+    except Exception:
+        ses_tertile = pd.cut(df["ses_decile"], bins=3, labels=False)
+    ses_tertile = ses_tertile.fillna(0).astype(int).values
+    ethnicity = df["ethnicity"].astype(str).values
+    group = np.array([f"{e}_{s}" for e, s in zip(ethnicity, ses_tertile)])
+
+    n = len(df)
+    weights = np.ones(n, dtype=float)
+    for g in np.unique(group):
+        for label in (0, 1):
+            mask = (group == g) & (y == label)
+            p_g = (group == g).mean()
+            p_y = (y == label).mean()
+            p_gy = mask.mean()
+            if p_gy > 0 and p_g > 0 and p_y > 0:
+                weights[mask] = (p_g * p_y) / p_gy
+    # Normalize so mean weight = 1 (preserves effective sample size)
+    weights = weights / weights.mean()
+    return weights
+
 # Race/Ethnicity is STRICTLY EXCLUDED from predictive features (FM-03)
 FEATURE_COLS_NUMERIC = [
     "age",
@@ -113,7 +144,7 @@ def compute_decision_curve_net_benefit(y_true, y_prob, thresholds=None):
         })
     return results
 
-def oof_calibrated_proba(model_fn, X, y, cv=5):
+def oof_calibrated_proba(model_fn, X, y, cv=5, sample_weight=None):
     """
     Out-of-fold probabilities from a calibrated estimator (nested CV):
     each training sample is scored only by models that never saw it, so the
@@ -121,8 +152,11 @@ def oof_calibrated_proba(model_fn, X, y, cv=5):
     production engine receives at inference time.
     """
     cal = CalibratedClassifierCV(estimator=model_fn(), method="sigmoid", cv=5)
+    fit_params = {}
+    if sample_weight is not None:
+        fit_params["sample_weight"] = sample_weight
     # n_jobs=1: process-pool workers (loky) fail under sandboxed exec on some hosts; fits are small
-    return cross_val_predict(cal, X, y, cv=cv, method="predict_proba", n_jobs=1)[:, 1]
+    return cross_val_predict(cal, X, y, cv=cv, method="predict_proba", n_jobs=1, params=fit_params)[:, 1]
 
 def build_preprocessor(df):
     imputer = SimpleImputer(strategy="median")
@@ -171,6 +205,10 @@ def train_and_evaluate(data_path="data/ehr_cohort.csv", artifacts_dir="ml/artifa
         df["uacr"] = df["uacr_observed"]
     if "hs_crp_observed" in df.columns:
         df["hs_crp"] = df["hs_crp_observed"]
+    # Close train/serve skew: train on observed (missing) triglycerides so the
+    # imputer learns the production missingness pattern (FM-02 consistency).
+    if "triglycerides_observed" in df.columns:
+        df["triglycerides"] = df["triglycerides_observed"]
     
     # Stratified Train/Val/Test Split (70% train, 15% val, 15% test)
     train_df, test_df = train_test_split(df, test_size=0.30, random_state=SEED, stratify=df["risk_tier"])
@@ -213,16 +251,23 @@ def train_and_evaluate(data_path="data/ehr_cohort.csv", artifacts_dir="ml/artifa
         y_train = train_df[target].values
         y_val = val_df[target].values
         y_test = test_df[target].values
-        
+
+        # Kamiran-Calders reweighting for demographic parity (in-processing)
+        sw_train = compute_sample_weights(train_df, target)
+        print(f"  Sample weights: min={sw_train.min():.3f} max={sw_train.max():.3f} mean={sw_train.mean():.3f}")
+
+        # Per-target calibration method: isotonic for T2D (better Brier), sigmoid otherwise
+        cal_method = "isotonic" if target == "onset_t2d" else "sigmoid"
+
         target_results = {}
         for m_name, m_fn in models_config.items():
             base_model = m_fn()
-            base_model.fit(X_train, y_train)
-            
+            base_model.fit(X_train, y_train, sample_weight=sw_train)
+
             # Post-hoc Probability Calibration (FM-05) via 5-Fold CalibratedClassifierCV
-            cal_model = CalibratedClassifierCV(estimator=base_model, method="sigmoid", cv=5)
-            cal_model.fit(X_train, y_train)
-            
+            cal_model = CalibratedClassifierCV(estimator=base_model, method=cal_method, cv=5)
+            cal_model.fit(X_train, y_train, sample_weight=sw_train)
+
             y_pred_prob = cal_model.predict_proba(X_test)[:, 1]
             y_pred_bin = (y_pred_prob >= 0.35).astype(int)
             
@@ -267,8 +312,10 @@ def train_and_evaluate(data_path="data/ehr_cohort.csv", artifacts_dir="ml/artifa
     # Augment features with predicted T2D & CKD risk states (capturing CKM syndrome).
     # Training-time stacked features are OUT-OF-FOLD (Finding 4) so they match the
     # out-of-sample probabilities the engine feeds at inference.
-    p_t2d_train = oof_calibrated_proba(models_config["XGBoost"], X_train, train_df["onset_t2d"].values).reshape(-1, 1)
-    p_ckd_train = oof_calibrated_proba(models_config["XGBoost"], X_train, train_df["onset_ckd"].values).reshape(-1, 1)
+    sw_t2d = compute_sample_weights(train_df, "onset_t2d")
+    sw_ckd = compute_sample_weights(train_df, "onset_ckd")
+    p_t2d_train = oof_calibrated_proba(models_config["XGBoost"], X_train, train_df["onset_t2d"].values, sample_weight=sw_t2d).reshape(-1, 1)
+    p_ckd_train = oof_calibrated_proba(models_config["XGBoost"], X_train, train_df["onset_ckd"].values, sample_weight=sw_ckd).reshape(-1, 1)
     X_train_ckm = np.hstack([X_train, p_t2d_train, p_ckd_train])
     
     p_t2d_val = calibrated_models["onset_t2d"].predict_proba(X_val)[:, 1:2]
@@ -282,14 +329,16 @@ def train_and_evaluate(data_path="data/ehr_cohort.csv", artifacts_dir="ml/artifa
     y_train_cvd = train_df["onset_cvd"].values
     y_val_cvd = val_df["onset_cvd"].values
     y_test_cvd = test_df["onset_cvd"].values
-    
+
+    sw_cvd = compute_sample_weights(train_df, "onset_cvd")
+
     cvd_results = {}
     for m_name, m_fn in models_config.items():
         base_model = m_fn()
-        base_model.fit(X_train_ckm, y_train_cvd)
-        
+        base_model.fit(X_train_ckm, y_train_cvd, sample_weight=sw_cvd)
+
         cal_model = CalibratedClassifierCV(estimator=base_model, method="sigmoid", cv=5)
-        cal_model.fit(X_train_ckm, y_train_cvd)
+        cal_model.fit(X_train_ckm, y_train_cvd, sample_weight=sw_cvd)
         
         y_pred_prob = cal_model.predict_proba(X_test_ckm)[:, 1]
         y_pred_bin = (y_pred_prob >= 0.30).astype(int)
@@ -334,12 +383,14 @@ def train_and_evaluate(data_path="data/ehr_cohort.csv", artifacts_dir="ml/artifa
     y_train_mm = train_df["onset_multimorbidity"].values
     y_val_mm = val_df["onset_multimorbidity"].values
     y_test_mm = test_df["onset_multimorbidity"].values
-    
+
+    sw_mm = compute_sample_weights(train_df, "onset_multimorbidity")
+
     # Train stacked meta-classifier for multimorbidity
     mm_base = XGBClassifier(n_estimators=100, max_depth=3, learning_rate=0.04, random_state=SEED)
-    mm_base.fit(X_train_ckm, y_train_mm)
+    mm_base.fit(X_train_ckm, y_train_mm, sample_weight=sw_mm)
     cal_mm = CalibratedClassifierCV(estimator=mm_base, method="sigmoid", cv=5)
-    cal_mm.fit(X_train_ckm, y_train_mm)
+    cal_mm.fit(X_train_ckm, y_train_mm, sample_weight=sw_mm)
     
     y_prob_mm = cal_mm.predict_proba(X_test_ckm)[:, 1]
     roc_mm = roc_auc_score(y_test_mm, y_prob_mm)

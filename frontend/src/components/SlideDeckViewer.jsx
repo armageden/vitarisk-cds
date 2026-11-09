@@ -169,7 +169,7 @@ export default function SlideDeckViewer({ currentSlide, setCurrentSlide, totalSl
       id: 12,
       badge: "RESPONSIBLE AI & GOVERNANCE",
       title: "Responsible AI, Governance & FHIR Integration",
-      subtitle: "Engineered for compliance with FDA Software as a Medical Device (SaMD) standards",
+      subtitle: "Clinician-in-the-loop decision support; not a medical device (research prototype)",
       gridCards: [
         { title: "HL7 FHIR / SMART", items: ["RESTful SMART on FHIR architecture", "Plug-and-play integration for Epic App Orchard and Oracle Health", "Standardized Observation & Condition resource mapping"] },
         { title: "HIPAA & Edge Deployment", items: ["De-identified biomarker arrays with zero PHI transmission", "Runs self-contained within hospital firewall via Docker", "Sub-15ms local inference without cloud dependencies"] },

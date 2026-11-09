@@ -55,16 +55,16 @@ The cohort was split into Stratified Training (70%, $N=8,400$), Validation (15%,
 | ONSET_T2D | Logistic Regression | 0.7976 | 0.4975 | 0.1137 | 0.0146 | 0.4729 |
 | ONSET_T2D | Random Forest | 0.7929 | 0.4965 | 0.1149 | 0.0264 | 0.4647 |
 | ONSET_T2D | LightGBM | 0.7983 | 0.4933 | 0.1139 | 0.0105 | 0.4740 |
-| ONSET_T2D | XGBoost (Production) | 0.7981 | 0.4920 | 0.1145 | 0.0255 | 0.4584 |
+| ONSET_T2D | XGBoost (Production) | 0.7984 | 0.4853 | 0.1140 | 0.0107 | 0.4584 |
 | ONSET_CKD | Logistic Regression | 0.8282 | 0.6183 | 0.1395 | 0.0261 | 0.5821 |
 | ONSET_CKD | Random Forest | 0.8230 | 0.6121 | 0.1419 | 0.0367 | 0.5714 |
 | ONSET_CKD | LightGBM | 0.8282 | 0.6212 | 0.1394 | 0.0345 | 0.5752 |
-| ONSET_CKD | XGBoost (Production) | 0.8298 | 0.6265 | 0.1403 | 0.0419 | 0.5770 |
+| ONSET_CKD | XGBoost (Production) | 0.8298 | 0.6257 | 0.1403 | 0.0352 | 0.5770 |
 | ONSET_CVD | Logistic Regression | 0.7971 | 0.4593 | 0.1154 | 0.0124 | 0.4769 |
 | ONSET_CVD | Random Forest | 0.7874 | 0.4474 | 0.1182 | 0.0325 | 0.4638 |
 | ONSET_CVD | LightGBM | 0.7907 | 0.4516 | 0.1164 | 0.0136 | 0.4824 |
-| ONSET_CVD | XGBoost (Production) | 0.7942 | 0.4624 | 0.1161 | 0.0216 | 0.4691 |
-| ONSET_MULTIMORBIDITY | XGBoost (Stacked CKM) | 0.8512 | — | 0.1007 | 0.0415 | — |
+| ONSET_CVD | XGBoost (Production) | 0.7926 | 0.4610 | 0.1164 | 0.0247 | 0.4691 |
+| ONSET_MULTIMORBIDITY | XGBoost (Stacked CKM) | 0.8508 | — | 0.1003 | 0.0352 | — |
 
 After post-hoc sigmoid calibration, all four model families are comparably calibrated (ECE 0.011–0.042). **XGBoost is deployed because** it achieves the best CKD discrimination (0.8298), is within noise of the best on T2D/CVD AUC, and is natively compatible with SHAP TreeExplainer — which powers the probability-space explanations the CDS UI shows clinicians. All numbers in this report are generated from `ml/artifacts/*.json` produced by the seeded (`SEED=42`) reproducible pipeline.
 
@@ -95,7 +95,7 @@ $$\hat{f}(x) = \phi_0 + \sum_{i=1}^{M} \phi_i(x)$$
    - `Age` (+0.76 % pts): Age-associated nephron loss.
 
 3. **Cardiovascular Disease (CVD / MACE):**
-   - `Predicted CKD Risk (CKM coupling)` (+5.28 % pts mean |SHAP|): The cardiorenal coupling term — upstream kidney risk materially elevates CVD risk.
+   - `Predicted CKD Risk (CKM coupling)` (+4.91 % pts mean |SHAP|): The cardiorenal coupling term — upstream kidney risk materially elevates CVD risk.
    - `Age` (+4.09 % pts): Cumulative vascular aging.
    - `Non-HDL Cholesterol` (+2.43 % pts): Atherogenic particle concentration.
    - `Systolic BP` (+2.26 % pts): Shear stress and arterial stiffness.
@@ -165,3 +165,13 @@ With the one-click **SGLT2i trial preset**, Persona 1 (58F) drops from 47.5% to 
 These values are produced by the production `simulate_counterfactual` engine on the same inputs shown in the re-captured UI screenshot (`presentation/screenshots/screenshot_shap_counterfactual_trial.png`, which shows the SGLT2i preset on Persona 3: 89.2% → 89.0%); the simulator couples BMI→SBP/HbA1c/triglycerides physiology and enforces physiological bounds (e.g., no impossible short-term eGFR gains).
 
 This gives clinicians an interactive motivational counseling tool to demonstrate tangible benefits directly to the patient during a standard 15-minute primary care visit.
+
+---
+
+## 8. Limitations & Validation Status (Honest Framing)
+
+- **Synthetic cohort, no real patients.** The 12,000-patient cohort is generated from published NHANES/UK Biobank/Framingham/AHA PREVENT/KDIGO/QDiabetes distributions with latent unobserved confounders and realistic missingness. It contains no real patient data.
+- **No external validation.** Metrics (ROC-AUC 0.79–0.85, ECE ≤ 0.042, Brier ≤ 0.141) are internal hold-out estimates on the synthetic cohort, not clinical performance guarantees. Outcome labels are stochastic (Bernoulli) draws from epidemiological hazard equations, so metrics reflect recovery of a known data-generating process.
+- **Fairness mitigation is a proposed policy.** τ_g thresholds are fitted on the validation cohort and evaluated on held-out test data; they are not yet wired into production tiering. Demographic parity across age groups is structurally unattainable and is not claimed.
+- **Not a medical device.** VitaRisk is a research/educational prototype, not cleared or approved by the FDA or any regulator. Treatment suggestions are decision support for clinician review. Any clinical deployment requires external validation, prospective evaluation, and regulatory review (likely SaMD, Class II).
+- **See** `docs/CLINICAL_VALIDITY_AND_LIMITATIONS.md` for the full disclaimer, validation roadmap, and regulatory framing.

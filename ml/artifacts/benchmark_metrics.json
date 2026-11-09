@@ -3,36 +3,36 @@
     "primary_production_model": "XGBoost (Calibrated)",
     "metrics": {
       "LogisticRegression": {
-        "ROC_AUC": 0.7976,
-        "PR_AUC": 0.4975,
-        "Brier_Score": 0.1137,
-        "ECE": 0.0146,
-        "F1_Score": 0.4729,
-        "Val_ROC_AUC": 0.8143
+        "ROC_AUC": 0.7954,
+        "PR_AUC": 0.4811,
+        "Brier_Score": 0.1147,
+        "ECE": 0.0139,
+        "F1_Score": 0.45,
+        "Val_ROC_AUC": 0.8105
       },
       "RandomForest": {
-        "ROC_AUC": 0.7929,
-        "PR_AUC": 0.4965,
-        "Brier_Score": 0.1149,
-        "ECE": 0.0264,
-        "F1_Score": 0.4647,
-        "Val_ROC_AUC": 0.8088
+        "ROC_AUC": 0.7932,
+        "PR_AUC": 0.4917,
+        "Brier_Score": 0.1143,
+        "ECE": 0.0124,
+        "F1_Score": 0.487,
+        "Val_ROC_AUC": 0.8092
       },
       "LightGBM": {
-        "ROC_AUC": 0.7983,
-        "PR_AUC": 0.4933,
-        "Brier_Score": 0.1139,
-        "ECE": 0.0105,
-        "F1_Score": 0.474,
-        "Val_ROC_AUC": 0.8123
+        "ROC_AUC": 0.7947,
+        "PR_AUC": 0.4784,
+        "Brier_Score": 0.1147,
+        "ECE": 0.0144,
+        "F1_Score": 0.4836,
+        "Val_ROC_AUC": 0.8105
       },
       "XGBoost": {
-        "ROC_AUC": 0.7981,
-        "PR_AUC": 0.492,
-        "Brier_Score": 0.1145,
-        "ECE": 0.0255,
-        "F1_Score": 0.4584,
-        "Val_ROC_AUC": 0.8146
+        "ROC_AUC": 0.7984,
+        "PR_AUC": 0.4853,
+        "Brier_Score": 0.114,
+        "ECE": 0.0107,
+        "F1_Score": 0.4762,
+        "Val_ROC_AUC": 0.8149
       }
     }
   },
@@ -40,36 +40,36 @@
     "primary_production_model": "XGBoost (Calibrated)",
     "metrics": {
       "LogisticRegression": {
-        "ROC_AUC": 0.8282,
-        "PR_AUC": 0.6183,
-        "Brier_Score": 0.1395,
-        "ECE": 0.0261,
-        "F1_Score": 0.5821,
-        "Val_ROC_AUC": 0.8137
+        "ROC_AUC": 0.8267,
+        "PR_AUC": 0.6171,
+        "Brier_Score": 0.1398,
+        "ECE": 0.0272,
+        "F1_Score": 0.5782,
+        "Val_ROC_AUC": 0.814
       },
       "RandomForest": {
-        "ROC_AUC": 0.823,
-        "PR_AUC": 0.6121,
-        "Brier_Score": 0.1419,
-        "ECE": 0.0367,
-        "F1_Score": 0.5714,
-        "Val_ROC_AUC": 0.8067
+        "ROC_AUC": 0.8225,
+        "PR_AUC": 0.6108,
+        "Brier_Score": 0.142,
+        "ECE": 0.0385,
+        "F1_Score": 0.5687,
+        "Val_ROC_AUC": 0.8071
       },
       "LightGBM": {
-        "ROC_AUC": 0.8282,
-        "PR_AUC": 0.6212,
-        "Brier_Score": 0.1394,
-        "ECE": 0.0345,
-        "F1_Score": 0.5752,
-        "Val_ROC_AUC": 0.8153
+        "ROC_AUC": 0.8276,
+        "PR_AUC": 0.6224,
+        "Brier_Score": 0.1396,
+        "ECE": 0.0367,
+        "F1_Score": 0.5672,
+        "Val_ROC_AUC": 0.8161
       },
       "XGBoost": {
         "ROC_AUC": 0.8298,
-        "PR_AUC": 0.6265,
+        "PR_AUC": 0.6257,
         "Brier_Score": 0.1403,
-        "ECE": 0.0419,
-        "F1_Score": 0.577,
-        "Val_ROC_AUC": 0.8155
+        "ECE": 0.0352,
+        "F1_Score": 0.5739,
+        "Val_ROC_AUC": 0.8162
       }
     }
   },
@@ -77,35 +77,35 @@
     "primary_production_model": "XGBoost (CKM-Coupled Calibrated)",
     "metrics": {
       "LogisticRegression": {
-        "ROC_AUC": 0.7971,
-        "PR_AUC": 0.4593,
+        "ROC_AUC": 0.7974,
+        "PR_AUC": 0.4581,
         "Brier_Score": 0.1154,
-        "ECE": 0.0124,
-        "F1_Score": 0.4769,
-        "Val_ROC_AUC": 0.813
+        "ECE": 0.0143,
+        "F1_Score": 0.4731,
+        "Val_ROC_AUC": 0.8117
       },
       "RandomForest": {
-        "ROC_AUC": 0.7874,
-        "PR_AUC": 0.4474,
-        "Brier_Score": 0.1182,
-        "ECE": 0.0325,
-        "F1_Score": 0.4638,
-        "Val_ROC_AUC": 0.8004
+        "ROC_AUC": 0.7885,
+        "PR_AUC": 0.4501,
+        "Brier_Score": 0.1178,
+        "ECE": 0.0342,
+        "F1_Score": 0.4593,
+        "Val_ROC_AUC": 0.8002
       },
       "LightGBM": {
-        "ROC_AUC": 0.7907,
-        "PR_AUC": 0.4516,
+        "ROC_AUC": 0.7909,
+        "PR_AUC": 0.4521,
         "Brier_Score": 0.1164,
-        "ECE": 0.0136,
-        "F1_Score": 0.4824,
-        "Val_ROC_AUC": 0.8
+        "ECE": 0.0143,
+        "F1_Score": 0.4709,
+        "Val_ROC_AUC": 0.8014
       },
       "XGBoost": {
-        "ROC_AUC": 0.7942,
-        "PR_AUC": 0.4624,
-        "Brier_Score": 0.1161,
-        "ECE": 0.0216,
-        "F1_Score": 0.4691,
+        "ROC_AUC": 0.7926,
+        "PR_AUC": 0.461,
+        "Brier_Score": 0.1164,
+        "ECE": 0.0247,
+        "F1_Score": 0.4708,
         "Val_ROC_AUC": 0.8022
       }
     }
@@ -114,10 +114,10 @@
     "primary_production_model": "XGBoost (Stacked CKM)",
     "metrics": {
       "XGBoost": {
-        "ROC_AUC": 0.8512,
-        "Val_ROC_AUC": 0.8584,
-        "Brier_Score": 0.1007,
-        "ECE": 0.0415
+        "ROC_AUC": 0.8508,
+        "Val_ROC_AUC": 0.8598,
+        "Brier_Score": 0.1003,
+        "ECE": 0.0352
       }
     }
   }

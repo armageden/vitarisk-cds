@@ -2,7 +2,7 @@
   "onset_t2d": [
     {
       "threshold": 0.05,
-      "net_benefit_model": 0.1281,
+      "net_benefit_model": 0.133,
       "net_benefit_treat_all": 0.1281,
       "net_benefit_treat_none": 0.0
     },
@@ -14,91 +14,91 @@
     },
     {
       "threshold": 0.1,
-      "net_benefit_model": 0.1048,
+      "net_benefit_model": 0.1064,
       "net_benefit_treat_all": 0.0796,
       "net_benefit_treat_none": 0.0
     },
     {
       "threshold": 0.125,
-      "net_benefit_model": 0.0922,
+      "net_benefit_model": 0.094,
       "net_benefit_treat_all": 0.0533,
       "net_benefit_treat_none": 0.0
     },
     {
       "threshold": 0.15,
-      "net_benefit_model": 0.084,
+      "net_benefit_model": 0.0854,
       "net_benefit_treat_all": 0.0255,
       "net_benefit_treat_none": 0.0
     },
     {
       "threshold": 0.175,
-      "net_benefit_model": 0.074,
+      "net_benefit_model": 0.0763,
       "net_benefit_treat_all": -0.004,
       "net_benefit_treat_none": 0.0
     },
     {
       "threshold": 0.2,
-      "net_benefit_model": 0.0657,
+      "net_benefit_model": 0.0667,
       "net_benefit_treat_all": -0.0354,
       "net_benefit_treat_none": 0.0
     },
     {
       "threshold": 0.225,
-      "net_benefit_model": 0.0587,
+      "net_benefit_model": 0.0567,
       "net_benefit_treat_all": -0.0688,
       "net_benefit_treat_none": 0.0
     },
     {
       "threshold": 0.25,
-      "net_benefit_model": 0.0546,
+      "net_benefit_model": 0.0507,
       "net_benefit_treat_all": -0.1044,
       "net_benefit_treat_none": 0.0
     },
     {
       "threshold": 0.275,
-      "net_benefit_model": 0.0485,
+      "net_benefit_model": 0.048,
       "net_benefit_treat_all": -0.1425,
       "net_benefit_treat_none": 0.0
     },
     {
       "threshold": 0.3,
-      "net_benefit_model": 0.046,
+      "net_benefit_model": 0.0438,
       "net_benefit_treat_all": -0.1833,
       "net_benefit_treat_none": 0.0
     },
     {
       "threshold": 0.325,
-      "net_benefit_model": 0.0407,
+      "net_benefit_model": 0.0441,
       "net_benefit_treat_all": -0.2272,
       "net_benefit_treat_none": 0.0
     },
     {
       "threshold": 0.35,
-      "net_benefit_model": 0.0366,
+      "net_benefit_model": 0.0382,
       "net_benefit_treat_all": -0.2744,
       "net_benefit_treat_none": 0.0
     },
     {
       "threshold": 0.375,
-      "net_benefit_model": 0.033,
+      "net_benefit_model": 0.0337,
       "net_benefit_treat_all": -0.3253,
       "net_benefit_treat_none": 0.0
     },
     {
       "threshold": 0.4,
-      "net_benefit_model": 0.0304,
+      "net_benefit_model": 0.0309,
       "net_benefit_treat_all": -0.3806,
       "net_benefit_treat_none": 0.0
     },
     {
       "threshold": 0.425,
-      "net_benefit_model": 0.0273,
+      "net_benefit_model": 0.0264,
       "net_benefit_treat_all": -0.4406,
       "net_benefit_treat_none": 0.0
     },
     {
       "threshold": 0.45,
-      "net_benefit_model": 0.0221,
+      "net_benefit_model": 0.0213,
       "net_benefit_treat_all": -0.5061,
       "net_benefit_treat_none": 0.0
     }
@@ -118,7 +118,7 @@
     },
     {
       "threshold": 0.1,
-      "net_benefit_model": 0.1946,
+      "net_benefit_model": 0.1942,
       "net_benefit_treat_all": 0.1716,
       "net_benefit_treat_none": 0.0
     },
@@ -130,79 +130,79 @@
     },
     {
       "threshold": 0.15,
-      "net_benefit_model": 0.1771,
+      "net_benefit_model": 0.1779,
       "net_benefit_treat_all": 0.1229,
       "net_benefit_treat_none": 0.0
     },
     {
       "threshold": 0.175,
-      "net_benefit_model": 0.1638,
+      "net_benefit_model": 0.1633,
       "net_benefit_treat_all": 0.0963,
       "net_benefit_treat_none": 0.0
     },
     {
       "threshold": 0.2,
-      "net_benefit_model": 0.1453,
+      "net_benefit_model": 0.1465,
       "net_benefit_treat_all": 0.0681,
       "net_benefit_treat_none": 0.0
     },
     {
       "threshold": 0.225,
-      "net_benefit_model": 0.1337,
+      "net_benefit_model": 0.1343,
       "net_benefit_treat_all": 0.038,
       "net_benefit_treat_none": 0.0
     },
     {
       "threshold": 0.25,
-      "net_benefit_model": 0.123,
+      "net_benefit_model": 0.1226,
       "net_benefit_treat_all": 0.0059,
       "net_benefit_treat_none": 0.0
     },
     {
       "threshold": 0.275,
-      "net_benefit_model": 0.1119,
+      "net_benefit_model": 0.1096,
       "net_benefit_treat_all": -0.0284,
       "net_benefit_treat_none": 0.0
     },
     {
       "threshold": 0.3,
-      "net_benefit_model": 0.0987,
+      "net_benefit_model": 0.101,
       "net_benefit_treat_all": -0.0651,
       "net_benefit_treat_none": 0.0
     },
     {
       "threshold": 0.325,
-      "net_benefit_model": 0.0927,
+      "net_benefit_model": 0.0935,
       "net_benefit_treat_all": -0.1045,
       "net_benefit_treat_none": 0.0
     },
     {
       "threshold": 0.35,
-      "net_benefit_model": 0.0882,
+      "net_benefit_model": 0.0871,
       "net_benefit_treat_all": -0.147,
       "net_benefit_treat_none": 0.0
     },
     {
       "threshold": 0.375,
-      "net_benefit_model": 0.082,
+      "net_benefit_model": 0.0821,
       "net_benefit_treat_all": -0.1929,
       "net_benefit_treat_none": 0.0
     },
     {
       "threshold": 0.4,
-      "net_benefit_model": 0.0765,
+      "net_benefit_model": 0.0743,
       "net_benefit_treat_all": -0.2426,
       "net_benefit_treat_none": 0.0
     },
     {
       "threshold": 0.425,
-      "net_benefit_model": 0.0693,
+      "net_benefit_model": 0.0718,
       "net_benefit_treat_all": -0.2966,
       "net_benefit_treat_none": 0.0
     },
     {
       "threshold": 0.45,
-      "net_benefit_model": 0.0643,
+      "net_benefit_model": 0.0627,
       "net_benefit_treat_all": -0.3556,
       "net_benefit_treat_none": 0.0
     }
@@ -216,13 +216,13 @@
     },
     {
       "threshold": 0.075,
-      "net_benefit_model": 0.1161,
+      "net_benefit_model": 0.1176,
       "net_benefit_treat_all": 0.1033,
       "net_benefit_treat_none": 0.0
     },
     {
       "threshold": 0.1,
-      "net_benefit_model": 0.102,
+      "net_benefit_model": 0.1038,
       "net_benefit_treat_all": 0.0784,
       "net_benefit_treat_none": 0.0
     },
@@ -234,43 +234,43 @@
     },
     {
       "threshold": 0.15,
-      "net_benefit_model": 0.0812,
+      "net_benefit_model": 0.0787,
       "net_benefit_treat_all": 0.0242,
       "net_benefit_treat_none": 0.0
     },
     {
       "threshold": 0.175,
-      "net_benefit_model": 0.0758,
+      "net_benefit_model": 0.077,
       "net_benefit_treat_all": -0.0054,
       "net_benefit_treat_none": 0.0
     },
     {
       "threshold": 0.2,
-      "net_benefit_model": 0.0694,
+      "net_benefit_model": 0.0686,
       "net_benefit_treat_all": -0.0368,
       "net_benefit_treat_none": 0.0
     },
     {
       "threshold": 0.225,
-      "net_benefit_model": 0.0616,
+      "net_benefit_model": 0.0599,
       "net_benefit_treat_all": -0.0703,
       "net_benefit_treat_none": 0.0
     },
     {
       "threshold": 0.25,
-      "net_benefit_model": 0.0517,
+      "net_benefit_model": 0.0509,
       "net_benefit_treat_all": -0.1059,
       "net_benefit_treat_none": 0.0
     },
     {
       "threshold": 0.275,
-      "net_benefit_model": 0.0455,
+      "net_benefit_model": 0.0449,
       "net_benefit_treat_all": -0.1441,
       "net_benefit_treat_none": 0.0
     },
     {
       "threshold": 0.3,
-      "net_benefit_model": 0.0412,
+      "net_benefit_model": 0.0415,
       "net_benefit_treat_all": -0.1849,
       "net_benefit_treat_none": 0.0
     },
@@ -282,31 +282,31 @@
     },
     {
       "threshold": 0.35,
-      "net_benefit_model": 0.0344,
+      "net_benefit_model": 0.0315,
       "net_benefit_treat_all": -0.2761,
       "net_benefit_treat_none": 0.0
     },
     {
       "threshold": 0.375,
-      "net_benefit_model": 0.0298,
+      "net_benefit_model": 0.0311,
       "net_benefit_treat_all": -0.3271,
       "net_benefit_treat_none": 0.0
     },
     {
       "threshold": 0.4,
-      "net_benefit_model": 0.028,
+      "net_benefit_model": 0.0265,
       "net_benefit_treat_all": -0.3824,
       "net_benefit_treat_none": 0.0
     },
     {
       "threshold": 0.425,
-      "net_benefit_model": 0.0251,
+      "net_benefit_model": 0.0219,
       "net_benefit_treat_all": -0.4425,
       "net_benefit_treat_none": 0.0
     },
     {
       "threshold": 0.45,
-      "net_benefit_model": 0.0186,
+      "net_benefit_model": 0.0191,
       "net_benefit_treat_all": -0.5081,
       "net_benefit_treat_none": 0.0
     }
@@ -314,103 +314,103 @@
   "onset_multimorbidity": [
     {
       "threshold": 0.05,
-      "net_benefit_model": 0.1175,
+      "net_benefit_model": 0.1182,
       "net_benefit_treat_all": 0.1076,
       "net_benefit_treat_none": 0.0
     },
     {
       "threshold": 0.075,
-      "net_benefit_model": 0.112,
+      "net_benefit_model": 0.1137,
       "net_benefit_treat_all": 0.0835,
       "net_benefit_treat_none": 0.0
     },
     {
       "threshold": 0.1,
-      "net_benefit_model": 0.103,
+      "net_benefit_model": 0.1008,
       "net_benefit_treat_all": 0.058,
       "net_benefit_treat_none": 0.0
     },
     {
       "threshold": 0.125,
-      "net_benefit_model": 0.0908,
+      "net_benefit_model": 0.0911,
       "net_benefit_treat_all": 0.0311,
       "net_benefit_treat_none": 0.0
     },
     {
       "threshold": 0.15,
-      "net_benefit_model": 0.078,
+      "net_benefit_model": 0.0785,
       "net_benefit_treat_all": 0.0026,
       "net_benefit_treat_none": 0.0
     },
     {
       "threshold": 0.175,
-      "net_benefit_model": 0.0677,
+      "net_benefit_model": 0.0682,
       "net_benefit_treat_all": -0.0276,
       "net_benefit_treat_none": 0.0
     },
     {
       "threshold": 0.2,
-      "net_benefit_model": 0.0617,
+      "net_benefit_model": 0.0629,
       "net_benefit_treat_all": -0.0597,
       "net_benefit_treat_none": 0.0
     },
     {
       "threshold": 0.225,
-      "net_benefit_model": 0.0567,
+      "net_benefit_model": 0.057,
       "net_benefit_treat_all": -0.0939,
       "net_benefit_treat_none": 0.0
     },
     {
       "threshold": 0.25,
-      "net_benefit_model": 0.0533,
+      "net_benefit_model": 0.0528,
       "net_benefit_treat_all": -0.1304,
       "net_benefit_treat_none": 0.0
     },
     {
       "threshold": 0.275,
-      "net_benefit_model": 0.0472,
+      "net_benefit_model": 0.0494,
       "net_benefit_treat_all": -0.1693,
       "net_benefit_treat_none": 0.0
     },
     {
       "threshold": 0.3,
-      "net_benefit_model": 0.0428,
+      "net_benefit_model": 0.0427,
       "net_benefit_treat_all": -0.2111,
       "net_benefit_treat_none": 0.0
     },
     {
       "threshold": 0.325,
-      "net_benefit_model": 0.0387,
+      "net_benefit_model": 0.0381,
       "net_benefit_treat_all": -0.256,
       "net_benefit_treat_none": 0.0
     },
     {
       "threshold": 0.35,
-      "net_benefit_model": 0.0325,
+      "net_benefit_model": 0.0347,
       "net_benefit_treat_all": -0.3043,
       "net_benefit_treat_none": 0.0
     },
     {
       "threshold": 0.375,
-      "net_benefit_model": 0.0271,
+      "net_benefit_model": 0.0321,
       "net_benefit_treat_all": -0.3564,
       "net_benefit_treat_none": 0.0
     },
     {
       "threshold": 0.4,
-      "net_benefit_model": 0.0261,
+      "net_benefit_model": 0.0278,
       "net_benefit_treat_all": -0.413,
       "net_benefit_treat_none": 0.0
     },
     {
       "threshold": 0.425,
-      "net_benefit_model": 0.0206,
+      "net_benefit_model": 0.0242,
       "net_benefit_treat_all": -0.4744,
       "net_benefit_treat_none": 0.0
     },
     {
       "threshold": 0.45,
-      "net_benefit_model": 0.0179,
+      "net_benefit_model": 0.0208,
       "net_benefit_treat_all": -0.5414,
       "net_benefit_treat_none": 0.0
     }

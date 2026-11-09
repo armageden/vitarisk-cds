@@ -236,7 +236,7 @@ def create_deck(output_path="presentation/VitaRisk_CDS_DataNova2026_Presentation
     add_header(s3, "VitaRisk CDS: A Unified 4-Pillar Clinical Intelligence Engine")
 
     pillars = [
-        ("Pillar 1: CKM Cascade Modeling", "Joint 3-stage conditional modeling across AHA 2026 CKM Stages 0-4. Upstream predicted T2D & CKD probabilities dynamically elevate downstream CVD risk (mean |SHAP| of the coupling feature: +5.28 pp).", TEAL),
+        ("Pillar 1: CKM Cascade Modeling", "Joint 3-stage conditional modeling across AHA 2026 CKM Stages 0-4. Upstream predicted T2D & CKD probabilities dynamically elevate downstream CVD risk (mean |SHAP| of the coupling feature: +4.91 pp).", TEAL),
         ("Pillar 2: Probability-Space SHAP", "Transparent TreeExplainer decomposition in additive % points rather than log-odds, showing exact positive risk escalators and protective buffers.", BLUE),
         ("Pillar 3: Active Algorithmic Fairness", "Validation-fitted subgroup thresholds (tau_g) shrink Equal-Opportunity sensitivity gaps across subgroups (e.g., T2D sex gap 0.077 -> 0.007; CKD age gap 0.44 -> 0.13), audited before vs after on held-out test data.", GREEN_ACCENT),
         ("Pillar 4: Guardrailed CDS & Trials", "Actionable guideline therapy (ADA 2026, KDIGO, ACC/AHA) with hard contraindication safety checks (Metformin eGFR < 30) and 4 clinical trial counterfactual presets.", NAVY)
@@ -386,7 +386,7 @@ def create_deck(output_path="presentation/VitaRisk_CDS_DataNova2026_Presentation
         "• Shift from Log-Odds to Probability: TreeExplainer margins mapped to percentage points (+Delta p_i%) for immediate clinical comprehension.",
         "• Type 2 Diabetes: Global mean |SHAP| drivers — HbA1c (+5.18 pp), fasting glucose (+4.22 pp), BMI (+3.67 pp).",
         "• Chronic Kidney Disease: Driven by eGFR loss (+31.2%), UACR microalbuminuria (+12.4%), and SBP.",
-        "• Cardiovascular MACE: Driven by age, non-HDL cholesterol, and the CKM cross-disease coupling feature (+5.28 pp mean |SHAP|).",
+        "• Cardiovascular MACE: Driven by age, non-HDL cholesterol, and the CKM cross-disease coupling feature (+4.91 pp mean |SHAP|).",
         "• Actionable Trust: Clinicians inspect positive risk escalators vs protective buffers in 10 seconds."
     ]
     for b in s6_bullets:
@@ -637,7 +637,7 @@ def create_deck(output_path="presentation/VitaRisk_CDS_DataNova2026_Presentation
         ("Phase 1: Hackathon MVP (Current)", "• 12,000-patient EHR cohort\n• Multi-disease XGBoost + SHAP pipeline\n• Full-stack interactive prototype & API\n• Comprehensive fairness audit", TEAL),
         ("Phase 2: Retrospective EHR Validation", "• Multi-center validation on MIMIC-IV & All of Us cohorts\n• External calibration across diverse geographic regions\n• SMART on FHIR app packaging", BLUE),
         ("Phase 3: Prospective Primary Care Pilot", "• 6-month primary care randomized clinical trial\n• Assessment of clinician decision adoption\n• Measurable HbA1c, BP, and UACR improvement endpoints", GREEN_ACCENT),
-        ("Phase 4: Regulatory & Commercial Scale", "• FDA SaMD (Software as a Medical Device) 510(k) pathway\n• Epic App Orchard & Oracle Health marketplace listing\n• Value-based ACO enterprise licensing", NAVY)
+        ("Phase 4: Regulatory & Commercial Scale", "• FDA SaMD regulatory review (likely Class II 510(k)/De Novo) after external + prospective validation\n• Epic App Orchard & Oracle Health marketplace listing\n• Value-based ACO enterprise licensing", NAVY)
     ]
 
     for i, (m_title, m_desc, col) in enumerate(milestones):

@@ -6,49 +6,49 @@
           "Female": {
             "count": 903,
             "prevalence": 0.1528,
-            "selection_rate": 0.175,
-            "tpr_sensitivity": 0.4783,
-            "roc_auc": 0.7861,
-            "brier_score": 0.1081
+            "selection_rate": 0.2093,
+            "tpr_sensitivity": 0.5145,
+            "roc_auc": 0.7855,
+            "brier_score": 0.1078
           },
           "Male": {
             "count": 897,
             "prevalence": 0.1906,
-            "selection_rate": 0.2129,
-            "tpr_sensitivity": 0.5556,
-            "roc_auc": 0.8062,
-            "brier_score": 0.121
+            "selection_rate": 0.2731,
+            "tpr_sensitivity": 0.6199,
+            "roc_auc": 0.8069,
+            "brier_score": 0.1202
           }
         },
-        "disparate_impact_ratio": 0.8217,
-        "demographic_parity_diff": 0.038,
-        "equal_opportunity_diff": 0.0773,
-        "passes_four_fifths_rule": true
+        "disparate_impact_ratio": 0.7663,
+        "demographic_parity_diff": 0.0638,
+        "equal_opportunity_diff": 0.1054,
+        "passes_four_fifths_rule": false
       },
       "mitigated": {
         "threshold_source": "validation_cohort",
         "policy_note": "Proposed deployment policy (tau_g fitted on validation cohort, evaluated on held-out test); production tiering still uses global composite cutoffs.",
         "calibrated_subgroup_thresholds": {
-          "Female": 0.15,
-          "Male": 0.18
+          "Female": 0.156,
+          "Male": 0.233
         },
         "subgroups": {
           "Female": {
             "count": 903,
-            "calibrated_threshold": 0.15,
-            "selection_rate": 0.2913,
-            "tpr_sensitivity": 0.6594
+            "calibrated_threshold": 0.156,
+            "selection_rate": 0.3411,
+            "tpr_sensitivity": 0.7391
           },
           "Male": {
             "count": 897,
-            "calibrated_threshold": 0.18,
-            "selection_rate": 0.3066,
-            "tpr_sensitivity": 0.6667
+            "calibrated_threshold": 0.233,
+            "selection_rate": 0.3043,
+            "tpr_sensitivity": 0.6491
           }
         },
-        "disparate_impact_ratio": 0.95,
-        "demographic_parity_diff": 0.0153,
-        "equal_opportunity_diff": 0.0072,
+        "disparate_impact_ratio": 0.8923,
+        "demographic_parity_diff": 0.0367,
+        "equal_opportunity_diff": 0.09,
         "passes_four_fifths_rule": true
       }
     },
@@ -58,47 +58,47 @@
           "Asian": {
             "count": 115,
             "prevalence": 0.1304,
-            "selection_rate": 0.1478,
+            "selection_rate": 0.1913,
             "tpr_sensitivity": 0.5333,
-            "roc_auc": 0.8673,
-            "brier_score": 0.0965
+            "roc_auc": 0.8693,
+            "brier_score": 0.0934
           },
           "Black/African American": {
             "count": 284,
             "prevalence": 0.162,
-            "selection_rate": 0.2148,
-            "tpr_sensitivity": 0.587,
-            "roc_auc": 0.8202,
-            "brier_score": 0.1129
+            "selection_rate": 0.2711,
+            "tpr_sensitivity": 0.6957,
+            "roc_auc": 0.8225,
+            "brier_score": 0.1112
           },
           "Hispanic/Latino": {
             "count": 284,
             "prevalence": 0.1585,
-            "selection_rate": 0.1972,
-            "tpr_sensitivity": 0.5778,
-            "roc_auc": 0.8201,
-            "brier_score": 0.0969
+            "selection_rate": 0.2289,
+            "tpr_sensitivity": 0.6,
+            "roc_auc": 0.8224,
+            "brier_score": 0.0996
           },
           "Other/Multiracial": {
             "count": 77,
             "prevalence": 0.1818,
-            "selection_rate": 0.2597,
-            "tpr_sensitivity": 0.5714,
-            "roc_auc": 0.7608,
-            "brier_score": 0.1341
+            "selection_rate": 0.3506,
+            "tpr_sensitivity": 0.6429,
+            "roc_auc": 0.7642,
+            "brier_score": 0.1307
           },
           "White": {
             "count": 1040,
             "prevalence": 0.1817,
-            "selection_rate": 0.1875,
-            "tpr_sensitivity": 0.4868,
-            "roc_auc": 0.7844,
-            "brier_score": 0.1203
+            "selection_rate": 0.2337,
+            "tpr_sensitivity": 0.5344,
+            "roc_auc": 0.7839,
+            "brier_score": 0.1197
           }
         },
-        "disparate_impact_ratio": 0.5691,
-        "demographic_parity_diff": 0.1119,
-        "equal_opportunity_diff": 0.1002,
+        "disparate_impact_ratio": 0.5456,
+        "demographic_parity_diff": 0.1593,
+        "equal_opportunity_diff": 0.1623,
         "passes_four_fifths_rule": false
       },
       "mitigated": {
@@ -106,46 +106,46 @@
         "policy_note": "Proposed deployment policy (tau_g fitted on validation cohort, evaluated on held-out test); production tiering still uses global composite cutoffs.",
         "calibrated_subgroup_thresholds": {
           "Asian": 0.15,
-          "Black/African American": 0.175,
-          "Hispanic/Latino": 0.15,
-          "Other/Multiracial": 0.15,
-          "White": 0.15
+          "Black/African American": 0.211,
+          "Hispanic/Latino": 0.196,
+          "Other/Multiracial": 0.177,
+          "White": 0.193
         },
         "subgroups": {
           "Asian": {
             "count": 115,
             "calibrated_threshold": 0.15,
-            "selection_rate": 0.287,
-            "tpr_sensitivity": 0.8
+            "selection_rate": 0.3652,
+            "tpr_sensitivity": 0.9333
           },
           "Black/African American": {
             "count": 284,
-            "calibrated_threshold": 0.175,
-            "selection_rate": 0.2993,
+            "calibrated_threshold": 0.211,
+            "selection_rate": 0.331,
             "tpr_sensitivity": 0.7174
           },
           "Hispanic/Latino": {
             "count": 284,
-            "calibrated_threshold": 0.15,
-            "selection_rate": 0.3063,
-            "tpr_sensitivity": 0.6889
+            "calibrated_threshold": 0.196,
+            "selection_rate": 0.3239,
+            "tpr_sensitivity": 0.6667
           },
           "Other/Multiracial": {
             "count": 77,
-            "calibrated_threshold": 0.15,
-            "selection_rate": 0.4286,
-            "tpr_sensitivity": 0.7857
+            "calibrated_threshold": 0.177,
+            "selection_rate": 0.4675,
+            "tpr_sensitivity": 0.8571
           },
           "White": {
             "count": 1040,
-            "calibrated_threshold": 0.15,
-            "selection_rate": 0.324,
+            "calibrated_threshold": 0.193,
+            "selection_rate": 0.3385,
             "tpr_sensitivity": 0.6772
           }
         },
-        "disparate_impact_ratio": 0.6696,
-        "demographic_parity_diff": 0.1416,
-        "equal_opportunity_diff": 0.1228,
+        "disparate_impact_ratio": 0.6929,
+        "demographic_parity_diff": 0.1436,
+        "equal_opportunity_diff": 0.2667,
         "passes_four_fifths_rule": false
       }
     },
@@ -155,65 +155,65 @@
           "High SES": {
             "count": 546,
             "prevalence": 0.1282,
-            "selection_rate": 0.1355,
-            "tpr_sensitivity": 0.3714,
-            "roc_auc": 0.7837,
-            "brier_score": 0.0999
+            "selection_rate": 0.207,
+            "tpr_sensitivity": 0.5286,
+            "roc_auc": 0.7849,
+            "brier_score": 0.0995
           },
           "Low SES (Deprived)": {
             "count": 557,
             "prevalence": 0.1939,
-            "selection_rate": 0.2424,
+            "selection_rate": 0.2639,
             "tpr_sensitivity": 0.6111,
-            "roc_auc": 0.8291,
-            "brier_score": 0.123
+            "roc_auc": 0.8317,
+            "brier_score": 0.1198
           },
           "Medium SES": {
             "count": 697,
             "prevalence": 0.1879,
-            "selection_rate": 0.2009,
-            "tpr_sensitivity": 0.5267,
-            "roc_auc": 0.7749,
-            "brier_score": 0.1192
+            "selection_rate": 0.2496,
+            "tpr_sensitivity": 0.5649,
+            "roc_auc": 0.7742,
+            "brier_score": 0.1207
           }
         },
-        "disparate_impact_ratio": 0.5592,
-        "demographic_parity_diff": 0.1068,
-        "equal_opportunity_diff": 0.2397,
+        "disparate_impact_ratio": 0.7842,
+        "demographic_parity_diff": 0.057,
+        "equal_opportunity_diff": 0.0825,
         "passes_four_fifths_rule": false
       },
       "mitigated": {
         "threshold_source": "validation_cohort",
         "policy_note": "Proposed deployment policy (tau_g fitted on validation cohort, evaluated on held-out test); production tiering still uses global composite cutoffs.",
         "calibrated_subgroup_thresholds": {
-          "High SES": 0.15,
-          "Low SES (Deprived)": 0.175,
-          "Medium SES": 0.15
+          "High SES": 0.177,
+          "Low SES (Deprived)": 0.214,
+          "Medium SES": 0.165
         },
         "subgroups": {
           "High SES": {
             "count": 546,
-            "calibrated_threshold": 0.15,
-            "selection_rate": 0.2601,
-            "tpr_sensitivity": 0.6
+            "calibrated_threshold": 0.177,
+            "selection_rate": 0.3278,
+            "tpr_sensitivity": 0.7
           },
           "Low SES (Deprived)": {
             "count": 557,
-            "calibrated_threshold": 0.175,
-            "selection_rate": 0.3321,
-            "tpr_sensitivity": 0.75
+            "calibrated_threshold": 0.214,
+            "selection_rate": 0.3268,
+            "tpr_sensitivity": 0.7315
           },
           "Medium SES": {
             "count": 697,
-            "calibrated_threshold": 0.15,
-            "selection_rate": 0.3386,
-            "tpr_sensitivity": 0.6641
+            "calibrated_threshold": 0.165,
+            "selection_rate": 0.3902,
+            "tpr_sensitivity": 0.6947
           }
         },
-        "disparate_impact_ratio": 0.7681,
-        "demographic_parity_diff": 0.0785,
-        "equal_opportunity_diff": 0.15,
-        "passes_four_fifths_rule": false
+        "disparate_impact_ratio": 0.8373,
+        "demographic_parity_diff": 0.0635,
+        "equal_opportunity_diff": 0.0368,
+        "passes_four_fifths_rule": true
       }
     },
     "age_group": {
@@ -222,64 +222,64 @@
           "45-64": {
             "count": 950,
             "prevalence": 0.1705,
-            "selection_rate": 0.1905,
-            "tpr_sensitivity": 0.4938,
-            "roc_auc": 0.7922,
-            "brier_score": 0.1171
+            "selection_rate": 0.2421,
+            "tpr_sensitivity": 0.5679,
+            "roc_auc": 0.7915,
+            "brier_score": 0.1163
           },
           "65+": {
             "count": 368,
             "prevalence": 0.2473,
-            "selection_rate": 0.3207,
-            "tpr_sensitivity": 0.5934,
-            "roc_auc": 0.7376,
-            "brier_score": 0.1549
+            "selection_rate": 0.3886,
+            "tpr_sensitivity": 0.6154,
+            "roc_auc": 0.7366,
+            "brier_score": 0.1564
           },
           "<45": {
             "count": 482,
             "prevalence": 0.1162,
-            "selection_rate": 0.1037,
-            "tpr_sensitivity": 0.4821,
-            "roc_auc": 0.8332,
-            "brier_score": 0.0786
+            "selection_rate": 0.1266,
+            "tpr_sensitivity": 0.5179,
+            "roc_auc": 0.8376,
+            "brier_score": 0.0772
           }
         },
-        "disparate_impact_ratio": 0.3235,
-        "demographic_parity_diff": 0.2169,
-        "equal_opportunity_diff": 0.1113,
+        "disparate_impact_ratio": 0.3257,
+        "demographic_parity_diff": 0.262,
+        "equal_opportunity_diff": 0.0975,
         "passes_four_fifths_rule": false
       },
       "mitigated": {
         "threshold_source": "validation_cohort",
         "policy_note": "Proposed deployment policy (tau_g fitted on validation cohort, evaluated on held-out test); production tiering still uses global composite cutoffs.",
         "calibrated_subgroup_thresholds": {
-          "45-64": 0.15,
-          "65+": 0.169,
+          "45-64": 0.207,
+          "65+": 0.219,
           "<45": 0.15
         },
         "subgroups": {
           "45-64": {
             "count": 950,
-            "calibrated_threshold": 0.15,
-            "selection_rate": 0.3211,
-            "tpr_sensitivity": 0.6667
+            "calibrated_threshold": 0.207,
+            "selection_rate": 0.3168,
+            "tpr_sensitivity": 0.6481
           },
           "65+": {
             "count": 368,
-            "calibrated_threshold": 0.169,
-            "selection_rate": 0.4647,
-            "tpr_sensitivity": 0.7143
+            "calibrated_threshold": 0.219,
+            "selection_rate": 0.4864,
+            "tpr_sensitivity": 0.7253
           },
           "<45": {
             "count": 482,
             "calibrated_threshold": 0.15,
-            "selection_rate": 0.1805,
-            "tpr_sensitivity": 0.6429
+            "selection_rate": 0.2386,
+            "tpr_sensitivity": 0.6964
           }
         },
-        "disparate_impact_ratio": 0.3884,
-        "demographic_parity_diff": 0.2842,
-        "equal_opportunity_diff": 0.0714,
+        "disparate_impact_ratio": 0.4905,
+        "demographic_parity_diff": 0.2478,
+        "equal_opportunity_diff": 0.0771,
         "passes_four_fifths_rule": false
       },
       "criterion_note": "Disparate impact (demographic parity) across age groups is structurally unattainable and clinically wrong to enforce: disease prevalence rises sharply with age, so a correct model must screen more older patients. Age-group fairness is judged on equal opportunity (sensitivity/TPR parity), reported above."
@@ -293,48 +293,48 @@
             "count": 903,
             "prevalence": 0.2713,
             "selection_rate": 0.3798,
-            "tpr_sensitivity": 0.7429,
-            "roc_auc": 0.8377,
-            "brier_score": 0.1424
+            "tpr_sensitivity": 0.7469,
+            "roc_auc": 0.8376,
+            "brier_score": 0.1425
           },
           "Male": {
             "count": 897,
             "prevalence": 0.2375,
-            "selection_rate": 0.3534,
-            "tpr_sensitivity": 0.6995,
-            "roc_auc": 0.8205,
-            "brier_score": 0.1382
+            "selection_rate": 0.3556,
+            "tpr_sensitivity": 0.6948,
+            "roc_auc": 0.8206,
+            "brier_score": 0.138
           }
         },
-        "disparate_impact_ratio": 0.9304,
-        "demographic_parity_diff": 0.0264,
-        "equal_opportunity_diff": 0.0433,
+        "disparate_impact_ratio": 0.9363,
+        "demographic_parity_diff": 0.0242,
+        "equal_opportunity_diff": 0.0521,
         "passes_four_fifths_rule": true
       },
       "mitigated": {
         "threshold_source": "validation_cohort",
         "policy_note": "Proposed deployment policy (tau_g fitted on validation cohort, evaluated on held-out test); production tiering still uses global composite cutoffs.",
         "calibrated_subgroup_thresholds": {
-          "Female": 0.224,
-          "Male": 0.199
+          "Female": 0.233,
+          "Male": 0.198
         },
         "subgroups": {
           "Female": {
             "count": 903,
-            "calibrated_threshold": 0.224,
-            "selection_rate": 0.4097,
-            "tpr_sensitivity": 0.7755
+            "calibrated_threshold": 0.233,
+            "selection_rate": 0.3987,
+            "tpr_sensitivity": 0.7673
           },
           "Male": {
             "count": 897,
-            "calibrated_threshold": 0.199,
-            "selection_rate": 0.4147,
-            "tpr_sensitivity": 0.7793
+            "calibrated_threshold": 0.198,
+            "selection_rate": 0.4192,
+            "tpr_sensitivity": 0.784
           }
         },
-        "disparate_impact_ratio": 0.988,
-        "demographic_parity_diff": 0.005,
-        "equal_opportunity_diff": 0.0038,
+        "disparate_impact_ratio": 0.9511,
+        "demographic_parity_diff": 0.0205,
+        "equal_opportunity_diff": 0.0167,
         "passes_four_fifths_rule": true
       }
     },
@@ -344,94 +344,94 @@
           "Asian": {
             "count": 115,
             "prevalence": 0.2609,
-            "selection_rate": 0.3913,
-            "tpr_sensitivity": 0.6333,
-            "roc_auc": 0.7906,
-            "brier_score": 0.1619
+            "selection_rate": 0.3826,
+            "tpr_sensitivity": 0.6,
+            "roc_auc": 0.7878,
+            "brier_score": 0.1631
           },
           "Black/African American": {
             "count": 284,
             "prevalence": 0.2711,
             "selection_rate": 0.3732,
             "tpr_sensitivity": 0.7013,
-            "roc_auc": 0.8063,
-            "brier_score": 0.1565
+            "roc_auc": 0.8042,
+            "brier_score": 0.156
           },
           "Hispanic/Latino": {
             "count": 284,
             "prevalence": 0.2218,
-            "selection_rate": 0.331,
-            "tpr_sensitivity": 0.6667,
-            "roc_auc": 0.8286,
-            "brier_score": 0.1297
+            "selection_rate": 0.338,
+            "tpr_sensitivity": 0.6825,
+            "roc_auc": 0.8297,
+            "brier_score": 0.1295
           },
           "Other/Multiracial": {
             "count": 77,
             "prevalence": 0.2078,
-            "selection_rate": 0.3117,
+            "selection_rate": 0.3247,
             "tpr_sensitivity": 0.8125,
-            "roc_auc": 0.9027,
-            "brier_score": 0.0897
+            "roc_auc": 0.8996,
+            "brier_score": 0.0895
           },
           "White": {
             "count": 1040,
             "prevalence": 0.2615,
             "selection_rate": 0.376,
             "tpr_sensitivity": 0.7463,
-            "roc_auc": 0.838,
+            "roc_auc": 0.8378,
             "brier_score": 0.1402
           }
         },
-        "disparate_impact_ratio": 0.7965,
-        "demographic_parity_diff": 0.0796,
-        "equal_opportunity_diff": 0.1792,
-        "passes_four_fifths_rule": false
+        "disparate_impact_ratio": 0.8486,
+        "demographic_parity_diff": 0.0579,
+        "equal_opportunity_diff": 0.2125,
+        "passes_four_fifths_rule": true
       },
       "mitigated": {
         "threshold_source": "validation_cohort",
         "policy_note": "Proposed deployment policy (tau_g fitted on validation cohort, evaluated on held-out test); production tiering still uses global composite cutoffs.",
         "calibrated_subgroup_thresholds": {
-          "Asian": 0.169,
-          "Black/African American": 0.281,
-          "Hispanic/Latino": 0.23,
-          "Other/Multiracial": 0.286,
-          "White": 0.187
+          "Asian": 0.167,
+          "Black/African American": 0.287,
+          "Hispanic/Latino": 0.234,
+          "Other/Multiracial": 0.295,
+          "White": 0.191
         },
         "subgroups": {
           "Asian": {
             "count": 115,
-            "calibrated_threshold": 0.169,
-            "selection_rate": 0.4957,
-            "tpr_sensitivity": 0.8333
+            "calibrated_threshold": 0.167,
+            "selection_rate": 0.5304,
+            "tpr_sensitivity": 0.9
           },
           "Black/African American": {
             "count": 284,
-            "calibrated_threshold": 0.281,
-            "selection_rate": 0.331,
-            "tpr_sensitivity": 0.6623
+            "calibrated_threshold": 0.287,
+            "selection_rate": 0.3239,
+            "tpr_sensitivity": 0.6364
           },
           "Hispanic/Latino": {
             "count": 284,
-            "calibrated_threshold": 0.23,
-            "selection_rate": 0.3556,
+            "calibrated_threshold": 0.234,
+            "selection_rate": 0.3521,
             "tpr_sensitivity": 0.6984
           },
           "Other/Multiracial": {
             "count": 77,
-            "calibrated_threshold": 0.286,
+            "calibrated_threshold": 0.295,
             "selection_rate": 0.2727,
             "tpr_sensitivity": 0.8125
           },
           "White": {
             "count": 1040,
-            "calibrated_threshold": 0.187,
-            "selection_rate": 0.4615,
-            "tpr_sensitivity": 0.8493
+            "calibrated_threshold": 0.191,
+            "selection_rate": 0.4577,
+            "tpr_sensitivity": 0.8419
           }
         },
-        "disparate_impact_ratio": 0.5502,
-        "demographic_parity_diff": 0.2229,
-        "equal_opportunity_diff": 0.1869,
+        "disparate_impact_ratio": 0.5142,
+        "demographic_parity_diff": 0.2577,
+        "equal_opportunity_diff": 0.2636,
         "passes_four_fifths_rule": false
       }
     },
@@ -441,64 +441,64 @@
           "High SES": {
             "count": 546,
             "prevalence": 0.2161,
-            "selection_rate": 0.3132,
+            "selection_rate": 0.3205,
             "tpr_sensitivity": 0.6864,
-            "roc_auc": 0.8261,
-            "brier_score": 0.1283
+            "roc_auc": 0.8256,
+            "brier_score": 0.1284
           },
           "Low SES (Deprived)": {
             "count": 557,
             "prevalence": 0.3016,
-            "selection_rate": 0.4111,
-            "tpr_sensitivity": 0.7857,
+            "selection_rate": 0.4075,
+            "tpr_sensitivity": 0.7798,
             "roc_auc": 0.8414,
-            "brier_score": 0.1519
+            "brier_score": 0.1517
           },
           "Medium SES": {
             "count": 697,
             "prevalence": 0.2468,
             "selection_rate": 0.373,
-            "tpr_sensitivity": 0.686,
-            "roc_auc": 0.8147,
+            "tpr_sensitivity": 0.6919,
+            "roc_auc": 0.8152,
             "brier_score": 0.1404
           }
         },
-        "disparate_impact_ratio": 0.7618,
-        "demographic_parity_diff": 0.0979,
-        "equal_opportunity_diff": 0.0997,
+        "disparate_impact_ratio": 0.7865,
+        "demographic_parity_diff": 0.087,
+        "equal_opportunity_diff": 0.0933,
         "passes_four_fifths_rule": false
       },
       "mitigated": {
         "threshold_source": "validation_cohort",
         "policy_note": "Proposed deployment policy (tau_g fitted on validation cohort, evaluated on held-out test); production tiering still uses global composite cutoffs.",
         "calibrated_subgroup_thresholds": {
-          "High SES": 0.252,
+          "High SES": 0.25,
           "Low SES (Deprived)": 0.185,
-          "Medium SES": 0.22
+          "Medium SES": 0.233
         },
         "subgroups": {
           "High SES": {
             "count": 546,
-            "calibrated_threshold": 0.252,
-            "selection_rate": 0.3132,
+            "calibrated_threshold": 0.25,
+            "selection_rate": 0.3187,
             "tpr_sensitivity": 0.6864
           },
           "Low SES (Deprived)": {
             "count": 557,
             "calibrated_threshold": 0.185,
             "selection_rate": 0.4811,
-            "tpr_sensitivity": 0.869
+            "tpr_sensitivity": 0.8631
           },
           "Medium SES": {
             "count": 697,
-            "calibrated_threshold": 0.22,
-            "selection_rate": 0.4218,
-            "tpr_sensitivity": 0.7442
+            "calibrated_threshold": 0.233,
+            "selection_rate": 0.396,
+            "tpr_sensitivity": 0.7093
           }
         },
-        "disparate_impact_ratio": 0.6509,
-        "demographic_parity_diff": 0.168,
-        "equal_opportunity_diff": 0.1826,
+        "disparate_impact_ratio": 0.6623,
+        "demographic_parity_diff": 0.1625,
+        "equal_opportunity_diff": 0.1767,
         "passes_four_fifths_rule": false
       }
     },
@@ -508,53 +508,53 @@
           "45-64": {
             "count": 950,
             "prevalence": 0.2632,
-            "selection_rate": 0.34,
-            "tpr_sensitivity": 0.616,
-            "roc_auc": 0.783,
-            "brier_score": 0.1571
+            "selection_rate": 0.3421,
+            "tpr_sensitivity": 0.612,
+            "roc_auc": 0.7828,
+            "brier_score": 0.157
           },
           "65+": {
             "count": 368,
             "prevalence": 0.4647,
-            "selection_rate": 0.8098,
-            "tpr_sensitivity": 0.9298,
-            "roc_auc": 0.7497,
-            "brier_score": 0.2017
+            "selection_rate": 0.8125,
+            "tpr_sensitivity": 0.9357,
+            "roc_auc": 0.7515,
+            "brier_score": 0.2012
           },
           "<45": {
             "count": 482,
             "prevalence": 0.0768,
-            "selection_rate": 0.0809,
+            "selection_rate": 0.0788,
             "tpr_sensitivity": 0.4865,
-            "roc_auc": 0.8474,
-            "brier_score": 0.0603
+            "roc_auc": 0.8455,
+            "brier_score": 0.0607
           }
         },
-        "disparate_impact_ratio": 0.0999,
-        "demographic_parity_diff": 0.7289,
-        "equal_opportunity_diff": 0.4433,
+        "disparate_impact_ratio": 0.097,
+        "demographic_parity_diff": 0.7337,
+        "equal_opportunity_diff": 0.4492,
         "passes_four_fifths_rule": false
       },
       "mitigated": {
         "threshold_source": "validation_cohort",
         "policy_note": "Proposed deployment policy (tau_g fitted on validation cohort, evaluated on held-out test); production tiering still uses global composite cutoffs.",
         "calibrated_subgroup_thresholds": {
-          "45-64": 0.175,
+          "45-64": 0.177,
           "65+": 0.45,
           "<45": 0.15
         },
         "subgroups": {
           "45-64": {
             "count": 950,
-            "calibrated_threshold": 0.175,
-            "selection_rate": 0.4789,
-            "tpr_sensitivity": 0.804
+            "calibrated_threshold": 0.177,
+            "selection_rate": 0.4716,
+            "tpr_sensitivity": 0.796
           },
           "65+": {
             "count": 368,
             "calibrated_threshold": 0.45,
-            "selection_rate": 0.5109,
-            "tpr_sensitivity": 0.7251
+            "selection_rate": 0.5082,
+            "tpr_sensitivity": 0.7193
           },
           "<45": {
             "count": 482,
@@ -563,9 +563,9 @@
             "tpr_sensitivity": 0.6757
           }
         },
-        "disparate_impact_ratio": 0.3249,
-        "demographic_parity_diff": 0.3449,
-        "equal_opportunity_diff": 0.1283,
+        "disparate_impact_ratio": 0.3266,
+        "demographic_parity_diff": 0.3422,
+        "equal_opportunity_diff": 0.1203,
         "passes_four_fifths_rule": false
       },
       "criterion_note": "Disparate impact (demographic parity) across age groups is structurally unattainable and clinically wrong to enforce: disease prevalence rises sharply with age, so a correct model must screen more older patients. Age-group fairness is judged on equal opportunity (sensitivity/TPR parity), reported above."
@@ -578,23 +578,23 @@
           "Female": {
             "count": 903,
             "prevalence": 0.1528,
-            "selection_rate": 0.1827,
-            "tpr_sensitivity": 0.5217,
-            "roc_auc": 0.7907,
-            "brier_score": 0.1069
+            "selection_rate": 0.1872,
+            "tpr_sensitivity": 0.5362,
+            "roc_auc": 0.7882,
+            "brier_score": 0.1068
           },
           "Male": {
             "count": 897,
             "prevalence": 0.1884,
             "selection_rate": 0.2408,
-            "tpr_sensitivity": 0.5503,
-            "roc_auc": 0.7932,
-            "brier_score": 0.1254
+            "tpr_sensitivity": 0.5385,
+            "roc_auc": 0.7922,
+            "brier_score": 0.126
           }
         },
-        "disparate_impact_ratio": 0.7588,
-        "demographic_parity_diff": 0.0581,
-        "equal_opportunity_diff": 0.0286,
+        "disparate_impact_ratio": 0.7772,
+        "demographic_parity_diff": 0.0536,
+        "equal_opportunity_diff": 0.0022,
         "passes_four_fifths_rule": false
       },
       "mitigated": {
@@ -608,20 +608,20 @@
           "Female": {
             "count": 903,
             "calibrated_threshold": 0.15,
-            "selection_rate": 0.3056,
-            "tpr_sensitivity": 0.6739
+            "selection_rate": 0.3123,
+            "tpr_sensitivity": 0.6667
           },
           "Male": {
             "count": 897,
             "calibrated_threshold": 0.15,
             "selection_rate": 0.3891,
-            "tpr_sensitivity": 0.7396
+            "tpr_sensitivity": 0.7278
           }
         },
-        "disparate_impact_ratio": 0.7856,
-        "demographic_parity_diff": 0.0834,
-        "equal_opportunity_diff": 0.0657,
-        "passes_four_fifths_rule": false
+        "disparate_impact_ratio": 0.8027,
+        "demographic_parity_diff": 0.0768,
+        "equal_opportunity_diff": 0.0611,
+        "passes_four_fifths_rule": true
       }
     },
     "ethnicity": {
@@ -632,45 +632,45 @@
             "prevalence": 0.1826,
             "selection_rate": 0.1652,
             "tpr_sensitivity": 0.3333,
-            "roc_auc": 0.7199,
+            "roc_auc": 0.7112,
             "brier_score": 0.138
           },
           "Black/African American": {
             "count": 284,
             "prevalence": 0.1585,
-            "selection_rate": 0.2183,
-            "tpr_sensitivity": 0.5556,
-            "roc_auc": 0.8059,
+            "selection_rate": 0.2324,
+            "tpr_sensitivity": 0.6,
+            "roc_auc": 0.8066,
             "brier_score": 0.1093
           },
           "Hispanic/Latino": {
             "count": 284,
             "prevalence": 0.1408,
-            "selection_rate": 0.2007,
-            "tpr_sensitivity": 0.475,
-            "roc_auc": 0.7742,
-            "brier_score": 0.1071
+            "selection_rate": 0.1972,
+            "tpr_sensitivity": 0.5,
+            "roc_auc": 0.7738,
+            "brier_score": 0.1065
           },
           "Other/Multiracial": {
             "count": 77,
             "prevalence": 0.1558,
             "selection_rate": 0.1818,
             "tpr_sensitivity": 0.5,
-            "roc_auc": 0.8295,
-            "brier_score": 0.1062
+            "roc_auc": 0.8256,
+            "brier_score": 0.1057
           },
           "White": {
             "count": 1040,
             "prevalence": 0.1817,
-            "selection_rate": 0.2202,
-            "tpr_sensitivity": 0.5714,
-            "roc_auc": 0.8023,
-            "brier_score": 0.1188
+            "selection_rate": 0.2212,
+            "tpr_sensitivity": 0.5556,
+            "roc_auc": 0.8001,
+            "brier_score": 0.1194
           }
         },
-        "disparate_impact_ratio": 0.7503,
-        "demographic_parity_diff": 0.055,
-        "equal_opportunity_diff": 0.2381,
+        "disparate_impact_ratio": 0.7109,
+        "demographic_parity_diff": 0.0672,
+        "equal_opportunity_diff": 0.2667,
         "passes_four_fifths_rule": false
       },
       "mitigated": {
@@ -678,46 +678,46 @@
         "policy_note": "Proposed deployment policy (tau_g fitted on validation cohort, evaluated on held-out test); production tiering still uses global composite cutoffs.",
         "calibrated_subgroup_thresholds": {
           "Asian": 0.15,
-          "Black/African American": 0.153,
+          "Black/African American": 0.158,
           "Hispanic/Latino": 0.15,
-          "Other/Multiracial": 0.217,
+          "Other/Multiracial": 0.21,
           "White": 0.15
         },
         "subgroups": {
           "Asian": {
             "count": 115,
             "calibrated_threshold": 0.15,
-            "selection_rate": 0.2957,
+            "selection_rate": 0.3217,
             "tpr_sensitivity": 0.5714
           },
           "Black/African American": {
             "count": 284,
-            "calibrated_threshold": 0.153,
-            "selection_rate": 0.3627,
+            "calibrated_threshold": 0.158,
+            "selection_rate": 0.3556,
             "tpr_sensitivity": 0.7333
           },
           "Hispanic/Latino": {
             "count": 284,
             "calibrated_threshold": 0.15,
-            "selection_rate": 0.2923,
-            "tpr_sensitivity": 0.625
+            "selection_rate": 0.2887,
+            "tpr_sensitivity": 0.6
           },
           "Other/Multiracial": {
             "count": 77,
-            "calibrated_threshold": 0.217,
-            "selection_rate": 0.2078,
+            "calibrated_threshold": 0.21,
+            "selection_rate": 0.2338,
             "tpr_sensitivity": 0.5833
           },
           "White": {
             "count": 1040,
             "calibrated_threshold": 0.15,
-            "selection_rate": 0.3635,
-            "tpr_sensitivity": 0.7354
+            "selection_rate": 0.3644,
+            "tpr_sensitivity": 0.7249
           }
         },
-        "disparate_impact_ratio": 0.5717,
-        "demographic_parity_diff": 0.1557,
-        "equal_opportunity_diff": 0.164,
+        "disparate_impact_ratio": 0.6415,
+        "demographic_parity_diff": 0.1307,
+        "equal_opportunity_diff": 0.1619,
         "passes_four_fifths_rule": false
       }
     },
@@ -727,31 +727,31 @@
           "High SES": {
             "count": 546,
             "prevalence": 0.1502,
-            "selection_rate": 0.1685,
-            "tpr_sensitivity": 0.4634,
-            "roc_auc": 0.7626,
+            "selection_rate": 0.1758,
+            "tpr_sensitivity": 0.4756,
+            "roc_auc": 0.7571,
             "brier_score": 0.1099
           },
           "Low SES (Deprived)": {
             "count": 557,
             "prevalence": 0.1885,
             "selection_rate": 0.2334,
-            "tpr_sensitivity": 0.6095,
-            "roc_auc": 0.8221,
-            "brier_score": 0.1161
+            "tpr_sensitivity": 0.6,
+            "roc_auc": 0.8193,
+            "brier_score": 0.1167
           },
           "Medium SES": {
             "count": 697,
             "prevalence": 0.1722,
             "selection_rate": 0.2281,
             "tpr_sensitivity": 0.525,
-            "roc_auc": 0.7904,
+            "roc_auc": 0.7915,
             "brier_score": 0.1211
           }
         },
-        "disparate_impact_ratio": 0.7219,
-        "demographic_parity_diff": 0.0649,
-        "equal_opportunity_diff": 0.1461,
+        "disparate_impact_ratio": 0.7533,
+        "demographic_parity_diff": 0.0576,
+        "equal_opportunity_diff": 0.1244,
         "passes_four_fifths_rule": false
       },
       "mitigated": {
@@ -766,25 +766,25 @@
           "High SES": {
             "count": 546,
             "calibrated_threshold": 0.15,
-            "selection_rate": 0.2747,
-            "tpr_sensitivity": 0.622
+            "selection_rate": 0.2912,
+            "tpr_sensitivity": 0.6098
           },
           "Low SES (Deprived)": {
             "count": 557,
             "calibrated_threshold": 0.15,
-            "selection_rate": 0.3932,
-            "tpr_sensitivity": 0.7429
+            "selection_rate": 0.3878,
+            "tpr_sensitivity": 0.7333
           },
           "Medium SES": {
             "count": 697,
             "calibrated_threshold": 0.15,
             "selection_rate": 0.3673,
-            "tpr_sensitivity": 0.7417
+            "tpr_sensitivity": 0.7333
           }
         },
-        "disparate_impact_ratio": 0.6987,
-        "demographic_parity_diff": 0.1185,
-        "equal_opportunity_diff": 0.1209,
+        "disparate_impact_ratio": 0.7509,
+        "demographic_parity_diff": 0.0966,
+        "equal_opportunity_diff": 0.1236,
         "passes_four_fifths_rule": false
       }
     },
@@ -794,30 +794,30 @@
           "45-64": {
             "count": 950,
             "prevalence": 0.1516,
-            "selection_rate": 0.1242,
+            "selection_rate": 0.1221,
             "tpr_sensitivity": 0.3542,
-            "roc_auc": 0.7238,
-            "brier_score": 0.1143
+            "roc_auc": 0.721,
+            "brier_score": 0.1142
           },
           "65+": {
             "count": 368,
             "prevalence": 0.3723,
-            "selection_rate": 0.6848,
+            "selection_rate": 0.6957,
             "tpr_sensitivity": 0.8029,
-            "roc_auc": 0.6957,
-            "brier_score": 0.2106
+            "roc_auc": 0.6925,
+            "brier_score": 0.2114
           },
           "<45": {
             "count": 482,
             "prevalence": 0.0539,
-            "selection_rate": 0.0228,
+            "selection_rate": 0.027,
             "tpr_sensitivity": 0.1538,
-            "roc_auc": 0.7961,
-            "brier_score": 0.0475
+            "roc_auc": 0.7958,
+            "brier_score": 0.048
           }
         },
-        "disparate_impact_ratio": 0.0333,
-        "demographic_parity_diff": 0.662,
+        "disparate_impact_ratio": 0.0388,
+        "demographic_parity_diff": 0.6687,
         "equal_opportunity_diff": 0.6491,
         "passes_four_fifths_rule": false
       },
@@ -826,32 +826,32 @@
         "policy_note": "Proposed deployment policy (tau_g fitted on validation cohort, evaluated on held-out test); production tiering still uses global composite cutoffs.",
         "calibrated_subgroup_thresholds": {
           "45-64": 0.15,
-          "65+": 0.37,
+          "65+": 0.372,
           "<45": 0.15
         },
         "subgroups": {
           "45-64": {
             "count": 950,
             "calibrated_threshold": 0.15,
-            "selection_rate": 0.2968,
-            "tpr_sensitivity": 0.5625
+            "selection_rate": 0.3032,
+            "tpr_sensitivity": 0.5556
           },
           "65+": {
             "count": 368,
-            "calibrated_threshold": 0.37,
-            "selection_rate": 0.4783,
-            "tpr_sensitivity": 0.635
+            "calibrated_threshold": 0.372,
+            "selection_rate": 0.4837,
+            "tpr_sensitivity": 0.6496
           },
           "<45": {
             "count": 482,
             "calibrated_threshold": 0.15,
-            "selection_rate": 0.0602,
-            "tpr_sensitivity": 0.3077
+            "selection_rate": 0.0581,
+            "tpr_sensitivity": 0.2692
           }
         },
-        "disparate_impact_ratio": 0.1258,
-        "demographic_parity_diff": 0.4181,
-        "equal_opportunity_diff": 0.3273,
+        "disparate_impact_ratio": 0.1201,
+        "demographic_parity_diff": 0.4256,
+        "equal_opportunity_diff": 0.3804,
         "passes_four_fifths_rule": false
       },
       "criterion_note": "Disparate impact (demographic parity) across age groups is structurally unattainable and clinically wrong to enforce: disease prevalence rises sharply with age, so a correct model must screen more older patients. Age-group fairness is judged on equal opportunity (sensitivity/TPR parity), reported above."
@@ -866,47 +866,47 @@
             "prevalence": 0.1484,
             "selection_rate": 0.1539,
             "tpr_sensitivity": 0.4851,
-            "roc_auc": 0.8403,
-            "brier_score": 0.1025
+            "roc_auc": 0.8386,
+            "brier_score": 0.1022
           },
           "Male": {
             "count": 897,
             "prevalence": 0.1561,
-            "selection_rate": 0.1839,
-            "tpr_sensitivity": 0.5929,
-            "roc_auc": 0.8617,
-            "brier_score": 0.099
+            "selection_rate": 0.1918,
+            "tpr_sensitivity": 0.6,
+            "roc_auc": 0.8639,
+            "brier_score": 0.0984
           }
         },
-        "disparate_impact_ratio": 0.8368,
-        "demographic_parity_diff": 0.03,
-        "equal_opportunity_diff": 0.1078,
+        "disparate_impact_ratio": 0.8028,
+        "demographic_parity_diff": 0.0378,
+        "equal_opportunity_diff": 0.1149,
         "passes_four_fifths_rule": true
       },
       "mitigated": {
         "threshold_source": "validation_cohort",
         "policy_note": "Proposed deployment policy (tau_g fitted on validation cohort, evaluated on held-out test); production tiering still uses global composite cutoffs.",
         "calibrated_subgroup_thresholds": {
-          "Female": 0.15,
-          "Male": 0.15
+          "Female": 0.151,
+          "Male": 0.161
         },
         "subgroups": {
           "Female": {
             "count": 903,
-            "calibrated_threshold": 0.15,
-            "selection_rate": 0.2436,
+            "calibrated_threshold": 0.151,
+            "selection_rate": 0.2481,
             "tpr_sensitivity": 0.6343
           },
           "Male": {
             "count": 897,
-            "calibrated_threshold": 0.15,
-            "selection_rate": 0.2943,
-            "tpr_sensitivity": 0.7643
+            "calibrated_threshold": 0.161,
+            "selection_rate": 0.2876,
+            "tpr_sensitivity": 0.7571
           }
         },
-        "disparate_impact_ratio": 0.8278,
-        "demographic_parity_diff": 0.0507,
-        "equal_opportunity_diff": 0.13,
+        "disparate_impact_ratio": 0.8624,
+        "demographic_parity_diff": 0.0396,
+        "equal_opportunity_diff": 0.1228,
         "passes_four_fifths_rule": true
       }
     },
@@ -916,46 +916,46 @@
           "Asian": {
             "count": 115,
             "prevalence": 0.1217,
-            "selection_rate": 0.1304,
+            "selection_rate": 0.1217,
             "tpr_sensitivity": 0.5,
-            "roc_auc": 0.843,
-            "brier_score": 0.0875
+            "roc_auc": 0.8395,
+            "brier_score": 0.0877
           },
           "Black/African American": {
             "count": 284,
             "prevalence": 0.1479,
-            "selection_rate": 0.169,
+            "selection_rate": 0.1655,
             "tpr_sensitivity": 0.5,
-            "roc_auc": 0.8722,
-            "brier_score": 0.1006
+            "roc_auc": 0.8737,
+            "brier_score": 0.0986
           },
           "Hispanic/Latino": {
             "count": 284,
             "prevalence": 0.1373,
-            "selection_rate": 0.169,
+            "selection_rate": 0.1725,
             "tpr_sensitivity": 0.5385,
-            "roc_auc": 0.8355,
-            "brier_score": 0.0925
+            "roc_auc": 0.8398,
+            "brier_score": 0.0917
           },
           "Other/Multiracial": {
             "count": 77,
             "prevalence": 0.1429,
-            "selection_rate": 0.1688,
+            "selection_rate": 0.2078,
             "tpr_sensitivity": 0.6364,
             "roc_auc": 0.8499,
-            "brier_score": 0.092
+            "brier_score": 0.093
           },
           "White": {
             "count": 1040,
             "prevalence": 0.1615,
-            "selection_rate": 0.1731,
-            "tpr_sensitivity": 0.5476,
-            "roc_auc": 0.8508,
-            "brier_score": 0.1052
+            "selection_rate": 0.1779,
+            "tpr_sensitivity": 0.5536,
+            "roc_auc": 0.8486,
+            "brier_score": 0.1051
           }
         },
-        "disparate_impact_ratio": 0.7536,
-        "demographic_parity_diff": 0.0426,
+        "disparate_impact_ratio": 0.5859,
+        "demographic_parity_diff": 0.0861,
         "equal_opportunity_diff": 0.1364,
         "passes_four_fifths_rule": false
       },
@@ -964,46 +964,46 @@
         "policy_note": "Proposed deployment policy (tau_g fitted on validation cohort, evaluated on held-out test); production tiering still uses global composite cutoffs.",
         "calibrated_subgroup_thresholds": {
           "Asian": 0.15,
-          "Black/African American": 0.201,
+          "Black/African American": 0.211,
           "Hispanic/Latino": 0.15,
-          "Other/Multiracial": 0.189,
+          "Other/Multiracial": 0.197,
           "White": 0.15
         },
         "subgroups": {
           "Asian": {
             "count": 115,
             "calibrated_threshold": 0.15,
-            "selection_rate": 0.2435,
-            "tpr_sensitivity": 0.6429
+            "selection_rate": 0.2522,
+            "tpr_sensitivity": 0.5714
           },
           "Black/African American": {
             "count": 284,
-            "calibrated_threshold": 0.201,
-            "selection_rate": 0.2077,
-            "tpr_sensitivity": 0.5476
+            "calibrated_threshold": 0.211,
+            "selection_rate": 0.1972,
+            "tpr_sensitivity": 0.5238
           },
           "Hispanic/Latino": {
             "count": 284,
             "calibrated_threshold": 0.15,
-            "selection_rate": 0.257,
-            "tpr_sensitivity": 0.6154
+            "selection_rate": 0.2641,
+            "tpr_sensitivity": 0.641
           },
           "Other/Multiracial": {
             "count": 77,
-            "calibrated_threshold": 0.189,
-            "selection_rate": 0.2338,
-            "tpr_sensitivity": 0.7273
+            "calibrated_threshold": 0.197,
+            "selection_rate": 0.2468,
+            "tpr_sensitivity": 0.8182
           },
           "White": {
             "count": 1040,
             "calibrated_threshold": 0.15,
-            "selection_rate": 0.274,
-            "tpr_sensitivity": 0.7143
+            "selection_rate": 0.2856,
+            "tpr_sensitivity": 0.7262
           }
         },
-        "disparate_impact_ratio": 0.7581,
-        "demographic_parity_diff": 0.0663,
-        "equal_opportunity_diff": 0.1797,
+        "disparate_impact_ratio": 0.6905,
+        "demographic_parity_diff": 0.0884,
+        "equal_opportunity_diff": 0.2944,
         "passes_four_fifths_rule": false
       }
     },
@@ -1013,64 +1013,64 @@
           "High SES": {
             "count": 546,
             "prevalence": 0.1117,
-            "selection_rate": 0.1209,
+            "selection_rate": 0.13,
             "tpr_sensitivity": 0.5574,
-            "roc_auc": 0.8887,
-            "brier_score": 0.0774
+            "roc_auc": 0.8886,
+            "brier_score": 0.0758
           },
           "Low SES (Deprived)": {
             "count": 557,
             "prevalence": 0.1903,
-            "selection_rate": 0.2154,
+            "selection_rate": 0.2101,
             "tpr_sensitivity": 0.5943,
-            "roc_auc": 0.8438,
-            "brier_score": 0.1157
+            "roc_auc": 0.8457,
+            "brier_score": 0.1158
           },
           "Medium SES": {
             "count": 697,
             "prevalence": 0.1535,
-            "selection_rate": 0.1693,
-            "tpr_sensitivity": 0.4766,
-            "roc_auc": 0.8262,
-            "brier_score": 0.1071
+            "selection_rate": 0.1765,
+            "tpr_sensitivity": 0.486,
+            "roc_auc": 0.826,
+            "brier_score": 0.1072
           }
         },
-        "disparate_impact_ratio": 0.5611,
-        "demographic_parity_diff": 0.0946,
-        "equal_opportunity_diff": 0.1177,
+        "disparate_impact_ratio": 0.6191,
+        "demographic_parity_diff": 0.08,
+        "equal_opportunity_diff": 0.1084,
         "passes_four_fifths_rule": false
       },
       "mitigated": {
         "threshold_source": "validation_cohort",
         "policy_note": "Proposed deployment policy (tau_g fitted on validation cohort, evaluated on held-out test); production tiering still uses global composite cutoffs.",
         "calibrated_subgroup_thresholds": {
-          "High SES": 0.15,
+          "High SES": 0.151,
           "Low SES (Deprived)": 0.15,
-          "Medium SES": 0.15
+          "Medium SES": 0.165
         },
         "subgroups": {
           "High SES": {
             "count": 546,
-            "calibrated_threshold": 0.15,
-            "selection_rate": 0.2051,
-            "tpr_sensitivity": 0.7049
+            "calibrated_threshold": 0.151,
+            "selection_rate": 0.2253,
+            "tpr_sensitivity": 0.7705
           },
           "Low SES (Deprived)": {
             "count": 557,
             "calibrated_threshold": 0.15,
             "selection_rate": 0.3268,
-            "tpr_sensitivity": 0.7264
+            "tpr_sensitivity": 0.7075
           },
           "Medium SES": {
             "count": 697,
-            "calibrated_threshold": 0.15,
-            "selection_rate": 0.2726,
-            "tpr_sensitivity": 0.6729
+            "calibrated_threshold": 0.165,
+            "selection_rate": 0.2654,
+            "tpr_sensitivity": 0.6449
           }
         },
-        "disparate_impact_ratio": 0.6278,
-        "demographic_parity_diff": 0.1216,
-        "equal_opportunity_diff": 0.0535,
+        "disparate_impact_ratio": 0.6894,
+        "demographic_parity_diff": 0.1015,
+        "equal_opportunity_diff": 0.1256,
         "passes_four_fifths_rule": false
       }
     },
@@ -1080,30 +1080,30 @@
           "45-64": {
             "count": 950,
             "prevalence": 0.1411,
-            "selection_rate": 0.1095,
-            "tpr_sensitivity": 0.3881,
-            "roc_auc": 0.814,
-            "brier_score": 0.1002
+            "selection_rate": 0.1158,
+            "tpr_sensitivity": 0.3955,
+            "roc_auc": 0.8147,
+            "brier_score": 0.0992
           },
           "65+": {
             "count": 368,
             "prevalence": 0.3397,
-            "selection_rate": 0.5,
+            "selection_rate": 0.5082,
             "tpr_sensitivity": 0.736,
-            "roc_auc": 0.7364,
-            "brier_score": 0.196
+            "roc_auc": 0.7348,
+            "brier_score": 0.1964
           },
           "<45": {
             "count": 482,
             "prevalence": 0.0311,
-            "selection_rate": 0.0332,
+            "selection_rate": 0.029,
             "tpr_sensitivity": 0.2667,
-            "roc_auc": 0.8718,
+            "roc_auc": 0.8719,
             "brier_score": 0.0292
           }
         },
-        "disparate_impact_ratio": 0.0664,
-        "demographic_parity_diff": 0.4668,
+        "disparate_impact_ratio": 0.0572,
+        "demographic_parity_diff": 0.4791,
         "equal_opportunity_diff": 0.4693,
         "passes_four_fifths_rule": false
       },
@@ -1112,32 +1112,32 @@
         "policy_note": "Proposed deployment policy (tau_g fitted on validation cohort, evaluated on held-out test); production tiering still uses global composite cutoffs.",
         "calibrated_subgroup_thresholds": {
           "45-64": 0.15,
-          "65+": 0.295,
+          "65+": 0.283,
           "<45": 0.15
         },
         "subgroups": {
           "45-64": {
             "count": 950,
             "calibrated_threshold": 0.15,
-            "selection_rate": 0.2084,
-            "tpr_sensitivity": 0.5522
+            "selection_rate": 0.2242,
+            "tpr_sensitivity": 0.5672
           },
           "65+": {
             "count": 368,
-            "calibrated_threshold": 0.295,
-            "selection_rate": 0.4321,
-            "tpr_sensitivity": 0.656
+            "calibrated_threshold": 0.283,
+            "selection_rate": 0.4565,
+            "tpr_sensitivity": 0.68
           },
           "<45": {
             "count": 482,
             "calibrated_threshold": 0.15,
-            "selection_rate": 0.0539,
-            "tpr_sensitivity": 0.4667
+            "selection_rate": 0.056,
+            "tpr_sensitivity": 0.3333
           }
         },
-        "disparate_impact_ratio": 0.1248,
-        "demographic_parity_diff": 0.3781,
-        "equal_opportunity_diff": 0.1893,
+        "disparate_impact_ratio": 0.1227,
+        "demographic_parity_diff": 0.4005,
+        "equal_opportunity_diff": 0.3467,
         "passes_four_fifths_rule": false
       },
       "criterion_note": "Disparate impact (demographic parity) across age groups is structurally unattainable and clinically wrong to enforce: disease prevalence rises sharply with age, so a correct model must screen more older patients. Age-group fairness is judged on equal opportunity (sensitivity/TPR parity), reported above."

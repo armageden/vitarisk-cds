@@ -29,7 +29,7 @@ VitaRisk CDS is an end-to-end clinical AI and decision support platform engineer
 |---|---|---|
 | **1. PowerPoint Deck (.pptx)** | [`presentation/VitaRisk_CDS_DataNova2026_Presentation.pptx`](presentation/VitaRisk_CDS_DataNova2026_Presentation.pptx) | Upgraded 14-slide executive presentation embedded with real live UI screenshots, clinical metrics, and ROI. |
 | **2. Interactive Working Demo** | `http://localhost:8000` (or deployed URL) | Full-stack clinical web application (FastAPI backend + embedded React frontend with live calculator, SHAP waterfall, what-if simulator, and 5 canonical personas). |
-| **3. Clinical Validation Report** | [`docs/VALIDATION_REPORT.md`](docs/VALIDATION_REPORT.md) | In-depth methodology report with clinical equations, validation metrics (ROC-AUC 0.794–0.851), 5-fold calibration curves, and Decision Curve Net Benefit. |
+| **3. Clinical Validation Report** | [`docs/VALIDATION_REPORT.md`](docs/VALIDATION_REPORT.md) | In-depth methodology report with clinical equations, validation metrics (ROC-AUC 0.793–0.851), 5-fold calibration curves, and Decision Curve Net Benefit. |
 | **4. 3:38 Walkthrough Video & Script** | [`docs/VIDEO_SCRIPT.md`](docs/VIDEO_SCRIPT.md) | Timed video demonstration script with narration notes, visual cues, and gate checkpoints. |
 | **5. Devpost Submission Copy** | [`docs/SUBMISSION_DEVPOST.md`](docs/SUBMISSION_DEVPOST.md) | Structured copy-paste submission addressing all 6 hackathon judging criteria. |
 | **6. Failure Mode Analysis** | [`process/features/.../FAILURE_MODES_AND_REMEDIATION_GUIDE.md`](process/features/chronic-risk-stratification/references/FAILURE_MODES_AND_REMEDIATION_GUIDE.md) | Comprehensive 12-failure-mode engineering remediation and pre-submission audit guide. |
@@ -57,8 +57,10 @@ External judges must be able to open your live application in their browser. Vit
    git remote add origin https://github.com/<your-username>/datanova-vitarisk-cds.git
    git push -u origin main
    ```
-2. Log into [Render.com](https://render.com) $\rightarrow$ **New Web Service** $\rightarrow$ select your repo.
-3. Environment: **Docker** (or Python with start command `uvicorn backend.main:app --host 0.0.0.0 --port $PORT`).
+2. **Render (recommended free tier):** Log into [Render.com](https://render.com) → **New Blueprint Instance** → select your repo. Render auto-detects `render.yaml` and deploys the Docker service with health check on `/api/health`.
+   - Free tier: 512MB RAM (model uses ~247MB), 750 h/month, sleeps after 15 min inactivity.
+   - **Required:** Set up a keep-warm ping (see tip below) to prevent cold starts during judging.
+3. **Railway (alternative, $5/mo after 30-day trial):** No sleep, better for sustained judging traffic.
 4. Copy the resulting public URL (e.g. `https://vitarisk-cds.onrender.com`) into your Devpost submission!
 
 ### Option C: Local Docker Container
@@ -102,7 +104,7 @@ The platform incorporates automated pre-submission testing across 10 critical va
 * ✅ **Gate 1:** Zero Synthetic Circularity (Latent Confounding Bounding AUC to 0.79–0.85)
 * ✅ **Gate 2:** Structured Clinical Missingness Handling (10% uACR, 14% hs-CRP)
 * ✅ **Gate 3:** Anachronism-Free Race Equation (2021 CKD-EPI Standard)
-* ✅ **Gate 4:** CKM Cardiorenal-Metabolic Cascade Cross-Coupling (+5.28-pp CVD coupling driver by mean |SHAP|)
+* ✅ **Gate 4:** CKM Cardiorenal-Metabolic Cascade Cross-Coupling (+4.91-pp CVD coupling driver by mean |SHAP|)
 * ✅ **Gate 5:** 5-Fold Sigmoid Probability Calibration (ECE ≤ 0.042, Brier ≤ 0.141)
 * ✅ **Gate 6:** Additive Probability-Space SHAP Explanations in % Points
 * ✅ **Gate 7:** Physiologically Coupled Counterfactual Presets (SGLT2i, GLP-1, RAAS)

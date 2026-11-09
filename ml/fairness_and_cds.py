@@ -29,8 +29,10 @@ def _safe_float(val, default):
         return default
 
 def _ensure_non_hdl(patient_dict):
-    """Return a copy with coherent non-HDL: max(30, TC - HDL) when absent/None; explicit values preserved."""
+    """Return a copy with coherent non-HDL and triglycerides observed-missingness mapping."""
     d = dict(patient_dict)
+    if "triglycerides" not in d and "triglycerides_observed" in d:
+        d["triglycerides"] = d["triglycerides_observed"]
     if d.get("non_hdl_cholesterol") is None:
         tc = _safe_float(d.get("total_cholesterol"), 200.0)
         hdl = _safe_float(d.get("hdl_cholesterol"), 50.0)

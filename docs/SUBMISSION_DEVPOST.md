@@ -30,7 +30,7 @@ Current clinical risk assessment models suffer from critical systemic vulnerabil
 ## 4. Proposed Solution & Architecture
 VitaRisk CDS solves these challenges through a 6-pillar unified clinical intelligence engine:
 
-1. **Cardiorenal-Metabolic (CKM) Syndrome Joint Modeling:** Implements a 3-stage conditional cascade mirroring AHA 2026 CKM Stages (0: None, 1: Excess Adiposity, 2: Metabolic/Renal Risk, 3: Subclinical CVD, 4: Clinical CVD). The upstream predicted probabilities for T2D and CKD dynamically feed as input features into the downstream CVD and Multimorbidity models (+5.28-pp mean |SHAP| coupling escalation).
+1. **Cardiorenal-Metabolic (CKM) Syndrome Joint Modeling:** Implements a 3-stage conditional cascade mirroring AHA 2026 CKM Stages (0: None, 1: Excess Adiposity, 2: Metabolic/Renal Risk, 3: Subclinical CVD, 4: Clinical CVD). The upstream predicted probabilities for T2D and CKD dynamically feed as input features into the downstream CVD and Multimorbidity models (+4.91-pp mean |SHAP| coupling escalation).
 2. **5-Fold Sigmoid Probability Calibration:** Eliminates probability distortion via `CalibratedClassifierCV(method='sigmoid', cv=5)`, achieving Expected Calibration Error (ECE) ≤ 0.042 and Brier score ≤ 0.141 across all production endpoints.
 3. **Decision Curve Analysis (DCA) Net Clinical Benefit:** Quantifies clinical utility using Vickers & Elkin decision curves, proving VitaRisk delivers superior net benefit over "Treat All" and "Treat None" strategies across the decision threshold spectrum (5%–40%).
 4. **Probability-Space SHAP TreeExplainer:** Decomposes risk into additive percentage points ($\Delta p_i$) rather than unintuitive log-odds margins, enabling clinicians to immediately see which biomarkers elevate or protect the patient.
@@ -76,7 +76,15 @@ The system is fully implemented and running live:
 - **Economic Value:** Preventing 10% of high-risk CKD progressions to end-stage kidney disease saves approximately $90,000 per patient annually in hemodialysis costs.
 - **Workflow Integration:** Sub-15ms API response time and 10-second SHAP waterfall summaries fit seamlessly into 15-minute primary care appointments without increasing provider documentation burden.
 - **Deployment Compatibility:** Designed for SMART on FHIR integration with Epic App Orchard and Oracle Health EHR systems.
-- **Clinical Autonomy:** Adheres to FDA SaMD (Software as a Medical Device) Tier II guidelines—acts strictly as an explainable second reader; all CDS recommendations require physician confirmation.
+- **Clinical Autonomy & Regulatory Status:** VitaRisk is a clinician-in-the-loop decision-support prototype, not a medical device; it is not cleared or approved by the FDA or any regulator. Risk scores, tiers and treatment suggestions are decision support for clinician review. Under FDA's 2022 Clinical Decision Support Software guidance, software that emits specific risk probabilities is regulated as SaMD; any clinical deployment would require external validation, prospective evaluation, and regulatory review (likely Class II, 510(k)/De Novo). All recommendations require physician confirmation.
+
+---
+
+## 8b. Limitations & Validation Status (Honest Framing)
+
+**Limitations & validation status (honest framing):** VitaRisk was developed and evaluated entirely on a synthetic 12,000-patient EHR cohort generated from published NHANES/UK Biobank/Framingham/AHA PREVENT/KDIGO/QDiabetes distributions with latent unobserved confounders and realistic missingness. No real patient data was used, and the model has not undergone external validation on real-world EHR data; the reported ROC-AUC (0.79–0.85), ECE (≤0.042) and Brier (≤0.141) are internal hold-out estimates on the synthetic cohort, not clinical performance guarantees. The cohort's outcome labels are stochastic (Bernoulli) draws from epidemiological hazard equations, so metrics reflect recovery of a known data-generating process rather than prospective clinical accuracy. Fairness mitigation (τ_g) is a proposed policy fitted on validation data and evaluated on held-out test data, not yet wired into production tiering, and demographic parity across age groups is structurally unattainable and is not claimed. Treatment suggestions are guideline-mapped decision support for clinician review, not patient-specific prescriptions. VitaRisk is a research/educational prototype, not a medical device; it is not cleared or approved by the FDA or any regulator, and any clinical deployment would require external validation, prospective evaluation, and appropriate regulatory review (likely SaMD, Class II).
+
+See `docs/CLINICAL_VALIDITY_AND_LIMITATIONS.md` for the full disclaimer, validation roadmap, and regulatory framing.
 
 ---
 

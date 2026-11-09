@@ -26,14 +26,14 @@
   1. Show top bar with **Quick Personas**.
   2. Click **Persona 1: Silent Cardiorenal Progression (58F)**. Point out the joint risk dials.
   3. Click **Persona 3: High-Risk CKM Stage 4 (67M)**. Show the **CKM Stage 4 badge (89.2% Critical)** appear in under 15ms.
-  4. Point to the **Downstream CVD Cascade Risk**: show that upstream CKD and T2D add an automatic **+5.28-pp coupling boost** to cardiovascular risk (mean |SHAP| of predicted_risk_ckd).
+  4. Point to the **Downstream CVD Cascade Risk**: show that upstream CKD and T2D add an automatic **+4.91-pp coupling boost** to cardiovascular risk (mean |SHAP| of predicted_risk_ckd).
   5. Click the **Explainable AI (SHAP Waterfall)** tab: show the additive percentage point bars.
 * **Presenter Teleprompter / Narration:**
   > "Here is our live full-stack system. To eliminate form fatigue for judges, we engineered 5 canonical clinical personas representing diverse real-world disease trajectories.
   >
   > Clicking Persona 3—an elderly patient with Stage 3b CKD and diabetes—calculates risk across all conditions in under 15 milliseconds.
   >
-  > Notice our 3-stage CKM cascade: because the patient has elevated kidney and metabolic damage, VitaRisk automatically models the biological cross-coupling, elevating downstream cardiovascular risk by plus 5.28 percentage points (mean |SHAP| of the coupling feature).
+  > Notice our 3-stage CKM cascade: because the patient has elevated kidney and metabolic damage, VitaRisk automatically models the biological cross-coupling, elevating downstream cardiovascular risk by plus 4.91 percentage points (mean |SHAP| of the coupling feature).
   >
   > In our Explainability tab, we replace unintuitive log-odds with additive percentage-point SHAP waterfalls. A clinician sees in five seconds that elevated HbA1c is adding plus 26.2% risk for Persona 3, while normal HDL offers a protective buffer."
 

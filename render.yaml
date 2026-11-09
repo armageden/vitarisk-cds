@@ -1,0 +1,15 @@
+# Render Blueprint for VitaRisk CDS
+# Deploy: connect repo → Render auto-detects this file → "New Blueprint Instance"
+services:
+  - type: web
+    name: vitarisk-cds
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    plan: free
+    healthCheckPath: /api/health
+    envVars:
+      - key: PYTHONUNBUFFERED
+        value: "1"
+      - key: PORT
+        value: "8000"
+    autoDeploy: true
