@@ -3,9 +3,8 @@ title: VitaRisk CDS — Cardiorenal-Metabolic Risk Intelligence
 emoji: 🏥
 colorFrom: blue
 colorTo: indigo
-sdk: docker
-app_port: 8000
-suggested_hardware: cpu-upgrade
+sdk: gradio
+app_file: app.py
 pinned: false
 ---
 
