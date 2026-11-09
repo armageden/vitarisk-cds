@@ -57,4 +57,4 @@ for route in backend_app.routes:
 demo.app.mount("/app", backend_app)
 
 if __name__ == "__main__":
-    demo.launch()
+    demo.launch(ssr_mode=False)
